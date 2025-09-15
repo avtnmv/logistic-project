@@ -110,61 +110,6 @@ const Login: React.FC = () => {
 
             <h2 className="form-container__title">Вход в систему</h2>
             <p className="form-container__description">Введите номер телефона и пароль для входа в систему</p>
-            
-            {/* Демо-данные для тестирования */}
-            <div style={{
-              background: '#f8f9fa',
-              border: '1px solid #e9ecef',
-              borderRadius: '8px',
-              padding: '16px',
-              marginBottom: '24px',
-              fontSize: '14px'
-            }}>
-              <div style={{ fontWeight: 'bold', marginBottom: '8px', color: '#4472B8' }}>
-                🚀 Демо-пользователь для тестирования:
-              </div>
-              <div style={{ marginBottom: '4px' }}>
-                <strong>Номер:</strong> +1234567890
-              </div>
-              <div style={{ marginBottom: '4px' }}>
-                <strong>Пароль:</strong> Demo123!
-              </div>
-              <div style={{ fontSize: '12px', color: '#6c757d', marginTop: '8px', marginBottom: '12px' }}>
-                Скопируйте эти данные в поля ниже для быстрого входа
-              </div>
-              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                <button
-                  type="button"
-                  onClick={() => setPhone('+1234567890')}
-                  style={{
-                    background: '#4472B8',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '4px',
-                    padding: '6px 12px',
-                    fontSize: '12px',
-                    cursor: 'pointer'
-                  }}
-                >
-                  Заполнить номер
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setPassword('Demo123!')}
-                  style={{
-                    background: '#4472B8',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '4px',
-                    padding: '6px 12px',
-                    fontSize: '12px',
-                    cursor: 'pointer'
-                  }}
-                >
-                  Заполнить пароль
-                </button>
-              </div>
-            </div>
 
             <FormMessage 
               message={message} 
