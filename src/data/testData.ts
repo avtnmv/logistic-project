@@ -23,7 +23,8 @@ export const TEST_PHONES: TestPhoneData = {
   '+998901234567': '1234',
   '+998901234568': '5678',
   '+998901234569': '9999',
-  '+380635032027': '2027' 
+  '+380635032027': '2027',
+  '+1234567890': '0000'  // Простой тестовый пользователь для Vercel
 };
 
 const STORAGE_KEY = 'logistics_app_users';
@@ -60,6 +61,14 @@ const DEFAULT_USERS: { [phone: string]: UserData } = {
     isRegistered: true,
     firstName: 'Виктор',
     lastName: 'Кравчук'
+  },
+  '+1234567890': {
+    id: 'user_demo',
+    phone: '+1234567890',
+    password: 'Demo123!',
+    isRegistered: true,
+    firstName: 'Демо',
+    lastName: 'Пользователь'
   }
 };
 
@@ -312,8 +321,19 @@ export const logTestData = (title: string): void => {
   console.log(`                ${title}`);
   console.log('==================================================');
   console.log('');
+  console.log('🚀 ДЕМО-ПОЛЬЗОВАТЕЛЬ ДЛЯ VERCEL:');
+  console.log('📱 Номер: +1234567890');
+  console.log('🔑 Пароль: Demo123!');
+  console.log('👤 Имя: Демо Пользователь');
+  console.log('');
+  console.log('📋 ВСЕ ТЕСТОВЫЕ ПОЛЬЗОВАТЕЛИ:');
   Object.entries(TEST_PHONES).forEach(([phone, code]) => {
-    console.log(`📱 ${phone} → код: ${code}`);
+    const user = DEFAULT_USERS[phone];
+    if (user) {
+      console.log(`📱 ${phone} → код: ${code} | пароль: ${user.password} | ${user.firstName} ${user.lastName}`);
+    } else {
+      console.log(`📱 ${phone} → код: ${code}`);
+    }
   });
   console.log('');
   console.log('💡 Используйте эти данные для тестирования');
