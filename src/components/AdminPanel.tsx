@@ -27,7 +27,7 @@ const AdminPanel: React.FC = () => {
       const response = await documentVerificationService.updateVerificationStatus(verificationId, status, notes);
       if (response.success) {
         alert(response.message);
-        loadVerifications(); // Перезагружаем список
+      loadVerifications();
       } else {
         alert(`Ошибка: ${response.message}`);
       }

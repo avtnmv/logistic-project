@@ -97,10 +97,6 @@ const Registration: React.FC = () => {
     setMessageType(type);
     setShowMessage(true);
     
-    // const duration = text.includes('Код отправлен') ? 25000 : 5000;
-    // setTimeout(() => {
-    //   setShowMessage(false);
-    // }, duration);
   };
 
   const handleCodeSubmit = (e: React.FormEvent) => {
@@ -184,21 +180,16 @@ const Registration: React.FC = () => {
       return;
     }
     
-    // Обновляем данные пользователя в базе данных
     testDB.users[phone].password = password;
     testDB.users[phone].firstName = firstName;
     testDB.users[phone].lastName = lastName;
     
-    // Сохраняем в localStorage
     saveUsersToStorage(testDB.users);
     
-    // Обновляем глобальную базу данных
     updateUserInDB(phone, testDB.users[phone]);
     
-    // Удаляем флаг полной очистки после успешной регистрации
     localStorage.removeItem('CLEARED_ALL_DATA');
     
-    // Сохраняем данные пользователя в localStorage для текущей сессии
     const newUser = testDB.users[phone];
     if (newUser) {
       localStorage.setItem('currentUser', JSON.stringify({
@@ -439,7 +430,6 @@ const Registration: React.FC = () => {
               </motion.div>
             )}
 
-            {/* Шаг 3: Ввод личных данных */}
             {currentStep === 'details' && (
               <motion.div 
                 key="details"
@@ -541,7 +531,6 @@ const Registration: React.FC = () => {
               </motion.div>
             )}
 
-            {/* Шаг 4: Успешная регистрация */}
             {currentStep === 'success' && (
               <motion.div 
                 key="success"

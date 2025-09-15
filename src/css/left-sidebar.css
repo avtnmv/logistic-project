@@ -1,4 +1,3 @@
-/* ===== ЛЕВОЕ БОКОВОЕ МЕНЮ ===== */
 .left-sidebar {
   position: sticky;
   top: 100px; 
@@ -6,10 +5,9 @@
   background: white;
   z-index: 100;
   overflow-y: auto;
-  flex-shrink: 0; /* Не сжимается */
+  flex-shrink: 0; 
 }
 
-/* ===== АДАПТИВНОСТЬ ===== */
 @media (max-width: 1024px) {
   .left-sidebar {
     position: fixed;
@@ -54,7 +52,6 @@
   visibility: visible;
 }
 
-/* ===== БУРГЕР МЕНЮ ===== */
 .burger-menu {
   display: none;
   flex-direction: column;
@@ -94,7 +91,6 @@
   margin-bottom: 0;
 }
 
-/* ===== ПУНКТЫ МЕНЮ ===== */
 .left-sidebar__item {
   display: flex;
   align-items: center;
@@ -145,7 +141,6 @@
   stroke-width: 0.1;
 }
 
-/* Счетчик карточек */
 .left-sidebar__item-count {
   background-color: var(--color-primary);
   color: white;
@@ -161,7 +156,6 @@
   min-width: 20px;
 }
 
-/* ===== КНОПКИ ДОБАВЛЕНИЯ ===== */
 .left-sidebar__button {
   display: flex;
   align-items: center;
@@ -191,7 +185,6 @@
   color: var(--color-primary);
 }
 
-/* Активное состояние кнопок */
 .left-sidebar__button--active {
   background-color: var(--color-primary);
   color: white;
@@ -220,7 +213,6 @@
   stroke-width: 1.5;
 }
 
-/* ===== РАЗДЕЛИТЕЛЬНАЯ ЛИНИЯ ===== */
 .left-sidebar__divider {
   width: 100%;
   height: 1px;
@@ -229,7 +221,6 @@
   margin: 24px 0;
 }
 
-/* ===== ВЫХОД ИЗ АККАУНТА ===== */
 .left-sidebar__item--logout {
   color: #DC2626;
   background: #FEF2F2;
@@ -245,7 +236,6 @@
   stroke: currentColor;
 }
 
-/* ===== АДАПТИВНОСТЬ ===== */
 @media (max-width: 1024px) {
   .left-sidebar {
     width: 100%;
@@ -257,7 +247,7 @@
     width: 100%;
     transform: translateX(-100%);
     transition: transform 0.3s ease;
-    top: 64px; /* Остается под хедером */
+    top: 64px; 
   }
   
   .left-sidebar--open {
@@ -265,7 +255,6 @@
   }
 }
 
-/* ===== СКРОЛЛБАР ===== */
 .left-sidebar::-webkit-scrollbar {
   width: 6px;
 }

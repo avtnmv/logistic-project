@@ -24,7 +24,7 @@ export const TEST_PHONES: TestPhoneData = {
   '+998901234568': '5678',
   '+998901234569': '9999',
   '+380635032027': '2027',
-  '+1234567890': '0000'  // Простой тестовый пользователь для Vercel
+  '+1234567890': '0000' 
 };
 
 const STORAGE_KEY = 'logistics_app_users';
@@ -75,18 +75,16 @@ const DEFAULT_USERS: { [phone: string]: UserData } = {
 
 const loadUsersFromStorage = (): { [phone: string]: UserData } => {
   try {
-    // Проверяем флаг полной очистки
     const clearedAll = localStorage.getItem('CLEARED_ALL_DATA');
     if (clearedAll === 'true') {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
         const parsed = JSON.parse(stored);
-        return parsed; // Только пользователи из localStorage
+        return parsed; 
       }
-      return {}; // Пустой объект если нет пользователей в localStorage
+      return {}; 
     }
     
-    // Обычная загрузка с предустановленными пользователями
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
       const parsed = JSON.parse(stored);
@@ -103,12 +101,12 @@ const loadUsersFromStorageEmpty = (): { [phone: string]: UserData } => {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
       const parsed = JSON.parse(stored);
-      return parsed; // Только пользователи из localStorage, без предустановленных
+      return parsed; 
     }
   } catch (error) {
     console.warn('⚠️ Ошибка загрузки данных из localStorage:', error);
   }
-  return {}; // Пустой объект - никаких пользователей
+  return {}; 
 };
 
 export const saveUsersToStorage = (users: { [phone: string]: UserData }): void => {
@@ -127,10 +125,8 @@ export const saveUsersToStorage = (users: { [phone: string]: UserData }): void =
 
 export const updateUserInDB = (phone: string, userData: UserData): void => {
   try {
-    // Обновляем в глобальной базе данных
     globalTestDB.users[phone] = userData;
     
-    // Сохраняем в localStorage
     saveUsersToStorage(globalTestDB.users);
   } catch (error) {
     console.warn('⚠️ Ошибка обновления пользователя:', error);
@@ -139,7 +135,6 @@ export const updateUserInDB = (phone: string, userData: UserData): void => {
 
 export const logoutUser = (): void => {
   try {
-    // Очищаем текущую сессию пользователя
     localStorage.removeItem('currentUser');
   } catch (error) {
     console.warn('⚠️ Ошибка при выходе из системы:', error);
@@ -148,17 +143,13 @@ export const logoutUser = (): void => {
 
 export const clearAllUserData = (): void => {
   try {
-    // Очищаем все данные пользователей
     localStorage.removeItem(STORAGE_KEY);
     localStorage.removeItem('currentUser');
     
-    // Очищаем все верификации
     localStorage.removeItem('document_verification_data');
     
-    // Очищаем все грузы и транспорты
     localStorage.removeItem('transportCards');
     
-    // Очищаем все пользовательские верификации
     const keys = Object.keys(localStorage);
     keys.forEach(key => {
       if (key.startsWith('document_verification_') || key.startsWith('transportCards_')) {
@@ -166,7 +157,7 @@ export const clearAllUserData = (): void => {
       }
     });
     
-    // Сбрасываем глобальную базу данных
+    
     globalTestDB = {
       codes: { ...TEST_PHONES },
       users: { ...DEFAULT_USERS }, 
@@ -180,19 +171,19 @@ export const clearAllUserData = (): void => {
 
 export const clearEverything = (): void => {
   try {
-    // Очищаем ВСЕ данные - полный сброс
+    
     localStorage.clear();
     
-    // Устанавливаем флаг полной очистки
+    
     localStorage.setItem('CLEARED_ALL_DATA', 'true');
     
-    // Принудительно очищаем currentUser (на случай если он восстановился)
+    
     localStorage.removeItem('currentUser');
     
-    // Сбрасываем глобальную базу данных к пустому состоянию
+    
     globalTestDB = {
       codes: { ...TEST_PHONES },
-      users: {}, // Пустой объект - никаких пользователей
+      users: {}, 
       lastRequestTime: {},
       attempts: {}
     };
@@ -203,10 +194,9 @@ export const clearEverything = (): void => {
 
 export const resetToDefault = (): void => {
   try {
-    // Удаляем флаг полной очистки
+    
     localStorage.removeItem('CLEARED_ALL_DATA');
     
-    // Сбрасываем глобальную базу данных к состоянию по умолчанию
     globalTestDB = {
       codes: { ...TEST_PHONES },
       users: { ...DEFAULT_USERS }, 
@@ -218,7 +208,6 @@ export const resetToDefault = (): void => {
   }
 };
 
-// Добавляем функции в глобальный объект для удобства
 if (typeof window !== 'undefined') {
   (window as any).clearAllUserData = clearAllUserData;
   (window as any).clearEverything = clearEverything;
@@ -316,17 +305,6 @@ export const updateUserEmail = (phone: string, email: string, db: TestDB): void 
 };
 
 export const logTestData = (title: string): void => {
-  console.log('');
-  console.log('==================================================');
-  console.log(`                ${title}`);
-  console.log('==================================================');
-  console.log('');
-  console.log('🚀 ДЕМО-ПОЛЬЗОВАТЕЛЬ ДЛЯ VERCEL:');
-  console.log('📱 Номер: +1234567890');
-  console.log('🔑 Пароль: Demo123!');
-  console.log('👤 Имя: Демо Пользователь');
-  console.log('');
-  console.log('📋 ВСЕ ТЕСТОВЫЕ ПОЛЬЗОВАТЕЛИ:');
   Object.entries(TEST_PHONES).forEach(([phone, code]) => {
     const user = DEFAULT_USERS[phone];
     if (user) {
@@ -335,9 +313,6 @@ export const logTestData = (title: string): void => {
       console.log(`📱 ${phone} → код: ${code}`);
     }
   });
-  console.log('');
-  console.log('💡 Используйте эти данные для тестирования');
-  console.log('');
 };
 
 

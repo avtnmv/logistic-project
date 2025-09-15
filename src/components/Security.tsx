@@ -56,8 +56,6 @@ const Security: React.FC = () => {
       return;
     }
 
-    // Имитация отправки кода подтверждения на email
-    // Проверяем уникальность email среди всех пользователей
     const db = getGlobalTestDB();
     const normalized = email.trim().toLowerCase();
     const isTaken = Object.values(db.users).some(u => (u.email || '').toLowerCase() === normalized && u.phone !== currentUser?.phone);
@@ -68,7 +66,6 @@ const Security: React.FC = () => {
       return;
     }
 
-    // Генерируем простой 4-значный код для имитации
     const code = Math.floor(1000 + Math.random() * 9000).toString();
     setGeneratedCode(code);
     console.log(code);
@@ -97,7 +94,6 @@ const Security: React.FC = () => {
       return;
     }
 
-    // Сохраняем email в базе и в currentUser
     const db = getGlobalTestDB();
     if (currentUser?.phone) {
       updateUserEmail(currentUser.phone, email, db);
@@ -194,7 +190,6 @@ const Security: React.FC = () => {
             </div>
           </div>
 
-          {/* Блок: Сменить пароль */}
           <div className="homepage-form-container">
             <div className="homepage-form-content">
               <h3>Хотите сменить пароль?</h3>

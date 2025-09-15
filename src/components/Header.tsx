@@ -15,7 +15,6 @@ const Header: React.FC = () => {
 
   const isActive = (path: string) => location.pathname === path;
   
-  // Определяем, является ли страница авторизованной
   const isAuthorizedPage = ['/dashboard', '/homepage', '/my-transports', '/companies', '/security', '/profile'].includes(location.pathname);
 
   const toggleMobileMenu = () => {
@@ -26,9 +25,6 @@ const Header: React.FC = () => {
     setIsMobileMenuOpen(false);
   };
 
-
-
-  // Блокировка скролла при открытом меню
   useEffect(() => {
     if (isMobileMenuOpen) {
       document.body.style.overflow = 'hidden';
@@ -36,13 +32,12 @@ const Header: React.FC = () => {
       document.body.style.overflow = 'unset';
     }
 
-    // Очистка при размонтировании компонента
+
     return () => {
       document.body.style.overflow = 'unset';
     };
   }, [isMobileMenuOpen]);
 
-  // Если это авторизованная страница, показываем хедер с тремя элементами
   if (isAuthorizedPage) {
     return (
       <header className="header">
@@ -51,10 +46,8 @@ const Header: React.FC = () => {
             <img src={`${process.env.PUBLIC_URL}/img/logo.webp`} alt="logo" className="header__logo-img" width="180" height="62" />
           </Link>
           
-          {/* Блок с информацией о пользователе */}
           <div className="header__user-section">
 
-            {/* Информация о пользователе */}
             <div className="header__user-info">
               <div className="header__user-avatar">
                 <img 
@@ -74,7 +67,6 @@ const Header: React.FC = () => {
               </div>
             </div>
 
-            {/* Бургер меню */}
             <button 
               className={`burger-menu ${isMobileMenuOpen ? 'burger-menu--active' : ''}`}
               onClick={toggleMobileMenu}
@@ -89,11 +81,9 @@ const Header: React.FC = () => {
           </div>
         </div>
 
-        {/* Mobile Navigation Overlay для авторизованных страниц */}
         <AnimatePresence>
           {isMobileMenuOpen && (
             <>
-              {/* Backdrop */}
               <motion.div
                 className="mobile-menu-backdrop"
                 initial={{ opacity: 0 }}
@@ -103,7 +93,6 @@ const Header: React.FC = () => {
                 onClick={closeMobileMenu}
               />
               
-              {/* Mobile Menu */}
               <motion.nav
                 className="header__nav--mobile"
                 initial={{ x: '100%' }}
@@ -129,7 +118,6 @@ const Header: React.FC = () => {
                 </div>
                 
                 <div className="mobile-menu__content">
-                  {/* Информация о пользователе в мобильном меню */}
                   <div className="mobile-menu__user-info">
                     <div className="mobile-menu__user-avatar">
                       <img 
@@ -147,20 +135,18 @@ const Header: React.FC = () => {
                         {currentUser ? `${currentUser.firstName} ${currentUser.lastName}` : 'Пользователь'}
                       </div>
                     </div>
-                    {/* Ссылка на настройки профиля */}
                     <Link 
                       to="/profile-settings" 
                       className="mobile-menu__profile-link"
                       onClick={closeMobileMenu}
                     >
                       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" color="#000" fill="none">
-                        <path d="M15.5 12a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Z" stroke="currentColor" stroke-width="1.5"/>
-                        <path d="M21.011 14.097c.522-.141.783-.212.886-.346.103-.135.103-.351.103-.784v-1.934c0-.433 0-.65-.103-.784s-.364-.205-.886-.345c-1.95-.526-3.171-2.565-2.668-4.503.139-.533.208-.8.142-.956s-.256-.264-.635-.479l-1.725-.98c-.372-.21-.558-.316-.725-.294s-.356.21-.733.587c-1.459 1.455-3.873 1.455-5.333 0-.377-.376-.565-.564-.732-.587-.167-.022-.353.083-.725.295l-1.725.979c-.38.215-.57.323-.635.48-.066.155.003.422.141.955.503 1.938-.718 3.977-2.669 4.503-.522.14-.783.21-.886.345S2 10.6 2 11.033v1.934c0 .433 0 .65.103.784s.364.205.886.346c1.95.526 3.171 2.565 2.668 4.502-.139.533-.208.8-.142.956s.256.264.635.48l1.725.978c.372.212.558.317.725.295s.356-.21.733-.587c1.46-1.457 3.876-1.457 5.336 0 .377.376.565.564.732.587.167.022.353-.083.726-.295l1.724-.979c.38-.215.57-.323.635-.48s-.003-.422-.141-.955c-.504-1.937.716-3.976 2.666-4.502Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                        <path d="M15.5 12a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Z" stroke="currentColor" strokeWidth="1.5"/>
+                        <path d="M21.011 14.097c.522-.141.783-.212.886-.346.103-.135.103-.351.103-.784v-1.934c0-.433 0-.65-.103-.784s-.364-.205-.886-.345c-1.95-.526-3.171-2.565-2.668-4.503.139-.533.208-.8.142-.956s-.256-.264-.635-.479l-1.725-.98c-.372-.21-.558-.316-.725-.294s-.356.21-.733.587c-1.459 1.455-3.873 1.455-5.333 0-.377-.376-.565-.564-.732-.587-.167-.022-.353.083-.725.295l-1.725.979c-.38.215-.57.323-.635.48-.066.155.003.422.141.955.503 1.938-.718 3.977-2.669 4.503-.522.14-.783.21-.886.345S2 10.6 2 11.033v1.934c0 .433 0 .65.103.784s.364.205.886.346c1.95.526 3.171 2.565 2.668 4.502-.139.533-.208.8-.142.956s.256.264.635.48l1.725.978c.372.212.558.317.725.295s.356-.21.733-.587c1.46-1.457 3.876-1.457 5.336 0 .377.376.565.564.732.587.167.022.353-.083.726-.295l1.724-.979c.38-.215.57-.323.635-.48s-.003-.422-.141-.955c-.504-1.937.716-3.976 2.666-4.502Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
                       </svg>
                     </Link>
                   </div>
 
-                  {/* Кнопки добавления в мобильном меню */}
                   <button 
                     className="mobile-menu__add-btn"
                     onClick={() => {
@@ -187,9 +173,6 @@ const Header: React.FC = () => {
                     Добавить транспорт
                   </button>
 
-
-
-                  {/* Пункты из левого сайдбара */}
                   <Link 
                     to="/profile" 
                     className={`mobile-menu__item ${isActive('/profile') ? 'mobile-menu__item--active' : ''}`}
@@ -280,7 +263,7 @@ const Header: React.FC = () => {
                   >
                     <div className="mobile-menu__item-icon">
                       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="19" height="18" color="#000" fill="none">
-                        <path fill-rule="evenodd" clip-rule="evenodd" d="M8 17C8 16.4477 7.55228 16 7 16H2V2H7C7.55228 2 8 1.55228 8 1C8 0.447714 7.55228 0 7 0H2C0.895431 0 0 0.895431 0 2V16C0 17.1046 0.895431 18 2 18H7C7.55228 18 8 17.5523 8 17Z" fill="currentColor"/>
+                        <path fillRule="evenodd" clipRule="evenodd" d="M8 17C8 16.4477 7.55228 16 7 16H2V2H7C7.55228 2 8 1.55228 8 1C8 0.447714 7.55228 0 7 0H2C0.895431 0 0 0.895431 0 2V16C0 17.1046 0.895431 18 2 18H7C7.55228 18 8 17.5523 8 17Z" fill="currentColor"/>
                         <path d="M18.7136 9.70055C18.8063 9.6062 18.8764 9.49805 18.9241 9.38278C18.9727 9.26575 18.9996 9.1375 19 9.003L19 9L19 8.997C18.9992 8.74208 18.9016 8.48739 18.7071 8.29289L14.7071 4.29289C14.3166 3.90237 13.6834 3.90237 13.2929 4.29289C12.9024 4.68342 12.9024 5.31658 13.2929 5.70711L15.5858 8H6C5.44771 8 5 8.44771 5 9C5 9.55229 5.44771 10 6 10H15.5858L13.2929 12.2929C12.9024 12.6834 12.9024 13.3166 13.2929 13.7071C13.6834 14.0976 14.3166 14.0976 14.7071 13.7071L18.7064 9.70782L18.7136 9.70055Z" fill="currentColor"/>
                       </svg>
                     </div>
@@ -295,7 +278,6 @@ const Header: React.FC = () => {
     );
   }
 
-  // Оригинальный хедер для неавторизованных страниц (вход, регистрация, восстановление пароля)
   return (
     <header className="header">
       <div className="container flex-between-center">
@@ -303,7 +285,6 @@ const Header: React.FC = () => {
           <img src={`${process.env.PUBLIC_URL}/img/logo.webp`} alt="logo" className="header__logo-img" width="180" height="62" />
         </Link>
         
-        {/* Desktop Navigation */}
         <nav className="header__nav header__nav--desktop">
           <Link 
             to="/" 
@@ -319,7 +300,6 @@ const Header: React.FC = () => {
           </Link>
         </nav>
 
-        {/* Mobile Burger Button */}
         <button 
           className={`burger-menu ${isMobileMenuOpen ? 'burger-menu--active' : ''}`}
           onClick={toggleMobileMenu}
@@ -331,11 +311,9 @@ const Header: React.FC = () => {
         </button>
       </div>
 
-      {/* Mobile Navigation Overlay */}
       <AnimatePresence>
         {isMobileMenuOpen && (
           <>
-            {/* Backdrop */}
             <motion.div
               className="mobile-menu-backdrop"
               initial={{ opacity: 0 }}
@@ -345,7 +323,6 @@ const Header: React.FC = () => {
               onClick={closeMobileMenu}
             />
             
-            {/* Mobile Menu */}
             <motion.nav
               className="header__nav--mobile"
               initial={{ x: '100%' }}

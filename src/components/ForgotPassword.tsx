@@ -22,19 +22,15 @@ const ForgotPassword: React.FC = () => {
   const [showMessage, setShowMessage] = useState(false);
   const [isCodeCorrect, setIsCodeCorrect] = useState<boolean | null>(null);
 
-  // Хуки для переключения видимости паролей
   const passwordToggle = usePasswordToggle();
   const confirmPasswordToggle = usePasswordToggle();
 
-  // Получаем глобальную базу данных
   const testDB = getGlobalTestDB();
 
-  // Логируем доступные данные в консоль при загрузке
   React.useEffect(() => {
     logTestData('ТЕСТОВЫЕ ДАННЫЕ ДЛЯ ВОССТАНОВЛЕНИЯ ПАРОЛЯ');
   }, []);
 
-  // Обратный отсчет
   useEffect(() => {
     let interval: NodeJS.Timeout;
     if (countdown > 0) {
@@ -49,12 +45,6 @@ const ForgotPassword: React.FC = () => {
     setMessage(text);
     setMessageType(type);
     setShowMessage(true);
-    
-    // Убираем автоматическое скрытие - сообщение остается до следующего ввода
-    // const duration = text.includes('Код отправлен') ? 25000 : 5000;
-    // setTimeout(() => {
-    //   setShowMessage(false);
-    // }, duration);
   };
 
   const handleGetCode = (e: React.FormEvent) => {
@@ -65,28 +55,23 @@ const ForgotPassword: React.FC = () => {
       return;
     }
 
-    // Проверяем формат номера телефона (любая страна с кодом +XXX и длиной 10-15 цифр)
     const phoneRegex = /^\+\d{1,4}\d{7,14}$/;
     if (!phoneRegex.test(currentPhone)) {
       showFormMessage('Введите корректный номер телефона в международном формате (например: +380XXXXXXXXX, +998XXXXXXXXX, +1XXXXXXXXXX)', 'error');
       return;
     }
 
-    // Проверяем, зарегистрирован ли пользователь
     if (!isUserRegistered(currentPhone, testDB)) {
       showFormMessage('Пользователь с этим номером не зарегистрирован. Сначала зарегистрируйтесь', 'error');
       return;
     }
     
-    // Генерируем или получаем код для номера
     let code = testDB.codes[currentPhone];
     if (!code) {
-      // Если кода нет, генерируем новый
       code = Math.floor(1000 + Math.random() * 9000).toString();
       testDB.codes[currentPhone] = code;
     }
     
-    // Логируем код в консоль
     console.log('');
     console.log('==================================================');
     console.log('                    КОД ДЛЯ ВВОДА: ' + code);
@@ -113,33 +98,27 @@ const ForgotPassword: React.FC = () => {
     
     const code = codeInputs.join('');
     
-    // Проверяем, что код введен полностью
     if (code.length !== 4) {
       showFormMessage('Введите полный 4-значный код', 'error');
       return;
     }
     
-    // Проверяем, что код состоит только из цифр
     if (!/^\d{4}$/.test(code)) {
       showFormMessage('Код должен состоять только из цифр', 'error');
       return;
     }
     
     if (testDB.codes[currentPhone] === code) {
-      // Код правильный
       setIsCodeCorrect(true);
       showFormMessage('Код подтвержден!', 'success');
       setTimeout(() => {
         setCurrentStep('password');
-        // Сбрасываем состояние кода при переходе к следующему шагу
         setIsCodeCorrect(null);
       }, 1000);
     } else {
-      // Код неправильный
       setIsCodeCorrect(false);
       showFormMessage('Код неверный. Проверьте правильность ввода', 'error');
       setCodeInputs(['', '', '', '']);
-      // Сбрасываем состояние через 2 секунды
       setTimeout(() => {
         setIsCodeCorrect(null);
       }, 2000);
@@ -149,7 +128,6 @@ const ForgotPassword: React.FC = () => {
   const handlePasswordSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Проверяем, что пароли введены
     if (!newPassword.trim()) {
       showFormMessage('Введите новый пароль', 'error');
       return;
@@ -160,7 +138,6 @@ const ForgotPassword: React.FC = () => {
       return;
     }
     
-    // Валидация пароля
     if (newPassword.length < 6) {
       showFormMessage('Пароль должен содержать минимум 6 символов', 'error');
       return;
@@ -181,12 +158,11 @@ const ForgotPassword: React.FC = () => {
       return;
     }
     
-    // Обновляем пароль в базе данных
+
     updateUserPassword(currentPhone, newPassword, testDB);
     
     showFormMessage('Пароль успешно изменен! Теперь вы можете войти в систему с новым паролем', 'success');
     
-    // Переходим на страницу входа через 2 секунды
     setTimeout(() => {
       navigate('/');
     }, 2000);
@@ -195,11 +171,11 @@ const ForgotPassword: React.FC = () => {
   const handleResendCode = () => {
     if (countdown > 0) return;
     
-    // Получаем код из базы
+    
     let code = testDB.codes[currentPhone];
     
     if (!code) {
-      // Если кода нет, генерируем новый
+      
       code = Math.floor(1000 + Math.random() * 9000).toString();
       testDB.codes[currentPhone] = code;
     }
@@ -232,7 +208,7 @@ const ForgotPassword: React.FC = () => {
     newInputs[index] = value;
     setCodeInputs(newInputs);
     
-    // Автоматический переход к следующему полю
+    
     if (value && index < 3) {
       const nextInput = document.querySelector(`input[data-index="${index + 1}"]`) as HTMLInputElement;
       if (nextInput) nextInput.focus();
@@ -240,35 +216,32 @@ const ForgotPassword: React.FC = () => {
   };
 
   const handleCodeKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
-    // Если нажат Backspace и поле пустое, переходим к предыдущему полю
+    
     if (e.key === 'Backspace' && codeInputs[index] === '' && index > 0) {
       const prevInput = document.querySelector(`input[data-index="${index - 1}"]`) as HTMLInputElement;
       if (prevInput) {
         prevInput.focus();
-        // Очищаем предыдущее поле
+        
         const newInputs = [...codeInputs];
         newInputs[index - 1] = '';
         setCodeInputs(newInputs);
       }
     }
     
-    // Если зажат Backspace и поле не пустое, очищаем все поля
+    
     if (e.key === 'Backspace' && codeInputs[index] !== '') {
-      // Проверяем, зажат ли Backspace (событие повторяется)
       if (e.repeat) {
-        // Очищаем все поля
+        
         setCodeInputs(['', '', '', '']);
-        // Фокусируемся на первом поле
         const firstInput = document.querySelector(`input[data-index="0"]`) as HTMLInputElement;
         if (firstInput) firstInput.focus();
-        // Предотвращаем стандартное поведение
+        
         e.preventDefault();
       }
     }
     
-    // Если нажат Backspace в первом поле и оно пустое, очищаем все поля
+
     if (e.key === 'Backspace' && index === 0 && codeInputs[index] === '') {
-      // Очищаем все поля
       setCodeInputs(['', '', '', '']);
       e.preventDefault();
     }
@@ -291,7 +264,6 @@ const ForgotPassword: React.FC = () => {
       <main className="main container">
         <div className="main__container">
           <AnimatePresence mode="wait">
-            {/* Шаг 1: Ввод номера телефона */}
             {currentStep === 'phone' && (
               <motion.div 
                 key="phone"
@@ -346,7 +318,6 @@ const ForgotPassword: React.FC = () => {
               </motion.div>
             )}
 
-            {/* Шаг 2: Ввод кода */}
             {currentStep === 'code' && (
               <motion.div 
                 key="code"
@@ -415,7 +386,6 @@ const ForgotPassword: React.FC = () => {
               </motion.div>
             )}
 
-            {/* Шаг 3: Ввод нового пароля */}
             {currentStep === 'password' && (
               <motion.div 
                 key="password"

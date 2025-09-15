@@ -35,7 +35,6 @@ const VerificationForm: React.FC<VerificationFormProps> = ({ onClose, onSubmit, 
         return;
       }
       
-      // Проверяем размер файла (максимум 5MB)
       if (file.size > 5 * 1024 * 1024) {
         setErrors(prev => [...prev, `Файл ${field === 'passportFront' ? 'лицевой стороны паспорта' : field === 'passportBack' ? 'обратной стороны паспорта' : 'селфи с паспортом'} слишком большой. Максимальный размер: 5MB`]);
         return;
@@ -69,7 +68,6 @@ const VerificationForm: React.FC<VerificationFormProps> = ({ onClose, onSubmit, 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Проверяем, что все файлы загружены
     if (!formData.passportFront || !formData.passportBack || !formData.selfieWithPassport) {
       setErrors(['Пожалуйста, загрузите все необходимые документы']);
       return;

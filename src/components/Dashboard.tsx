@@ -9,18 +9,17 @@ const Dashboard: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   
-  // Добавляем логирование для отладки
   console.log('🔍 DEBUG Dashboard: current location =', location);
   console.log('🔍 DEBUG Dashboard: pathname =', location.pathname);
   console.log('🔍 DEBUG Dashboard: search =', location.search);
   console.log('🔍 DEBUG Dashboard: hash =', location.hash);
 
-  // Автоматически перенаправляем на homepage
+  
   useEffect(() => {
     const timer = setTimeout(() => {
       console.log('🔍 DEBUG Dashboard: Redirecting to /homepage');
       navigate('/homepage');
-    }, 1000); // Задержка в 1 секунду для показа анимации
+    }, 1000); 
 
     return () => clearTimeout(timer);
   }, [navigate]);

@@ -10,7 +10,6 @@ const Companies: React.FC = () => {
   const currentUser = useCurrentUser();
   const { isSidebarOpen, closeSidebar } = useSidebar();
 
-  // Устанавливаем background для страницы
   React.useEffect(() => {
     document.body.style.backgroundColor = 'rgb(245, 245, 245)';
     
@@ -20,12 +19,10 @@ const Companies: React.FC = () => {
   }, []);
 
   const handleAddBusiness = () => {
-    // Логика для добавления бизнеса
     console.log('Добавление бизнеса');
   };
 
   const handleGetPremium = () => {
-    // Логика для получения премиума
     console.log('Получение премиума');
   };
 
@@ -40,7 +37,6 @@ const Companies: React.FC = () => {
         />
         
         <div className="homepage-content">
-          {/* Первый блок - Создание бизнес-профиля */}
           <div className="homepage-form-container">
             <div className="homepage-form-content">
               <div className="homepage-form-header-block">
@@ -89,7 +85,6 @@ const Companies: React.FC = () => {
             </div>
           </div>
 
-          {/* Второй блок - Премиум подписка */}
           <div className="homepage-form-container">
             <div className="homepage-form-content">
               <div className="homepage-form-header-block">

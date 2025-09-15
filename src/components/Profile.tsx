@@ -18,12 +18,9 @@ const Profile: React.FC = () => {
 
   useEffect(() => {
     document.body.style.backgroundColor = 'rgb(245, 245, 245)';
-    
-    // Определяем местоположение
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          // Простая логика определения страны по координатам
           const { latitude, longitude } = position.coords;
           if (latitude > 35 && latitude < 45 && longitude > 55 && longitude < 75) {
             setUserLocation('Узбекистан');
@@ -43,7 +40,6 @@ const Profile: React.FC = () => {
       setUserLocation('Не поддерживается');
     }
 
-    // Получаем дату регистрации из localStorage
     const storedUser = localStorage.getItem('currentUser');
     if (storedUser) {
       try {
@@ -51,7 +47,6 @@ const Profile: React.FC = () => {
         if (user.createdAt) {
           setRegistrationDate(new Date(user.createdAt).toLocaleDateString('en-US'));
         } else {
-          // Если даты нет, используем текущую дату
           setRegistrationDate(new Date().toLocaleDateString('en-US'));
         }
       } catch (e) {
@@ -64,7 +59,6 @@ const Profile: React.FC = () => {
     };
   }, []);
 
-  // Отдельный useEffect для загрузки статуса верификации
   useEffect(() => {
     const checkVerificationStatus = async () => {
       if (currentUser?.id) {
@@ -75,7 +69,6 @@ const Profile: React.FC = () => {
           setVerificationStatus('none');
         }
       } else {
-        // Если пользователь не загружен, сбрасываем статус
         setVerificationStatus('none');
       }
     };
@@ -101,7 +94,6 @@ const Profile: React.FC = () => {
       const response = await documentVerificationService.submitVerification(currentUser.id, formData);
       
       if (response.success) {
-        // Загружаем актуальный статус из localStorage
         const updatedStatus = await documentVerificationService.getVerificationStatus(currentUser.id);
         if (updatedStatus) {
           setVerificationStatus(updatedStatus.status);
@@ -133,7 +125,6 @@ const Profile: React.FC = () => {
         />
 
         <div className="homepage-content">
-          {/* Первый блок - Верификация */}
           <div className="homepage-form-container">
             <div className="homepage-form-content">
               <div className="homepage-form-header-block">
@@ -215,7 +206,6 @@ const Profile: React.FC = () => {
             </div>
           </div>
           
-          {/* Форма верификации */}
           {showVerificationForm && (
             <VerificationForm
               onClose={handleVerificationClose}
@@ -224,7 +214,6 @@ const Profile: React.FC = () => {
             />
           )}
 
-          {/* Второй блок - Премиум подписка */}
           <div className="homepage-form-container">
             <div className="homepage-form-content">
               <div className="homepage-form-header-block">
@@ -278,8 +267,7 @@ const Profile: React.FC = () => {
               </div>
             </div>
           </div>
-
-          {/* Третий блок - Общая информация */}
+        
           <div className="homepage-form-container">
             <div className="homepage-form-content">
               <div className="homepage-form-header-block">
@@ -310,7 +298,6 @@ const Profile: React.FC = () => {
             </div>
           </div>
 
-          {/* Четвертый блок - Контактная информация */}
           <div className="homepage-form-container">
             <div className="homepage-form-content">
               <div className="homepage-form-header-block">

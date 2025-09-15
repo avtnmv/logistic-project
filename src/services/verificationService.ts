@@ -1,19 +1,14 @@
-// Интерфейс для результата верификации
 export interface VerificationResult {
   success: boolean;
   message: string;
   code?: string;
 }
 
-// Интерфейс для параметров верификации
 export interface VerificationParams {
   phone: string;
   userName?: string;
 }
 
-/**
- * Сервис для отправки SMS кодов верификации
- */
 export class VerificationService {
   private static instance: VerificationService;
   private generatedCodes: Map<string, { code: string; timestamp: number }> = new Map();
@@ -21,9 +16,6 @@ export class VerificationService {
 
   private constructor() {}
 
-  /**
-   * Получает единственный экземпляр сервиса (Singleton)
-   */
   public static getInstance(): VerificationService {
     if (!VerificationService.instance) {
       VerificationService.instance = new VerificationService();
@@ -31,28 +23,19 @@ export class VerificationService {
     return VerificationService.instance;
   }
 
-  /**
-   * Генерирует случайный 4-значный код
-   */
   private generateVerificationCode(): string {
     return Math.floor(1000 + Math.random() * 9000).toString();
   }
 
-  /**
-   * Отправляет код верификации на телефон
-   */
   public async sendCode(params: VerificationParams): Promise<VerificationResult> {
     try {
-      // Генерируем код
       const code = this.generateVerificationCode();
       
-      // Сохраняем код с временной меткой
       this.generatedCodes.set(params.phone, {
         code,
         timestamp: Date.now()
       });
 
-      // Отправляем код на SMS
       return await this.sendSMSCode(params.phone, code, params.userName);
 
     } catch (error) {
@@ -64,33 +47,23 @@ export class VerificationService {
     }
   }
 
-  /**
-   * Отправляет код на SMS (имитация для бесплатного использования)
-   */
   private async sendSMSCode(
     phone: string, 
     code: string, 
     userName?: string
   ): Promise<VerificationResult> {
-    // Имитируем отправку SMS
-    // В реальном проекте здесь будет интеграция с SMS сервисом
     
-    // Для демонстрации показываем код в консоли
     console.log(code);
     
-    // Имитируем задержку сети
     await new Promise(resolve => setTimeout(resolve, 1000));
     
     return {
       success: true,
       message: `Код подтверждения отправлен на ${phone}`,
-      code: code // Возвращаем код для тестирования
+      code: code 
     };
   }
 
-  /**
-   * Проверяет код верификации
-   */
   public verifyCode(phone: string, inputCode: string): VerificationResult {
     const storedData = this.generatedCodes.get(phone);
     
@@ -101,7 +74,6 @@ export class VerificationService {
       };
     }
 
-    // Проверяем срок действия кода
     if (Date.now() - storedData.timestamp > this.CODE_EXPIRY_TIME) {
       this.generatedCodes.delete(phone);
       return {
@@ -110,9 +82,7 @@ export class VerificationService {
       };
     }
 
-    // Проверяем правильность кода
     if (storedData.code === inputCode) {
-      // Удаляем использованный код
       this.generatedCodes.delete(phone);
       return {
         success: true,
@@ -126,9 +96,6 @@ export class VerificationService {
     }
   }
 
-  /**
-   * Проверяет, есть ли активный код для телефона
-   */
   public hasActiveCode(phone: string): boolean {
     const storedData = this.generatedCodes.get(phone);
     if (!storedData) return false;
@@ -136,9 +103,6 @@ export class VerificationService {
     return Date.now() - storedData.timestamp <= this.CODE_EXPIRY_TIME;
   }
 
-  /**
-   * Очищает все истекшие коды
-   */
   public cleanupExpiredCodes(): void {
     const now = Date.now();
     this.generatedCodes.forEach((data, phone) => {
@@ -148,17 +112,11 @@ export class VerificationService {
     });
   }
 
-  /**
-   * Получает количество активных кодов
-   */
   public getActiveCodesCount(): number {
     this.cleanupExpiredCodes();
     return this.generatedCodes.size;
   }
 
-  /**
-   * Получает код для тестирования (только для разработки)
-   */
   public getCodeForTesting(phone: string): string | null {
     const storedData = this.generatedCodes.get(phone);
     if (storedData && Date.now() - storedData.timestamp <= this.CODE_EXPIRY_TIME) {
@@ -168,5 +126,4 @@ export class VerificationService {
   }
 }
 
-// Экспортируем экземпляр сервиса
 export const verificationService = VerificationService.getInstance();

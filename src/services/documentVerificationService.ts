@@ -24,13 +24,8 @@ export interface VerificationResponse {
 class DocumentVerificationService {
   private readonly STORAGE_KEY_PREFIX = 'document_verification_';
 
-  /**
-   * Отправляет документы на верификацию
-   */
   async submitVerification(userId: string, formData: VerificationFormData): Promise<VerificationResponse> {
     try {
-      // В реальном приложении здесь будет API запрос
-      // Сейчас сохраняем в localStorage для демонстрации
       
       const verificationData: VerificationStatus = {
         id: `verification_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
@@ -44,10 +39,8 @@ class DocumentVerificationService {
         }
       };
 
-      // Сохраняем в localStorage
       this.saveVerificationToStorage(verificationData);
 
-      // Имитируем задержку API
       await new Promise(resolve => setTimeout(resolve, 1000));
 
       return {
@@ -66,9 +59,6 @@ class DocumentVerificationService {
     }
   }
 
-  /**
-   * Получает статус верификации пользователя
-   */
   async getVerificationStatus(userId: string): Promise<VerificationStatus | null> {
     try {
       const storageKey = `${this.STORAGE_KEY_PREFIX}${userId}`;
@@ -85,9 +75,6 @@ class DocumentVerificationService {
     }
   }
 
-  /**
-   * Получает все верификации (для администраторов)
-   */
   async getAllVerifications(): Promise<VerificationStatus[]> {
     try {
       const allStorageKey = 'document_verification_data';
@@ -102,16 +89,12 @@ class DocumentVerificationService {
     }
   }
 
-  /**
-   * Обновляет статус верификации (для администраторов)
-   */
   async updateVerificationStatus(
     verificationId: string, 
     status: 'approved' | 'rejected', 
     notes?: string
   ): Promise<VerificationResponse> {
     try {
-      // Сначала ищем верификацию в общем списке
       const allStorageKey = 'document_verification_data';
       const stored = localStorage.getItem(allStorageKey);
       if (stored) {
@@ -121,7 +104,6 @@ class DocumentVerificationService {
         if (verificationIndex !== -1) {
           const verification = verifications[verificationIndex];
           
-          // Обновляем в общем списке
           verifications[verificationIndex].status = status;
           verifications[verificationIndex].reviewedAt = new Date().toISOString();
           if (notes) {
@@ -130,7 +112,6 @@ class DocumentVerificationService {
           
           localStorage.setItem(allStorageKey, JSON.stringify(verifications));
           
-          // Также обновляем в пользовательском хранилище
           const userStorageKey = `${this.STORAGE_KEY_PREFIX}${verification.userId}`;
           localStorage.setItem(userStorageKey, JSON.stringify(verifications[verificationIndex]));
           
@@ -154,9 +135,6 @@ class DocumentVerificationService {
     }
   }
 
-  /**
-   * Конвертирует файл в base64 для хранения в localStorage
-   */
   private async fileToBase64(file: File): Promise<string> {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -166,24 +144,18 @@ class DocumentVerificationService {
     });
   }
 
-  /**
-   * Сохраняет данные верификации в localStorage
-   */
   private saveVerificationToStorage(verificationData: VerificationStatus): void {
     try {
       const storageKey = `${this.STORAGE_KEY_PREFIX}${verificationData.userId}`;
       
-      // Сохраняем верификацию для конкретного пользователя
       localStorage.setItem(storageKey, JSON.stringify(verificationData));
       
-      // Также сохраняем в общий список для администраторов (обратная совместимость)
       const allStorageKey = 'document_verification_data';
       const stored = localStorage.getItem(allStorageKey);
       let verifications: VerificationStatus[] = [];
       
       if (stored) {
         verifications = JSON.parse(stored);
-        // Удаляем старую верификацию пользователя, если есть
         verifications = verifications.filter(v => v.userId !== verificationData.userId);
       }
       
@@ -195,15 +167,10 @@ class DocumentVerificationService {
     }
   }
 
-  /**
-   * Очищает все данные верификации (для тестирования)
-   */
   clearAllVerifications(): void {
     try {
-      // Очищаем общий список
       localStorage.removeItem('document_verification_data');
       
-      // Очищаем все пользовательские верификации
       const keys = Object.keys(localStorage);
       keys.forEach(key => {
         if (key.startsWith(this.STORAGE_KEY_PREFIX)) {

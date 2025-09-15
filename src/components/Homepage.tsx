@@ -12,19 +12,19 @@ const Homepage: React.FC = () => {
   const { isSidebarOpen, closeSidebar } = useSidebar();
   const [activeForm, setActiveForm] = useState<'cards' | 'add-cargo' | 'add-transport'>('cards');
 
-  // Обработка query параметров для определения активной формы
+
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
     const formParam = searchParams.get('form');
     
     if (formParam === 'cargo') {
       setActiveForm('add-cargo');
-      // Сбрасываем состояния габаритов при переключении
+
       setShowCargoDimensions(false);
       setShowTransportDimensions(false);
     } else if (formParam === 'transport') {
       setActiveForm('add-transport');
-      // Сбрасываем состояния габаритов при переключении
+
       setShowCargoDimensions(false);
       setShowTransportDimensions(false);
     } else {
@@ -36,20 +36,20 @@ const Homepage: React.FC = () => {
   const [showLoadingSuggestions, setShowLoadingSuggestions] = useState(false);
   const [showUnloadingSuggestions, setShowUnloadingSuggestions] = useState(false);
   
-  // Состояния для дат загрузки
+
   const [loadingStartDate, setLoadingStartDate] = useState('');
   const [loadingEndDate, setLoadingEndDate] = useState('');
   const [dateError, setDateError] = useState('');
-  // Состояния для формы "Добавить груз"
+
   const [showCargoDimensions, setShowCargoDimensions] = useState(false);
   
-  // Состояния для формы "Добавить транспорт"
+
   const [showTransportDimensions, setShowTransportDimensions] = useState(false);
   
-  // Данные текущего пользователя
+
   const currentUser = useCurrentUser();
   
-  // Состояние для select элементов (общие для обеих форм)
+
   const [selectedValues, setSelectedValues] = useState({
     loadingType: '',
     cargoType: '',
@@ -60,15 +60,15 @@ const Homepage: React.FC = () => {
     bargain: ''
   });
   
-  // Состояния для всех полей форм
+
   const [formData, setFormData] = useState({
-    // Общие поля
+
     loadingStartDate: '',
     loadingEndDate: '',
     loadingCity: '',
     unloadingCity: '',
     
-    // Поля для груза
+
     cargoWeight: '',
     cargoVolume: '',
     vehicleCount: '',
@@ -78,7 +78,6 @@ const Homepage: React.FC = () => {
     cargoPrice: '',
     cargoCurrency: 'USD',
     
-    // Поля для транспорта
     transportWeight: '',
     transportVolume: '',
     transportLength: '',
@@ -87,25 +86,20 @@ const Homepage: React.FC = () => {
     transportPrice: '',
     transportCurrency: 'USD',
     
-    // Контактная информация
     additionalPhone: '',
     email: '',
     
-    // Дополнительная информация
     additionalInfo: ''
   });
   
-  // Состояние для карточки
   const [showCard, setShowCard] = useState(false);
   const [currentCard, setCurrentCard] = useState<any>(null);
 
-  // Состояние для ошибок валидации
   const [validationErrors, setValidationErrors] = useState<{[key: string]: boolean}>({});
   const [shakeFields, setShakeFields] = useState<{[key: string]: boolean}>({});
   const [deletingCardId, setDeletingCardId] = useState<string | null>(null);
   const [expandedCardId, setExpandedCardId] = useState<string | null>(null);
 
-    // База данных городов
   const citiesDatabase = [
     'Киев, Украина',
     'Кишинев, Молдова',
@@ -124,7 +118,6 @@ const Homepage: React.FC = () => {
     'Таллин, Эстония'
   ];
 
-  // Функция для расчета времени назад
   const getTimeAgo = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
@@ -155,9 +148,7 @@ const Homepage: React.FC = () => {
     return date.toLocaleDateString('ru-RU');
   };
 
-  // Функция для расчета расстояния между городами
   const calculateDistance = (city1: string, city2: string): number => {
-    // Простая база данных расстояний между городами (в км)
     const distances: { [key: string]: { [key: string]: number } } = {
       'Кишинев': {
         'Кировоград': 850,
@@ -185,7 +176,6 @@ const Homepage: React.FC = () => {
       }
     };
 
-    // Если есть точное расстояние, возвращаем его
     if (distances[city1] && distances[city1][city2]) {
       return distances[city1][city2];
     }
@@ -193,40 +183,33 @@ const Homepage: React.FC = () => {
       return distances[city2][city1];
     }
 
-    // Если точного расстояния нет, возвращаем фиксированное значение
     return 500; // Фиксированное расстояние для неизвестных маршрутов
   };
 
-  // Функция для переключения развернутого состояния карточки
   const toggleCardExpanded = (cardId: string) => {
     setExpandedCardId(expandedCardId === cardId ? null : cardId);
   };
 
-  // Функция для удаления карточки
   const handleDeleteCard = (cardId: string) => {
     if (window.confirm('Вы уверены, что хотите удалить эту заявку?')) {
       setDeletingCardId(cardId);
       
-      // Удаляем из localStorage
       const storageKey = `transportCards_${currentUser?.id}`;
       const userCards = JSON.parse(localStorage.getItem(storageKey) || '[]');
       const updatedCards = userCards.filter((card: any) => card.id !== cardId);
       localStorage.setItem(storageKey, JSON.stringify(updatedCards));
       
-      // Также удаляем из общего хранилища
       const allCards = JSON.parse(localStorage.getItem('transportCards') || '[]');
       const updatedAllCards = allCards.filter((card: any) => card.id !== cardId);
       localStorage.setItem('transportCards', JSON.stringify(updatedAllCards));
       
       setTimeout(() => {
         setDeletingCardId(null);
-        // Обновляем состояние для перерисовки без перезагрузки
         setActiveForm('cards');
       }, 300);
     }
   };
 
-  // Функции для преобразования значений в понятные названия
   const getCargoTypeName = (value: string): string => {
     const cargoTypes: { [key: string]: string } = {
       'pallets': 'Груз на паллетах',
@@ -286,17 +269,14 @@ const Homepage: React.FC = () => {
     return reloadTypes[value] || value;
   };
 
-  // Изменяем цвет фона при входе в кабинет
   useEffect(() => {
     document.body.style.backgroundColor = '#F5F5F5';
     
-    // Возвращаем белый фон при размонтировании компонента
     return () => {
       document.body.style.backgroundColor = 'white';
     };
   }, []);
 
-  // Автоматически переключаемся на вкладку карточек при переходе на /my-transports
   useEffect(() => {
     if (location.pathname === '/my-transports') {
       setActiveForm('cards');
@@ -318,24 +298,19 @@ const Homepage: React.FC = () => {
     }
   }, [location.pathname, location.search]);
 
-  // Миграция существующих карточек при загрузке
   useEffect(() => {
     if (currentUser?.id) {
-      // Миграция карточек
       
       const allCards = JSON.parse(localStorage.getItem('transportCards') || '[]');
       const userCards = allCards.filter((card: any) => card.userId === currentUser.id);
       
       if (userCards.length > 0) {
-        // Сохраняем карточки пользователя в отдельное хранилище
         const storageKey = `transportCards_${currentUser.id}`;
         localStorage.setItem(storageKey, JSON.stringify(userCards));
-        // Миграция завершена
       }
     }
   }, [currentUser]);
 
-  // Обработка кликов вне поп-апа автокомплита
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Element;
@@ -353,7 +328,6 @@ const Homepage: React.FC = () => {
 
 
 
-  // Функции для автокомплита
   const filterCities = (query: string) => {
     if (!query.trim()) return [];
     return citiesDatabase.filter(city => 
@@ -373,13 +347,11 @@ const Homepage: React.FC = () => {
     }
   };
 
-  // Обработчики для полей городов
   const handleLoadingCityChange = (value: string) => {
     setLoadingCity(value);
     setFormData(prev => ({ ...prev, loadingCity: value }));
     setShowLoadingSuggestions(value.length > 0);
     
-    // Очищаем ошибку для этого поля
     if (validationErrors.loadingCity) {
       setValidationErrors(prev => ({ ...prev, loadingCity: false }));
     }
@@ -390,7 +362,6 @@ const Homepage: React.FC = () => {
     setFormData(prev => ({ ...prev, unloadingCity: value }));
     setShowUnloadingSuggestions(value.length > 0);
     
-    // Очищаем ошибку для этого поля
     if (validationErrors.unloadingCity) {
       setValidationErrors(prev => ({ ...prev, unloadingCity: false }));
     }
@@ -407,13 +378,11 @@ const Homepage: React.FC = () => {
       [field]: value
     }));
     
-    // Очищаем ошибку для этого поля
     if (validationErrors[field]) {
       setValidationErrors(prev => ({ ...prev, [field]: false }));
     }
   };
   
-  // Валидация дат загрузки
   const validateDates = (startDate: string, endDate: string): boolean => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -435,7 +404,6 @@ const Homepage: React.FC = () => {
     return true;
   };
   
-  // Обработчик изменения даты начала
   const handleStartDateChange = (date: string) => {
     setFormData(prev => ({ ...prev, loadingStartDate: date }));
     if (formData.loadingEndDate && !validateDates(date, formData.loadingEndDate)) {
@@ -444,7 +412,6 @@ const Homepage: React.FC = () => {
     }
   };
   
-  // Обработчик изменения даты окончания
   const handleEndDateChange = (date: string) => {
     setFormData(prev => ({ ...prev, loadingEndDate: date }));
     if (formData.loadingStartDate) {
@@ -452,7 +419,6 @@ const Homepage: React.FC = () => {
     }
   };
   
-  // Валидация обязательных полей для груза
   const validateCargoForm = () => {
     const errors: {[key: string]: boolean} = {};
     const requiredFields = [
@@ -464,14 +430,12 @@ const Homepage: React.FC = () => {
       'cargoVolume'
     ];
     
-    // Проверяем поля формы
     for (const field of requiredFields) {
       if (!formData[field as keyof typeof formData] || formData[field as keyof typeof formData] === '') {
         errors[field] = true;
       }
     }
     
-    // Проверяем select поля
     if (!selectedValues.loadingType) {
       errors['loadingType'] = true;
     }
@@ -481,7 +445,6 @@ const Homepage: React.FC = () => {
     
     setValidationErrors(errors);
     
-    // Если есть ошибки, запускаем анимацию тряски
     if (Object.keys(errors).length > 0) {
       setShakeFields(errors);
       setTimeout(() => setShakeFields({}), 600);
@@ -490,7 +453,6 @@ const Homepage: React.FC = () => {
     return Object.keys(errors).length === 0;
   };
 
-  // Валидация обязательных полей для транспорта
   const validateTransportForm = () => {
     const errors: {[key: string]: boolean} = {};
     const requiredFields = [
@@ -502,21 +464,18 @@ const Homepage: React.FC = () => {
       'transportVolume'
     ];
     
-    // Проверяем поля формы
     for (const field of requiredFields) {
       if (!formData[field as keyof typeof formData] || formData[field as keyof typeof formData] === '') {
         errors[field] = true;
       }
     }
     
-    // Проверяем select поля
     if (!selectedValues.vehicleType) {
       errors['vehicleType'] = true;
     }
     
     setValidationErrors(errors);
     
-    // Если есть ошибки, запускаем анимацию тряски
     if (Object.keys(errors).length > 0) {
       setShakeFields(errors);
       setTimeout(() => setShakeFields({}), 600);
@@ -525,36 +484,25 @@ const Homepage: React.FC = () => {
     return Object.keys(errors).length === 0;
   };
 
-  // Создание карточки
 
   const createCard = (type: 'cargo' | 'transport') => {
-    // Отладочная информация отключена
-    
-    // Проверяем, что пользователь авторизован
+
     if (!currentUser || !currentUser.id) {
-      // Попробуем исправить пользователя, если у него нет ID
       if (currentUser && !currentUser.id) {
-        // Исправляем пользователя
         const fixedUser = {
           ...currentUser,
           id: `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
         };
         
-        // Обновляем в localStorage
         localStorage.setItem('currentUser', JSON.stringify(fixedUser));
-        // Пользователь исправлен
         
-        // Обновляем состояние
-        window.location.reload(); // Перезагружаем страницу для применения изменений
-        return;
+        window.location.reload(); 
       }
       
       alert('Пожалуйста, войдите в систему для создания заявки');
-      // Пользователь не авторизован
       return;
     }
     
-    // Проверяем валидацию в зависимости от типа карточки
     if (type === 'cargo' && !validateCargoForm()) {
       alert('Пожалуйста, заполните все обязательные поля для создания карточки груза');
       return;
@@ -565,7 +513,6 @@ const Homepage: React.FC = () => {
       return;
     }
 
-    // Создание карточки
 
     const cardData = {
       id: `card_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
@@ -582,26 +529,20 @@ const Homepage: React.FC = () => {
     setCurrentCard(cardData);
     setShowCard(true);
     
-    // Сохраняем карточки для конкретного пользователя
     const storageKey = `transportCards_${currentUser.id}`;
     const existingCards = JSON.parse(localStorage.getItem(storageKey) || '[]');
     
-    // Добавляем новую карточку
     existingCards.push(cardData);
     localStorage.setItem(storageKey, JSON.stringify(existingCards));
     
-    // Также сохраняем в общий список для обратной совместимости
     const allCards = JSON.parse(localStorage.getItem('transportCards') || '[]');
     allCards.push(cardData);
     localStorage.setItem('transportCards', JSON.stringify(allCards));
     
-    // Принудительно обновляем пользовательское хранилище
     const updatedUserCards = JSON.parse(localStorage.getItem(storageKey) || '[]');
     localStorage.setItem(storageKey, JSON.stringify(updatedUserCards));
     
-    // Карточка сохранена
     
-    // Сброс формы
     setActiveForm('cards');
     setFormData({
       loadingStartDate: '',
@@ -648,10 +589,10 @@ const Homepage: React.FC = () => {
               case 'add-cargo':
           return (
             <>
-                                          <div className="homepage-form-header-block cargo-form-header">
+              <div className="homepage-form-header-block cargo-form-header">
                 <div className="homepage-form-header-icon">
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="32" height="32" color="#000000" fill="none">
-                    <path d="M12 22c-.818 0-1.6-.33-3.163-.99C4.946 19.366 3 18.543 3 17.16V7m9 15c.818 0 1.6-.33 3.163-.99C19.054 19.366 21 18.543 21 17.16V7m-9 15V11.355M8.326 9.691 5.405 8.278C3.802 7.502 3 7.114 3 6.5s.802-1.002 2.405-1.778l2.92-1.413C10.13 2.436 11.03 2 12 2s1.871.436 3.674 1.309l2.921 1.413C20.198 5.498 21 5.886 21 6.5s-.802 1.002-2.405 1.778l-2.92 1.413C13.87 10.564 12.97 11 12 11s-1.871-.436-3.674-1.309M6 12l2 1m9-9L7 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M12 22c-.818 0-1.6-.33-3.163-.99C4.946 19.366 3 18.543 3 17.16V7m9 15c.818 0 1.6-.33 3.163-.99C19.054 19.366 21 18.543 21 17.16V7m-9 15V11.355M8.326 9.691 5.405 8.278C3.802 7.502 3 7.114 3 6.5s.802-1.002 2.405-1.778l2.92-1.413C10.13 2.436 11.03 2 12 2s1.871.436 3.674 1.309l2.921 1.413C20.198 5.498 21 5.886 21 6.5s-.802 1.002-2.405 1.778l-2.92 1.413C13.87 10.564 12.97 11 12 11s-1.871-.436-3.674-1.309M6 12l2 1m9-9L7 9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
                 </div>
                 
@@ -696,7 +637,6 @@ const Homepage: React.FC = () => {
                             if (formData.loadingStartDate) {
                               validateDates(formData.loadingStartDate, e.target.value);
                             }
-                            // Очищаем ошибку для этого поля
                             if (validationErrors.loadingEndDate) {
                               setValidationErrors(prev => ({ ...prev, loadingEndDate: false }));
                             }
@@ -872,7 +812,6 @@ const Homepage: React.FC = () => {
                         value={formData.cargoWeight}
                         onChange={(e) => {
                           setFormData(prev => ({ ...prev, cargoWeight: e.target.value }));
-                          // Очищаем ошибку для этого поля
                           if (validationErrors.cargoWeight) {
                             setValidationErrors(prev => ({ ...prev, cargoWeight: false }));
                           }
@@ -894,7 +833,6 @@ const Homepage: React.FC = () => {
                         value={formData.cargoVolume}
                         onChange={(e) => {
                           setFormData(prev => ({ ...prev, cargoVolume: e.target.value }));
-                          // Очищаем ошибку для этого поля
                           if (validationErrors.cargoVolume) {
                             setValidationErrors(prev => ({ ...prev, cargoVolume: false }));
                           }
@@ -1111,10 +1049,10 @@ const Homepage: React.FC = () => {
             <div className="homepage-form-header-block transport-form-header">
               <div className="homepage-form-header-icon">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="32" height="32" color="#000000" fill="none">
-                  <circle cx="17" cy="18" r="2" stroke="currentColor" stroke-width="2"/>
-                  <circle cx="7" cy="18" r="2" stroke="currentColor" stroke-width="2"/>
-                  <path d="M11 17h4M13.5 7h.943c1.31 0 1.966 0 2.521.315.556.314.926.895 1.667 2.056.52.814 1.064 1.406 1.831 1.931.772.53 1.14.789 1.343 1.204.195.398.195.869.195 1.811 0 1.243 0 1.864-.349 2.259l-.046.049c-.367.375-.946.375-2.102.375H19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                  <path d="m13 7 .994 2.486c.487 1.217.73 1.826 1.239 2.17.508.344 1.163.344 2.475.344H21M4.87 17c-1.353 0-2.03 0-2.45-.44C2 16.122 2 15.415 2 14V7c0-1.414 0-2.121.42-2.56S3.517 4 4.87 4h5.26c1.353 0 2.03 0 2.45.44C13 4.878 13 5.585 13 7v10H8.696" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <circle cx="17" cy="18" r="2" stroke="currentColor" strokeWidth="2"/>
+                  <circle cx="7" cy="18" r="2" stroke="currentColor" strokeWidth="2"/>
+                  <path d="M11 17h4M13.5 7h.943c1.31 0 1.966 0 2.521.315.556.314.926.895 1.667 2.056.52.814 1.064 1.406 1.831 1.931.772.53 1.14.789 1.343 1.204.195.398.195.869.195 1.811 0 1.243 0 1.864-.349 2.259l-.046.049c-.367.375-.946.375-2.102.375H19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="m13 7 .994 2.486c.487 1.217.73 1.826 1.239 2.17.508.344 1.163.344 2.475.344H21M4.87 17c-1.353 0-2.03 0-2.45-.44C2 16.122 2 15.415 2 14V7c0-1.414 0-2.121.42-2.56S3.517 4 4.87 4h5.26c1.353 0 2.03 0 2.45.44C13 4.878 13 5.585 13 7v10H8.696" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               </div>
               
