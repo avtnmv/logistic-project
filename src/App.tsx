@@ -23,10 +23,8 @@ const RouteDebugger: React.FC = () => {
 };
 
 function App() {
-  const isDevelopment = process.env.NODE_ENV === 'development' || !process.env.NODE_ENV;
-  const isProduction = process.env.NODE_ENV === 'production';
-  
-  const basename = isDevelopment ? '' : '/logistics-react';
+  // Get basename from environment variable or use empty string for root deployment
+  const basename = process.env.REACT_APP_BASENAME || '';
   
   return (
     <Router basename={basename}>
