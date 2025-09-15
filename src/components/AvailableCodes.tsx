@@ -14,7 +14,6 @@ const AvailableCodes: React.FC<AvailableCodesProps> = ({
 }) => {
   const [isVisible, setIsVisible] = useState(false);
 
-  // Логируем в консоль при первом рендере
   React.useEffect(() => {
     if (showInConsole) {
       console.log('');

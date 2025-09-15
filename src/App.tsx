@@ -23,7 +23,6 @@ const RouteDebugger: React.FC = () => {
 };
 
 function App() {
-  // Get basename from environment variable or use empty string for root deployment
   const basename = process.env.REACT_APP_BASENAME || '';
   
   return (
