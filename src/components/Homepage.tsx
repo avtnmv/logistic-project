@@ -31,10 +31,26 @@ const Homepage: React.FC = () => {
       setActiveForm('cards');
     }
   }, [location.search]);
+  const [loadingCountry, setLoadingCountry] = useState('');
+  const [loadingRegion, setLoadingRegion] = useState('');
   const [loadingCity, setLoadingCity] = useState('');
+  const [unloadingCountry, setUnloadingCountry] = useState('');
+  const [unloadingRegion, setUnloadingRegion] = useState('');
   const [unloadingCity, setUnloadingCity] = useState('');
   const [showLoadingSuggestions, setShowLoadingSuggestions] = useState(false);
   const [showUnloadingSuggestions, setShowUnloadingSuggestions] = useState(false);
+  const [showLoadingCountrySuggestions, setShowLoadingCountrySuggestions] = useState(false);
+  const [showUnloadingCountrySuggestions, setShowUnloadingCountrySuggestions] = useState(false);
+  const [showLoadingRegionSuggestions, setShowLoadingRegionSuggestions] = useState(false);
+  const [showUnloadingRegionSuggestions, setShowUnloadingRegionSuggestions] = useState(false);
+  const [showLoadingTypeDropdown, setShowLoadingTypeDropdown] = useState(false);
+  const [showCargoTypeDropdown, setShowCargoTypeDropdown] = useState(false);
+  const [showVehicleTypeDropdown, setShowVehicleTypeDropdown] = useState(false);
+  const [showReloadTypeDropdown, setShowReloadTypeDropdown] = useState(false);
+  const [showPaymentMethodDropdown, setShowPaymentMethodDropdown] = useState(false);
+  const [showPaymentTermDropdown, setShowPaymentTermDropdown] = useState(false);
+  const [showBargainDropdown, setShowBargainDropdown] = useState(false);
+  const [showTransportCurrencyDropdown, setShowTransportCurrencyDropdown] = useState(false);
   
 
   const [loadingStartDate, setLoadingStartDate] = useState('');
@@ -51,8 +67,8 @@ const Homepage: React.FC = () => {
   
 
   const [selectedValues, setSelectedValues] = useState({
-    loadingType: '',
-    cargoType: '',
+    loadingType: ['all'] as string[], // По умолчанию "Все загрузки"
+    cargoType: [] as string[], // Массив для множественного выбора типов груза
     vehicleType: '',
     reloadType: '',
     paymentMethod: '',
@@ -65,7 +81,11 @@ const Homepage: React.FC = () => {
 
     loadingStartDate: '',
     loadingEndDate: '',
+    loadingCountry: '',
+    loadingRegion: '',
     loadingCity: '',
+    unloadingCountry: '',
+    unloadingRegion: '',
     unloadingCity: '',
     
 
@@ -88,6 +108,7 @@ const Homepage: React.FC = () => {
     
     additionalPhone: '',
     email: '',
+    palletCount: '',
     
     additionalInfo: ''
   });
@@ -99,6 +120,67 @@ const Homepage: React.FC = () => {
   const [shakeFields, setShakeFields] = useState<{[key: string]: boolean}>({});
   const [deletingCardId, setDeletingCardId] = useState<string | null>(null);
   const [expandedCardId, setExpandedCardId] = useState<string | null>(null);
+
+  const countriesDatabase = [
+    { 
+      name: 'Украина', 
+      regions: [
+        { name: 'Киевская область', cities: ['Киев', 'Бровары', 'Борисполь', 'Ирпень', 'Фастов'] },
+        { name: 'Харьковская область', cities: ['Харьков', 'Изюм', 'Купянск', 'Лозовая', 'Чугуев'] },
+        { name: 'Одесская область', cities: ['Одесса', 'Измаил', 'Белгород-Днестровский', 'Подольск', 'Южное'] },
+        { name: 'Днепропетровская область', cities: ['Днепр', 'Кривой Рог', 'Никополь', 'Павлоград', 'Новомосковск'] },
+        { name: 'Львовская область', cities: ['Львов', 'Дрогобыч', 'Стрый', 'Червоноград', 'Трускавец'] }
+      ]
+    },
+    { 
+      name: 'Россия', 
+      regions: [
+        { name: 'Московская область', cities: ['Москва', 'Подольск', 'Химки', 'Королев', 'Мытищи'] },
+        { name: 'Ленинградская область', cities: ['Санкт-Петербург', 'Гатчина', 'Выборг', 'Тихвин', 'Кингисепп'] },
+        { name: 'Кировская область', cities: ['Киров', 'Кирово-Чепецк', 'Вятские Поляны', 'Слободской', 'Котельнич'] },
+        { name: 'Свердловская область', cities: ['Екатеринбург', 'Нижний Тагил', 'Каменск-Уральский', 'Первоуральск', 'Серов'] },
+        { name: 'Краснодарский край', cities: ['Краснодар', 'Сочи', 'Новороссийск', 'Армавир', 'Ейск'] }
+      ]
+    },
+    { 
+      name: 'Молдова', 
+      regions: [
+        { name: 'Кишинев', cities: ['Кишинев', 'Вадул-луй-Водэ', 'Крикова', 'Дурлешты', 'Сынжера'] },
+        { name: 'Бельцы', cities: ['Бельцы', 'Рыбница', 'Дрокия', 'Глодяны', 'Фалешты'] },
+        { name: 'Тирасполь', cities: ['Тирасполь', 'Бендеры', 'Рыбница', 'Дубоссары', 'Григориополь'] }
+      ]
+    },
+    { 
+      name: 'Узбекистан', 
+      regions: [
+        { name: 'Ташкентская область', cities: ['Ташкент', 'Ангрен', 'Чирчик', 'Алмалык', 'Бекабад'] },
+        { name: 'Самаркандская область', cities: ['Самарканд', 'Каттакурган', 'Ургут', 'Джамбай', 'Пайарык'] },
+        { name: 'Бухарская область', cities: ['Бухара', 'Каган', 'Гиждуван', 'Ромитан', 'Шафиркан'] },
+        { name: 'Ферганская область', cities: ['Фергана', 'Коканд', 'Маргилан', 'Кува', 'Кувасай'] },
+        { name: 'Андижанская область', cities: ['Андижан', 'Асака', 'Ханабад', 'Шахрихан', 'Пайтуг'] }
+      ]
+    },
+    { 
+      name: 'Казахстан', 
+      regions: [
+        { name: 'Алматинская область', cities: ['Алматы', 'Талдыкорган', 'Капшагай', 'Текели', 'Есик'] },
+        { name: 'Акмолинская область', cities: ['Нур-Султан', 'Кокшетау', 'Степногорск', 'Атбасар', 'Макинск'] },
+        { name: 'Карагандинская область', cities: ['Караганда', 'Темиртау', 'Жезказган', 'Балхаш', 'Сарань'] },
+        { name: 'Павлодарская область', cities: ['Павлодар', 'Экибастуз', 'Аксу', 'Щербакты', 'Успенка'] },
+        { name: 'Восточно-Казахстанская область', cities: ['Усть-Каменогорск', 'Семей', 'Риддер', 'Аягоз', 'Зыряновск'] }
+      ]
+    },
+    { 
+      name: 'Беларусь', 
+      regions: [
+        { name: 'Минская область', cities: ['Минск', 'Борисов', 'Солигорск', 'Молодечно', 'Слуцк'] },
+        { name: 'Гомельская область', cities: ['Гомель', 'Мозырь', 'Жлобин', 'Светлогорск', 'Речица'] },
+        { name: 'Могилевская область', cities: ['Могилев', 'Бобруйск', 'Орша', 'Кричев', 'Горки'] },
+        { name: 'Витебская область', cities: ['Витебск', 'Орша', 'Полоцк', 'Новополоцк', 'Лепель'] },
+        { name: 'Гродненская область', cities: ['Гродно', 'Лида', 'Слоним', 'Волковыск', 'Новогрудок'] }
+      ]
+    }
+  ];
 
   const citiesDatabase = [
     'Киев, Украина',
@@ -230,7 +312,7 @@ const Homepage: React.FC = () => {
       'lumber': 'Пиломатериалы',
       'concrete': 'Бетонные изделия',
       'furniture': 'Мебель',
-      'other': 'Другой тип'
+      'tnp': 'ТНП'
     };
     return cargoTypes[value] || value;
   };
@@ -311,6 +393,38 @@ const Homepage: React.FC = () => {
     }
   }, [currentUser]);
 
+  // Закрытие выпадающих списков при клике вне их
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (!target.closest('.custom-dropdown')) {
+        setShowLoadingTypeDropdown(false);
+        setShowCargoTypeDropdown(false);
+        setShowVehicleTypeDropdown(false);
+        setShowReloadTypeDropdown(false);
+        setShowPaymentMethodDropdown(false);
+        setShowPaymentTermDropdown(false);
+        setShowBargainDropdown(false);
+        setShowTransportCurrencyDropdown(false);
+      }
+    };
+
+    const anyDropdownOpen = showLoadingTypeDropdown || showCargoTypeDropdown || 
+                           showVehicleTypeDropdown || showReloadTypeDropdown || 
+                           showPaymentMethodDropdown || showPaymentTermDropdown || 
+                           showBargainDropdown || showTransportCurrencyDropdown;
+
+    if (anyDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showLoadingTypeDropdown, showCargoTypeDropdown, showVehicleTypeDropdown, 
+      showReloadTypeDropdown, showPaymentMethodDropdown, showPaymentTermDropdown, 
+      showBargainDropdown, showTransportCurrencyDropdown]);
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Element;
@@ -328,11 +442,79 @@ const Homepage: React.FC = () => {
 
 
 
+  const filterCountries = (query: string) => {
+    if (!query.trim()) return [];
+    return countriesDatabase.filter(country => 
+      country.name.toLowerCase().includes(query.toLowerCase())
+    );
+  };
+
+  const filterRegions = (query: string, country: string) => {
+    if (!query.trim() || !country) return [];
+    const selectedCountry = countriesDatabase.find(c => c.name === country);
+    if (!selectedCountry) return [];
+    return selectedCountry.regions.filter(region => 
+      region.name.toLowerCase().includes(query.toLowerCase())
+    );
+  };
+
+  const filterCitiesByCountry = (query: string, country: string) => {
+    if (!query.trim() || !country) return [];
+    const selectedCountry = countriesDatabase.find(c => c.name === country);
+    if (!selectedCountry) return [];
+    
+    // Собираем все города из всех областей страны
+    const allCities = selectedCountry.regions.flatMap(region => region.cities);
+    
+    return allCities.filter(city => 
+      city.toLowerCase().includes(query.toLowerCase())
+    );
+  };
+
+  const filterCitiesByRegion = (query: string, country: string, region: string) => {
+    if (!query.trim() || !country || !region) return [];
+    const selectedCountry = countriesDatabase.find(c => c.name === country);
+    if (!selectedCountry) return [];
+    const selectedRegion = selectedCountry.regions.find(r => r.name === region);
+    if (!selectedRegion) return [];
+    return selectedRegion.cities.filter(city => 
+      city.toLowerCase().includes(query.toLowerCase())
+    );
+  };
+
   const filterCities = (query: string) => {
     if (!query.trim()) return [];
     return citiesDatabase.filter(city => 
       city.toLowerCase().includes(query.toLowerCase())
     );
+  };
+
+  const handleCountrySelect = (country: string, isLoading: boolean) => {
+    if (isLoading) {
+      setLoadingCountry(country);
+      setFormData(prev => ({ ...prev, loadingCountry: country, loadingRegion: '', loadingCity: '' }));
+      setLoadingRegion('');
+      setLoadingCity('');
+      setShowLoadingCountrySuggestions(false);
+    } else {
+      setUnloadingCountry(country);
+      setFormData(prev => ({ ...prev, unloadingCountry: country, unloadingRegion: '', unloadingCity: '' }));
+      setUnloadingRegion('');
+      setUnloadingCity('');
+      setShowUnloadingCountrySuggestions(false);
+    }
+  };
+
+  const handleRegionSelect = (region: string, isLoading: boolean) => {
+    if (isLoading) {
+      setLoadingRegion(region);
+      setFormData(prev => ({ ...prev, loadingRegion: region }));
+      setShowLoadingRegionSuggestions(false);
+    } else {
+      setUnloadingRegion(region);
+      setFormData(prev => ({ ...prev, unloadingRegion: region }));
+      setShowUnloadingRegionSuggestions(false);
+    }
   };
 
   const handleCitySelect = (city: string, isLoading: boolean) => {
@@ -382,6 +564,132 @@ const Homepage: React.FC = () => {
       setValidationErrors(prev => ({ ...prev, [field]: false }));
     }
   };
+
+  const handleMultiSelectChange = (field: string, value: string) => {
+    setSelectedValues(prev => {
+      if (field === 'loadingType') {
+        const currentValues = prev.loadingType;
+        let newValues: string[];
+        
+        if (value === 'all') {
+          // Если выбрали "Все загрузки", сбрасываем остальные
+          newValues = ['all'];
+        } else {
+          // Убираем "all" если выбрали конкретный тип
+          const filteredValues = currentValues.filter(v => v !== 'all');
+          
+          if (filteredValues.includes(value)) {
+            // Убираем значение если оно уже выбрано
+            newValues = filteredValues.filter(v => v !== value);
+          } else {
+            // Добавляем значение
+            newValues = [...filteredValues, value];
+          }
+          
+          // Если ничего не выбрано, возвращаем "all"
+          if (newValues.length === 0) {
+            newValues = ['all'];
+          }
+        }
+        
+        return {
+          ...prev,
+          loadingType: newValues
+        };
+      } else if (field === 'cargoType') {
+        const currentValues = prev.cargoType;
+        let newValues: string[];
+        
+        if (currentValues.includes(value)) {
+          // Убираем значение если оно уже выбрано
+          newValues = currentValues.filter(v => v !== value);
+        } else {
+          // Проверяем лимит в 5 типов груза
+          if (currentValues.length >= 5) {
+            return prev; // Не добавляем, если уже выбрано 5
+          }
+          // Добавляем значение
+          newValues = [...currentValues, value];
+        }
+        
+        return {
+          ...prev,
+          cargoType: newValues
+        };
+      }
+      
+      return prev;
+    });
+    
+    // Очищаем ошибку для этого поля
+    if (validationErrors[field]) {
+      setValidationErrors(prev => ({ ...prev, [field]: false }));
+    }
+  };
+
+  const getLoadingTypeDisplayText = () => {
+    if (selectedValues.loadingType.includes('all')) {
+      return 'Все загрузки';
+    }
+    return selectedValues.loadingType.map(type => 
+      type === 'back' ? 'Задняя' : 
+      type === 'side' ? 'Боковая' : 
+      type === 'top' ? 'Верхняя' : type
+    ).join(', ');
+  };
+
+  const getCargoTypeDisplayText = () => {
+    if (selectedValues.cargoType.length === 0) {
+      return 'Выберите типы груза';
+    }
+    if (selectedValues.cargoType.length > 3) {
+      return `${selectedValues.cargoType.length} типов выбрано`;
+    }
+    return selectedValues.cargoType.map(type => getCargoTypeName(type)).join(', ');
+  };
+
+  const handleSingleSelectChange = (field: string, value: string) => {
+    setSelectedValues(prev => ({
+      ...prev,
+      [field]: value
+    }));
+    
+    // Очищаем ошибку для этого поля
+    if (validationErrors[field]) {
+      setValidationErrors(prev => ({ ...prev, [field]: false }));
+    }
+    
+    // Закрываем соответствующий выпадающий список
+    switch (field) {
+      case 'vehicleType':
+        setShowVehicleTypeDropdown(false);
+        break;
+      case 'reloadType':
+        setShowReloadTypeDropdown(false);
+        break;
+      case 'paymentMethod':
+        setShowPaymentMethodDropdown(false);
+        break;
+      case 'paymentTerm':
+        setShowPaymentTermDropdown(false);
+        break;
+      case 'bargain':
+        setShowBargainDropdown(false);
+        break;
+    }
+  };
+
+  const handleFormDataChange = (field: string, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+    
+    // Закрываем соответствующий выпадающий список
+    switch (field) {
+      // Нет выпадающих списков для закрытия
+    }
+  };
   
   const validateDates = (startDate: string, endDate: string): boolean => {
     const today = new Date();
@@ -424,7 +732,9 @@ const Homepage: React.FC = () => {
     const requiredFields = [
       'loadingStartDate',
       'loadingEndDate', 
+      'loadingCountry',
       'loadingCity',
+      'unloadingCountry',
       'unloadingCity',
       'cargoWeight',
       'cargoVolume'
@@ -436,10 +746,10 @@ const Homepage: React.FC = () => {
       }
     }
     
-    if (!selectedValues.loadingType) {
+    if (!selectedValues.loadingType || selectedValues.loadingType.length === 0) {
       errors['loadingType'] = true;
     }
-    if (!selectedValues.cargoType) {
+    if (selectedValues.cargoType.length === 0) {
       errors['cargoType'] = true;
     }
     
@@ -458,7 +768,9 @@ const Homepage: React.FC = () => {
     const requiredFields = [
       'loadingStartDate',
       'loadingEndDate',
+      'loadingCountry',
       'loadingCity', 
+      'unloadingCountry',
       'unloadingCity',
       'transportWeight',
       'transportVolume'
@@ -544,10 +856,19 @@ const Homepage: React.FC = () => {
     
     
     setActiveForm('cards');
+    
+    // Обновляем URL, убирая параметр form
+    const newUrl = window.location.pathname;
+    window.history.replaceState({}, '', newUrl);
+    
     setFormData({
       loadingStartDate: '',
       loadingEndDate: '',
+      loadingCountry: '',
+      loadingRegion: '',
       loadingCity: '',
+      unloadingCountry: '',
+      unloadingRegion: '',
       unloadingCity: '',
       cargoWeight: '',
       cargoVolume: '',
@@ -566,11 +887,12 @@ const Homepage: React.FC = () => {
       transportCurrency: 'USD',
       additionalPhone: '',
       email: '',
+      palletCount: '',
       additionalInfo: ''
     });
     setSelectedValues({
-      loadingType: '',
-      cargoType: '',
+      loadingType: ['all'],
+      cargoType: [],
       vehicleType: '',
       reloadType: '',
       paymentMethod: '',
@@ -651,23 +973,165 @@ const Homepage: React.FC = () => {
                   </div>
                   
                   <div className="form-row">
+                    <div className={`form-field ${validationErrors.loadingCountry ? 'error' : ''}`}>
+                      <label>Страна загрузки</label>
+                      <input 
+                        type="text" 
+                        className={`form-input ${validationErrors.loadingCountry ? 'error' : ''} ${shakeFields.loadingCountry ? 'shake' : ''}`}
+                        placeholder="Начните вводить страну" 
+                        value={loadingCountry}
+                        onChange={(e) => {
+                          setLoadingCountry(e.target.value);
+                          setFormData(prev => ({ ...prev, loadingCountry: e.target.value }));
+                          setShowLoadingCountrySuggestions(e.target.value.length > 0);
+                          if (validationErrors.loadingCountry) {
+                            setValidationErrors(prev => ({ ...prev, loadingCountry: false }));
+                          }
+                        }}
+                        onFocus={() => setShowLoadingCountrySuggestions(loadingCountry.length > 0)}
+                      />
+                      {validationErrors.loadingCountry && (
+                        <div className="error-message">Пожалуйста, выберите страну загрузки</div>
+                      )}
+                      {showLoadingCountrySuggestions && (
+                        <div className="autocomplete-suggestions">
+                          {filterCountries(loadingCountry).map((country, index) => (
+                            <div 
+                              key={index} 
+                              className="suggestion-item"
+                              onClick={() => handleCountrySelect(country.name, true)}
+                            >
+                              {country.name}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    <div className={`form-field ${validationErrors.unloadingCountry ? 'error' : ''}`}>
+                      <label>Страна выгрузки</label>
+                      <input 
+                        type="text" 
+                        className={`form-input ${validationErrors.unloadingCountry ? 'error' : ''} ${shakeFields.unloadingCountry ? 'shake' : ''}`}
+                        placeholder="Начните вводить страну" 
+                        value={unloadingCountry}
+                        onChange={(e) => {
+                          setUnloadingCountry(e.target.value);
+                          setFormData(prev => ({ ...prev, unloadingCountry: e.target.value }));
+                          setShowUnloadingCountrySuggestions(e.target.value.length > 0);
+                          if (validationErrors.unloadingCountry) {
+                            setValidationErrors(prev => ({ ...prev, unloadingCountry: false }));
+                          }
+                        }}
+                        onFocus={() => setShowUnloadingCountrySuggestions(unloadingCountry.length > 0)}
+                      />
+                      {validationErrors.unloadingCountry && (
+                        <div className="error-message">Пожалуйста, выберите страну выгрузки</div>
+                      )}
+                      {showUnloadingCountrySuggestions && (
+                        <div className="autocomplete-suggestions">
+                          {filterCountries(unloadingCountry).map((country, index) => (
+                            <div 
+                              key={index} 
+                              className="suggestion-item"
+                              onClick={() => handleCountrySelect(country.name, false)}
+                            >
+                              {country.name}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <div className="form-row">
                     <div className="form-field">
-                      <label>Место загрузки</label>
+                      <label>Область загрузки</label>
                       <input 
                         type="text" 
                         className="form-input" 
-                        placeholder="Начните вводить название" 
+                        placeholder="Начните вводить область" 
+                        value={loadingRegion}
+                        onChange={(e) => {
+                          setLoadingRegion(e.target.value);
+                          setFormData(prev => ({ ...prev, loadingRegion: e.target.value }));
+                          setShowLoadingRegionSuggestions(e.target.value.length > 0);
+                        }}
+                        onFocus={() => setShowLoadingRegionSuggestions(loadingRegion.length > 0)}
+                        disabled={!loadingCountry}
+                      />
+                      {showLoadingRegionSuggestions && loadingCountry && (
+                        <div className="autocomplete-suggestions">
+                          {filterRegions(loadingRegion, loadingCountry).map((region, index) => (
+                            <div 
+                              key={index} 
+                              className="suggestion-item"
+                              onClick={() => handleRegionSelect(region.name, true)}
+                            >
+                              {region.name}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    <div className="form-field">
+                      <label>Область выгрузки</label>
+                      <input 
+                        type="text" 
+                        className="form-input" 
+                        placeholder="Начните вводить область" 
+                        value={unloadingRegion}
+                        onChange={(e) => {
+                          setUnloadingRegion(e.target.value);
+                          setFormData(prev => ({ ...prev, unloadingRegion: e.target.value }));
+                          setShowUnloadingRegionSuggestions(e.target.value.length > 0);
+                        }}
+                        onFocus={() => setShowUnloadingRegionSuggestions(unloadingRegion.length > 0)}
+                        disabled={!unloadingCountry}
+                      />
+                      {showUnloadingRegionSuggestions && unloadingCountry && (
+                        <div className="autocomplete-suggestions">
+                          {filterRegions(unloadingRegion, unloadingCountry).map((region, index) => (
+                            <div 
+                              key={index} 
+                              className="suggestion-item"
+                              onClick={() => handleRegionSelect(region.name, false)}
+                            >
+                              {region.name}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <div className="form-row">
+                    <div className={`form-field ${validationErrors.loadingCity ? 'error' : ''}`}>
+                      <label>Город загрузки</label>
+                      <input 
+                        type="text" 
+                        className={`form-input ${validationErrors.loadingCity ? 'error' : ''} ${shakeFields.loadingCity ? 'shake' : ''}`}
+                        placeholder="Начните вводить город" 
                         value={loadingCity}
                         onChange={(e) => {
                           setLoadingCity(e.target.value);
                           setFormData(prev => ({ ...prev, loadingCity: e.target.value }));
                           setShowLoadingSuggestions(e.target.value.length > 0);
+                          if (validationErrors.loadingCity) {
+                            setValidationErrors(prev => ({ ...prev, loadingCity: false }));
+                          }
                         }}
                         onFocus={() => setShowLoadingSuggestions(loadingCity.length > 0)}
+                        disabled={!loadingCountry}
                       />
-                      {showLoadingSuggestions && (
+                      {validationErrors.loadingCity && (
+                        <div className="error-message">Пожалуйста, выберите город загрузки</div>
+                      )}
+                      {showLoadingSuggestions && loadingCountry && (
                         <div className="autocomplete-suggestions">
-                          {filterCities(loadingCity).map((city, index) => (
+                          {(loadingRegion ? 
+                            filterCitiesByRegion(loadingCity, loadingCountry, loadingRegion) :
+                            filterCitiesByCountry(loadingCity, loadingCountry)
+                          ).map((city, index) => (
                             <div 
                               key={index} 
                               className="suggestion-item"
@@ -679,22 +1143,33 @@ const Homepage: React.FC = () => {
                         </div>
                       )}
                     </div>
-                    <div className="form-field">
-                      <label>Место выгрузки</label>
+                    <div className={`form-field ${validationErrors.unloadingCity ? 'error' : ''}`}>
+                      <label>Город выгрузки</label>
                       <input 
                         type="text" 
-                        className="form-input" 
-                        placeholder="Начните вводить название" 
+                        className={`form-input ${validationErrors.unloadingCity ? 'error' : ''} ${shakeFields.unloadingCity ? 'shake' : ''}`}
+                        placeholder="Начните вводить город" 
                         value={unloadingCity}
                         onChange={(e) => {
                           setUnloadingCity(e.target.value);
+                          setFormData(prev => ({ ...prev, unloadingCity: e.target.value }));
                           setShowUnloadingSuggestions(e.target.value.length > 0);
+                          if (validationErrors.unloadingCity) {
+                            setValidationErrors(prev => ({ ...prev, unloadingCity: false }));
+                          }
                         }}
                         onFocus={() => setShowUnloadingSuggestions(unloadingCity.length > 0)}
+                        disabled={!unloadingCountry}
                       />
-                      {showUnloadingSuggestions && (
+                      {validationErrors.unloadingCity && (
+                        <div className="error-message">Пожалуйста, выберите город выгрузки</div>
+                      )}
+                      {showUnloadingSuggestions && unloadingCountry && (
                         <div className="autocomplete-suggestions">
-                          {filterCities(unloadingCity).map((city, index) => (
+                          {(unloadingRegion ? 
+                            filterCitiesByRegion(unloadingCity, unloadingCountry, unloadingRegion) :
+                            filterCitiesByCountry(unloadingCity, unloadingCountry)
+                          ).map((city, index) => (
                             <div 
                               key={index} 
                               className="suggestion-item"
@@ -722,93 +1197,385 @@ const Homepage: React.FC = () => {
                 
                 <div className="form-section">
                   <div className="form-row">
+                    <div className="form-field">
+                      <label>Тип автомобиля</label>
+                      <div className="custom-dropdown">
+                        <div 
+                          className={`dropdown-trigger ${selectedValues.vehicleType ? 'has-value' : ''}`}
+                          onClick={() => setShowVehicleTypeDropdown(!showVehicleTypeDropdown)}
+                        >
+                          <span className="dropdown-text">
+                            {selectedValues.vehicleType ? getVehicleTypeName(selectedValues.vehicleType) : 'Выберите тип'}
+                          </span>
+                          <svg 
+                            className={`dropdown-arrow ${showVehicleTypeDropdown ? 'open' : ''}`} 
+                            width="10" 
+                            height="6" 
+                            viewBox="0 0 10 6" 
+                            fill="none"
+                          >
+                            <path d="M.529.695c.26-.26.682-.26.942 0L5 4.224 8.529.695a.667.667 0 0 1 .942.943l-4 4a.667.667 0 0 1-.942 0l-4-4a.667.667 0 0 1 0-.943" fill="#717680"/>
+                          </svg>
+                        </div>
+                        {showVehicleTypeDropdown && (
+                          <div className="dropdown-menu">
+                            <div className="dropdown-option" onClick={() => handleSingleSelectChange('vehicleType', 'tent')}>
+                              <span>Тент</span>
+                            </div>
+                            <div className="dropdown-option" onClick={() => handleSingleSelectChange('vehicleType', 'isotherm')}>
+                              <span>Изотерм</span>
+                            </div>
+                            <div className="dropdown-option" onClick={() => handleSingleSelectChange('vehicleType', 'refrigerator')}>
+                              <span>Рефрижератор</span>
+                            </div>
+                            <div className="dropdown-option" onClick={() => handleSingleSelectChange('vehicleType', 'flatbed')}>
+                              <span>Бортовой</span>
+                            </div>
+                            <div className="dropdown-option" onClick={() => handleSingleSelectChange('vehicleType', 'car-carrier')}>
+                              <span>Автовоз</span>
+                            </div>
+                            <div className="dropdown-option" onClick={() => handleSingleSelectChange('vehicleType', 'platform')}>
+                              <span>Платформа</span>
+                            </div>
+                            <div className="dropdown-option" onClick={() => handleSingleSelectChange('vehicleType', 'cement-truck')}>
+                              <span>Цементовоз</span>
+                            </div>
+                            <div className="dropdown-option" onClick={() => handleSingleSelectChange('vehicleType', 'bitumen-truck')}>
+                              <span>Битумовоз</span>
+                            </div>
+                            <div className="dropdown-option" onClick={() => handleSingleSelectChange('vehicleType', 'fuel-truck')}>
+                              <span>Бензовоз</span>
+                            </div>
+                            <div className="dropdown-option" onClick={() => handleSingleSelectChange('vehicleType', 'flour-truck')}>
+                              <span>Муковоз</span>
+                            </div>
+                            <div className="dropdown-option" onClick={() => handleSingleSelectChange('vehicleType', 'tow-truck')}>
+                              <span>Эвакуатор</span>
+                            </div>
+                            <div className="dropdown-option" onClick={() => handleSingleSelectChange('vehicleType', 'timber-truck')}>
+                              <span>Лесовоз</span>
+                            </div>
+                            <div className="dropdown-option" onClick={() => handleSingleSelectChange('vehicleType', 'grain-truck')}>
+                              <span>Зерновоз</span>
+                            </div>
+                            <div className="dropdown-option" onClick={() => handleSingleSelectChange('vehicleType', 'trailer')}>
+                              <span>Трал</span>
+                            </div>
+                            <div className="dropdown-option" onClick={() => handleSingleSelectChange('vehicleType', 'dump-truck')}>
+                              <span>Самосвал</span>
+                            </div>
+                            <div className="dropdown-option" onClick={() => handleSingleSelectChange('vehicleType', 'container-truck')}>
+                              <span>Контейнеровоз</span>
+                            </div>
+                            <div className="dropdown-option" onClick={() => handleSingleSelectChange('vehicleType', 'oversized-truck')}>
+                              <span>Негабарит</span>
+                            </div>
+                            <div className="dropdown-option" onClick={() => handleSingleSelectChange('vehicleType', 'bus')}>
+                              <span>Автобус</span>
+                            </div>
+                            <div className="dropdown-option" onClick={() => handleSingleSelectChange('vehicleType', 'gas-truck')}>
+                              <span>Газовоз</span>
+                            </div>
+                            <div className="dropdown-option" onClick={() => handleSingleSelectChange('vehicleType', 'other-truck')}>
+                              <span>Другой тип</span>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
                     <div className={`form-field ${validationErrors.loadingType ? 'error' : ''}`}>
                       <label>Тип загрузки</label>
-                      <select 
-                        className={`form-input ${selectedValues.loadingType ? 'has-value' : ''} ${validationErrors.loadingType ? 'error' : ''} ${shakeFields.loadingType ? 'shake' : ''}`}
-                        value={selectedValues.loadingType}
-                        onChange={(e) => handleSelectChange('loadingType', e.target.value)}
-                      >
-                        <option value="" disabled>Выберите тип</option>
-                        <option value="back">Задняя</option>
-                        <option value="side">Боковая</option>
-                        <option value="top">Верхняя</option>
-                      </select>
+                      <div className="custom-dropdown">
+                        <div 
+                          className={`dropdown-trigger ${selectedValues.loadingType.length > 0 ? 'has-value' : ''} ${validationErrors.loadingType ? 'error' : ''}`}
+                          onClick={() => setShowLoadingTypeDropdown(!showLoadingTypeDropdown)}
+                        >
+                          <span className="dropdown-text">
+                            {getLoadingTypeDisplayText()}
+                          </span>
+                          <svg 
+                            className={`dropdown-arrow ${showLoadingTypeDropdown ? 'open' : ''}`} 
+                            width="10" 
+                            height="6" 
+                            viewBox="0 0 10 6" 
+                            fill="none"
+                          >
+                            <path d="M.529.695c.26-.26.682-.26.942 0L5 4.224 8.529.695a.667.667 0 0 1 .942.943l-4 4a.667.667 0 0 1-.942 0l-4-4a.667.667 0 0 1 0-.943" fill="#717680"/>
+                          </svg>
+                        </div>
+                        {showLoadingTypeDropdown && (
+                          <div className="dropdown-menu">
+                            <div className="dropdown-option">
+                              <input 
+                                type="checkbox" 
+                                id="loading-all"
+                                checked={selectedValues.loadingType.includes('all')}
+                                onChange={() => handleMultiSelectChange('loadingType', 'all')}
+                              />
+                              <label htmlFor="loading-all">Все загрузки</label>
+                            </div>
+                            <div className="dropdown-option">
+                              <input 
+                                type="checkbox" 
+                                id="loading-back"
+                                checked={selectedValues.loadingType.includes('back')}
+                                onChange={() => handleMultiSelectChange('loadingType', 'back')}
+                              />
+                              <label htmlFor="loading-back">Задняя</label>
+                            </div>
+                            <div className="dropdown-option">
+                              <input 
+                                type="checkbox" 
+                                id="loading-side"
+                                checked={selectedValues.loadingType.includes('side')}
+                                onChange={() => handleMultiSelectChange('loadingType', 'side')}
+                              />
+                              <label htmlFor="loading-side">Боковая</label>
+                            </div>
+                            <div className="dropdown-option">
+                              <input 
+                                type="checkbox" 
+                                id="loading-top"
+                                checked={selectedValues.loadingType.includes('top')}
+                                onChange={() => handleMultiSelectChange('loadingType', 'top')}
+                              />
+                              <label htmlFor="loading-top">Верхняя</label>
+                            </div>
+                          </div>
+                        )}
+                      </div>
                       {validationErrors.loadingType && (
                         <div className="error-message">Пожалуйста, выберите тип загрузки</div>
-                      )}
-                    </div>
-                    <div className={`form-field ${validationErrors.cargoType ? 'error' : ''}`}>
-                      <label>Тип груза</label>
-                      <select 
-                        className={`form-input ${selectedValues.cargoType ? 'has-value' : ''} ${validationErrors.cargoType ? 'error' : ''} ${shakeFields.cargoType ? 'shake' : ''}`}
-                        value={selectedValues.cargoType}
-                        onChange={(e) => handleSelectChange('cargoType', e.target.value)}
-                      >
-                        <option value="" disabled>Укажите что за груз</option>
-                        <option value="pallets">Груз на паллетах</option>
-                        <option value="equipment">Оборудование</option>
-                        <option value="construction">Стройматериалы</option>
-                        <option value="metal">Металл</option>
-                        <option value="metal-products">Металлопрокат</option>
-                        <option value="pipes">Трубы</option>
-                        <option value="food">Продукты</option>
-                        <option value="big-bags">Груз в биг-бэгах</option>
-                        <option value="container">Контейнер</option>
-                        <option value="cement">Цемент</option>
-                        <option value="bitumen">Битум</option>
-                        <option value="fuel">ГСМ</option>
-                        <option value="flour">Мука</option>
-                        <option value="oversized">Негабарит</option>
-                        <option value="cars">Автомобили</option>
-                        <option value="lumber">Пиломатериалы</option>
-                        <option value="concrete">Бетонные изделия</option>
-                        <option value="furniture">Мебель</option>
-                        <option value="other">Другой тип</option>
-                      </select>
-                      {validationErrors.cargoType && (
-                        <div className="error-message">Пожалуйста, выберите тип груза</div>
                       )}
                     </div>
                   </div>
                   
                   <div className="form-row">
-                    <div className="form-field">
-                      <label>Тип автомобиля</label>
-                      <select 
-                        className={`form-input ${selectedValues.vehicleType ? 'has-value' : ''}`}
-                        value={selectedValues.vehicleType}
-                        onChange={(e) => handleSelectChange('vehicleType', e.target.value)}
-                      >
-                        <option value="" disabled>Выберите тип</option>
-                        <option value="tent">Тент</option>
-                        <option value="isotherm">Изотерм</option>
-                        <option value="refrigerator">Рефрижератор</option>
-                        <option value="flatbed">Бортовой</option>
-                        <option value="car-carrier">Автовоз</option>
-                        <option value="platform">Платформа</option>
-                        <option value="cement-truck">Цементовоз</option>
-                        <option value="bitumen-truck">Битумовоз</option>
-                        <option value="fuel-truck">Бензовоз</option>
-                        <option value="flour-truck">Муковоз</option>
-                        <option value="tow-truck">Эвакуатор</option>
-                        <option value="timber-truck">Лесовоз</option>
-                        <option value="grain-truck">Зерновоз</option>
-                        <option value="trailer">Трал</option>
-                        <option value="dump-truck">Самосвал</option>
-                        <option value="container-truck">Контейнеровоз</option>
-                        <option value="oversized-truck">Негабарит</option>
-                        <option value="bus">Автобус</option>
-                        <option value="gas-truck">Газовоз</option>
-                        <option value="other-truck">Другой тип</option>
-                      </select>
+                    <div className={`form-field ${validationErrors.cargoType ? 'error' : ''}`}>
+                      <label>Тип груза (до 5 типов)</label>
+                      <div className="custom-dropdown">
+                        <div 
+                          className={`dropdown-trigger ${selectedValues.cargoType.length > 0 ? 'has-value' : ''} ${validationErrors.cargoType ? 'error' : ''}`}
+                          onClick={() => setShowCargoTypeDropdown(!showCargoTypeDropdown)}
+                        >
+                          <span className="dropdown-text">
+                            {getCargoTypeDisplayText()}
+                          </span>
+                          <svg 
+                            className={`dropdown-arrow ${showCargoTypeDropdown ? 'open' : ''}`} 
+                            width="10" 
+                            height="6" 
+                            viewBox="0 0 10 6" 
+                            fill="none"
+                          >
+                            <path d="M.529.695c.26-.26.682-.26.942 0L5 4.224 8.529.695a.667.667 0 0 1 .942.943l-4 4a.667.667 0 0 1-.942 0l-4-4a.667.667 0 0 1 0-.943" fill="#717680"/>
+                          </svg>
+                        </div>
+                        {showCargoTypeDropdown && (
+                          <div className="dropdown-menu">
+                            <label className="dropdown-option">
+                              <input 
+                                type="checkbox" 
+                                checked={selectedValues.cargoType.includes('pallets')}
+                                onChange={() => handleMultiSelectChange('cargoType', 'pallets')}
+                              />
+                              <span>Груз на паллетах</span>
+                            </label>
+                            <label className="dropdown-option">
+                              <input 
+                                type="checkbox" 
+                                checked={selectedValues.cargoType.includes('equipment')}
+                                onChange={() => handleMultiSelectChange('cargoType', 'equipment')}
+                              />
+                              <span>Оборудование</span>
+                            </label>
+                            <label className="dropdown-option">
+                              <input 
+                                type="checkbox" 
+                                checked={selectedValues.cargoType.includes('construction')}
+                                onChange={() => handleMultiSelectChange('cargoType', 'construction')}
+                              />
+                              <span>Стройматериалы</span>
+                            </label>
+                            <label className="dropdown-option">
+                              <input 
+                                type="checkbox" 
+                                checked={selectedValues.cargoType.includes('metal')}
+                                onChange={() => handleMultiSelectChange('cargoType', 'metal')}
+                              />
+                              <span>Металл</span>
+                            </label>
+                            <label className="dropdown-option">
+                              <input 
+                                type="checkbox" 
+                                checked={selectedValues.cargoType.includes('metal-products')}
+                                onChange={() => handleMultiSelectChange('cargoType', 'metal-products')}
+                              />
+                              <span>Металлопрокат</span>
+                            </label>
+                            <label className="dropdown-option">
+                              <input 
+                                type="checkbox" 
+                                checked={selectedValues.cargoType.includes('pipes')}
+                                onChange={() => handleMultiSelectChange('cargoType', 'pipes')}
+                              />
+                              <span>Трубы</span>
+                            </label>
+                            <label className="dropdown-option">
+                              <input 
+                                type="checkbox" 
+                                checked={selectedValues.cargoType.includes('food')}
+                                onChange={() => handleMultiSelectChange('cargoType', 'food')}
+                              />
+                              <span>Продукты</span>
+                            </label>
+                            <label className="dropdown-option">
+                              <input 
+                                type="checkbox" 
+                                checked={selectedValues.cargoType.includes('big-bags')}
+                                onChange={() => handleMultiSelectChange('cargoType', 'big-bags')}
+                              />
+                              <span>Груз в биг-бэгах</span>
+                            </label>
+                            <label className="dropdown-option">
+                              <input 
+                                type="checkbox" 
+                                checked={selectedValues.cargoType.includes('container')}
+                                onChange={() => handleMultiSelectChange('cargoType', 'container')}
+                              />
+                              <span>Контейнер</span>
+                            </label>
+                            <label className="dropdown-option">
+                              <input 
+                                type="checkbox" 
+                                checked={selectedValues.cargoType.includes('cement')}
+                                onChange={() => handleMultiSelectChange('cargoType', 'cement')}
+                              />
+                              <span>Цемент</span>
+                            </label>
+                            <label className="dropdown-option">
+                              <input 
+                                type="checkbox" 
+                                checked={selectedValues.cargoType.includes('bitumen')}
+                                onChange={() => handleMultiSelectChange('cargoType', 'bitumen')}
+                              />
+                              <span>Битум</span>
+                            </label>
+                            <label className="dropdown-option">
+                              <input 
+                                type="checkbox" 
+                                checked={selectedValues.cargoType.includes('fuel')}
+                                onChange={() => handleMultiSelectChange('cargoType', 'fuel')}
+                              />
+                              <span>ГСМ</span>
+                            </label>
+                            <label className="dropdown-option">
+                              <input 
+                                type="checkbox" 
+                                checked={selectedValues.cargoType.includes('flour')}
+                                onChange={() => handleMultiSelectChange('cargoType', 'flour')}
+                              />
+                              <span>Мука</span>
+                            </label>
+                            <label className="dropdown-option">
+                              <input 
+                                type="checkbox" 
+                                checked={selectedValues.cargoType.includes('oversized')}
+                                onChange={() => handleMultiSelectChange('cargoType', 'oversized')}
+                              />
+                              <span>Негабарит</span>
+                            </label>
+                            <label className="dropdown-option">
+                              <input 
+                                type="checkbox" 
+                                checked={selectedValues.cargoType.includes('cars')}
+                                onChange={() => handleMultiSelectChange('cargoType', 'cars')}
+                              />
+                              <span>Автомобили</span>
+                            </label>
+                            <label className="dropdown-option">
+                              <input 
+                                type="checkbox" 
+                                checked={selectedValues.cargoType.includes('lumber')}
+                                onChange={() => handleMultiSelectChange('cargoType', 'lumber')}
+                              />
+                              <span>Пиломатериалы</span>
+                            </label>
+                            <label className="dropdown-option">
+                              <input 
+                                type="checkbox" 
+                                checked={selectedValues.cargoType.includes('concrete')}
+                                onChange={() => handleMultiSelectChange('cargoType', 'concrete')}
+                              />
+                              <span>Бетонные изделия</span>
+                            </label>
+                            <label className="dropdown-option">
+                              <input 
+                                type="checkbox" 
+                                checked={selectedValues.cargoType.includes('furniture')}
+                                onChange={() => handleMultiSelectChange('cargoType', 'furniture')}
+                              />
+                              <span>Мебель</span>
+                            </label>
+                            <label className="dropdown-option">
+                              <input 
+                                type="checkbox" 
+                                checked={selectedValues.cargoType.includes('tnp')}
+                                onChange={() => handleMultiSelectChange('cargoType', 'tnp')}
+                              />
+                              <span>ТНП</span>
+                            </label>
+                          </div>
+                        )}
+                      </div>
+                      {validationErrors.cargoType && (
+                        <div className="error-message">Пожалуйста, выберите тип груза</div>
+                      )}
                     </div>
+                    <div className="form-field">
+                      <label>Возможность дозагрузки</label>
+                      <div className="custom-dropdown">
+                        <div 
+                          className={`dropdown-trigger ${selectedValues.reloadType ? 'has-value' : ''}`}
+                          onClick={() => setShowReloadTypeDropdown(!showReloadTypeDropdown)}
+                        >
+                          <span className="dropdown-text">
+                            {selectedValues.reloadType ? 
+                              (selectedValues.reloadType === 'no-reload' ? 'Без догрузки (отдельное авто)' : 'Возможна дозагрузка') : 
+                              'Возможность дозагрузки'
+                            }
+                          </span>
+                          <svg 
+                            className={`dropdown-arrow ${showReloadTypeDropdown ? 'open' : ''}`} 
+                            width="10" 
+                            height="6" 
+                            viewBox="0 0 10 6" 
+                            fill="none"
+                          >
+                            <path d="M.529.695c.26-.26.682-.26.942 0L5 4.224 8.529.695a.667.667 0 0 1 .942.943l-4 4a.667.667 0 0 1-.942 0l-4-4a.667.667 0 0 1 0-.943" fill="#717680"/>
+                          </svg>
+                    </div>
+                        {showReloadTypeDropdown && (
+                          <div className="dropdown-menu">
+                            <div className="dropdown-option" onClick={() => handleSingleSelectChange('reloadType', 'no-reload')}>
+                              <span>Без догрузки (отдельное авто)</span>
+                            </div>
+                            <div className="dropdown-option" onClick={() => handleSingleSelectChange('reloadType', 'possible-reload')}>
+                              <span>Возможна дозагрузка</span>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="form-row">
                     <div className={`form-field ${validationErrors.cargoWeight ? 'error' : ''}`}>
                       <label>Вес груза</label>
                       <input 
                         type="number" 
                         className={`form-input ${validationErrors.cargoWeight ? 'error' : ''} ${shakeFields.cargoWeight ? 'shake' : ''}`}
-                        placeholder="кг" 
+                        placeholder="тн" 
                         value={formData.cargoWeight}
                         onChange={(e) => {
                           setFormData(prev => ({ ...prev, cargoWeight: e.target.value }));
@@ -820,6 +1587,16 @@ const Homepage: React.FC = () => {
                       {validationErrors.cargoWeight && (
                         <div className="error-message">Пожалуйста, укажите вес груза</div>
                       )}
+                    </div>
+                    <div className="form-field">
+                      <label>Количество автомобилей</label>
+                      <input 
+                        type="number" 
+                        className="form-input" 
+                        placeholder="шт" 
+                        value={formData.vehicleCount}
+                        onChange={(e) => setFormData(prev => ({ ...prev, vehicleCount: e.target.value }))}
+                      />
                     </div>
                   </div>
                   
@@ -843,16 +1620,14 @@ const Homepage: React.FC = () => {
                       )}
                     </div>
                     <div className="form-field">
-                      <label>Возможность дозагрузки</label>
-                      <select 
-                        className={`form-input ${selectedValues.reloadType ? 'has-value' : ''}`}
-                        value={selectedValues.reloadType}
-                        onChange={(e) => handleSelectChange('reloadType', e.target.value)}
-                      >
-                        <option value="" disabled>Возможность дозагрузки</option>
-                        <option value="no-reload">Без догрузки (отдельное авто)</option>
-                        <option value="possible-reload">Возможна дозагрузка</option>
-                      </select>
+                      <label>Количество паллет</label>
+                      <input 
+                        type="number" 
+                        className="form-input" 
+                        placeholder="шт" 
+                        value={formData.palletCount}
+                        onChange={(e) => setFormData(prev => ({ ...prev, palletCount: e.target.value }))}
+                      />
                     </div>
                   </div>
                   
@@ -875,14 +1650,7 @@ const Homepage: React.FC = () => {
                       </div>
                     </div>
                     <div className="form-field">
-                      <label>Количество автомобилей</label>
-                      <input 
-                        type="number" 
-                        className="form-input" 
-                        placeholder="шт" 
-                        value={formData.vehicleCount}
-                        onChange={(e) => setFormData(prev => ({ ...prev, vehicleCount: e.target.value }))}
-                      />
+                      {/* Пустое поле для балансировки */}
                     </div>
                   </div>
                   
@@ -949,44 +1717,119 @@ const Homepage: React.FC = () => {
                     </div>
                     <div className="form-field">
                       <label>Метод оплаты</label>
-                      <select 
-                        className={`form-input ${selectedValues.paymentMethod ? 'has-value' : ''}`}
-                        value={selectedValues.paymentMethod}
-                        onChange={(e) => handleSelectChange('paymentMethod', e.target.value)}
-                      >
-                        <option value="" disabled>Выберите метод оплаты</option>
-                        <option value="cashless">Безналичный</option>
-                        <option value="card">На карту</option>
-                        <option value="combined">Комбинированный</option>
-                      </select>
+                      <div className="custom-dropdown">
+                        <div 
+                          className={`dropdown-trigger ${selectedValues.paymentMethod ? 'has-value' : ''}`}
+                          onClick={() => setShowPaymentMethodDropdown(!showPaymentMethodDropdown)}
+                        >
+                          <span className="dropdown-text">
+                            {selectedValues.paymentMethod ? 
+                              (selectedValues.paymentMethod === 'cashless' ? 'Наличные' : 
+                               selectedValues.paymentMethod === 'card' ? 'На карту' : 'Комбинированный') : 
+                              'Выберите метод оплаты'
+                            }
+                          </span>
+                          <svg 
+                            className={`dropdown-arrow ${showPaymentMethodDropdown ? 'open' : ''}`} 
+                            width="10" 
+                            height="6" 
+                            viewBox="0 0 10 6" 
+                            fill="none"
+                          >
+                            <path d="M.529.695c.26-.26.682-.26.942 0L5 4.224 8.529.695a.667.667 0 0 1 .942.943l-4 4a.667.667 0 0 1-.942 0l-4-4a.667.667 0 0 1 0-.943" fill="#717680"/>
+                          </svg>
+                        </div>
+                        {showPaymentMethodDropdown && (
+                          <div className="dropdown-menu">
+                            <div className="dropdown-option" onClick={() => handleSingleSelectChange('paymentMethod', 'cashless')}>
+                              <span>Наличные</span>
+                            </div>
+                            <div className="dropdown-option" onClick={() => handleSingleSelectChange('paymentMethod', 'card')}>
+                              <span>На карту</span>
+                            </div>
+                            <div className="dropdown-option" onClick={() => handleSingleSelectChange('paymentMethod', 'combined')}>
+                              <span>Комбинированный</span>
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
                   
                   <div className="form-row">
                     <div className="form-field">
                       <label>Срок оплаты</label>
-                      <select 
-                        className={`form-input ${selectedValues.paymentTerm ? 'has-value' : ''}`}
-                        value={selectedValues.paymentTerm}
-                        onChange={(e) => handleSelectChange('paymentTerm', e.target.value)}
-                      >
-                        <option value="" disabled>Выберите срок оплаты</option>
-                        <option value="unloading">При разгрузке</option>
-                        <option value="prepayment">Предоплата</option>
-                        <option value="deferred">Отсрочка платежа</option>
-                      </select>
+                      <div className="custom-dropdown">
+                        <div 
+                          className={`dropdown-trigger ${selectedValues.paymentTerm ? 'has-value' : ''}`}
+                          onClick={() => setShowPaymentTermDropdown(!showPaymentTermDropdown)}
+                        >
+                          <span className="dropdown-text">
+                            {selectedValues.paymentTerm ? 
+                              (selectedValues.paymentTerm === 'unloading' ? 'При разгрузке' : 
+                               selectedValues.paymentTerm === 'prepayment' ? 'Предоплата' : 'Отсрочка платежа') : 
+                              'Выберите срок оплаты'
+                            }
+                          </span>
+                          <svg 
+                            className={`dropdown-arrow ${showPaymentTermDropdown ? 'open' : ''}`} 
+                            width="10" 
+                            height="6" 
+                            viewBox="0 0 10 6" 
+                            fill="none"
+                          >
+                            <path d="M.529.695c.26-.26.682-.26.942 0L5 4.224 8.529.695a.667.667 0 0 1 .942.943l-4 4a.667.667 0 0 1-.942 0l-4-4a.667.667 0 0 1 0-.943" fill="#717680"/>
+                          </svg>
+                        </div>
+                        {showPaymentTermDropdown && (
+                          <div className="dropdown-menu">
+                            <div className="dropdown-option" onClick={() => handleSingleSelectChange('paymentTerm', 'unloading')}>
+                              <span>При разгрузке</span>
+                            </div>
+                            <div className="dropdown-option" onClick={() => handleSingleSelectChange('paymentTerm', 'prepayment')}>
+                              <span>Предоплата</span>
+                            </div>
+                            <div className="dropdown-option" onClick={() => handleSingleSelectChange('paymentTerm', 'deferred')}>
+                              <span>Отсрочка платежа</span>
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     </div>
                     <div className="form-field">
                       <label>Торг</label>
-                      <select 
-                        className={`form-input ${selectedValues.bargain ? 'has-value' : ''}`}
-                        value={selectedValues.bargain}
-                        onChange={(e) => handleSelectChange('bargain', e.target.value)}
-                      >
-                        <option value="" disabled>Возможность торга</option>
-                        <option value="yes">Возможен</option>
-                        <option value="no">Нет</option>
-                      </select>
+                      <div className="custom-dropdown">
+                        <div 
+                          className={`dropdown-trigger ${selectedValues.bargain ? 'has-value' : ''}`}
+                          onClick={() => setShowBargainDropdown(!showBargainDropdown)}
+                        >
+                          <span className="dropdown-text">
+                            {selectedValues.bargain ? 
+                              (selectedValues.bargain === 'yes' ? 'Возможен' : 'Нет') : 
+                              'Возможность торга'
+                            }
+                          </span>
+                          <svg 
+                            className={`dropdown-arrow ${showBargainDropdown ? 'open' : ''}`} 
+                            width="10" 
+                            height="6" 
+                            viewBox="0 0 10 6" 
+                            fill="none"
+                          >
+                            <path d="M.529.695c.26-.26.682-.26.942 0L5 4.224 8.529.695a.667.667 0 0 1 .942.943l-4 4a.667.667 0 0 1-.942 0l-4-4a.667.667 0 0 1 0-.943" fill="#717680"/>
+                          </svg>
+                    </div>
+                        {showBargainDropdown && (
+                          <div className="dropdown-menu">
+                            <div className="dropdown-option" onClick={() => handleSingleSelectChange('bargain', 'yes')}>
+                              <span>Возможен</span>
+                            </div>
+                            <div className="dropdown-option" onClick={() => handleSingleSelectChange('bargain', 'no')}>
+                              <span>Нет</span>
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1019,7 +1862,6 @@ const Homepage: React.FC = () => {
                 </div>
                 
                 <div style={{ marginTop: '32px' }}>
-                  <hr className="form-divider" />
                 </div>
                 
 
@@ -1028,7 +1870,13 @@ const Homepage: React.FC = () => {
                   <div className="form-row">
                     <div className="form-field" style={{ width: '100%' }}>
                       <label>Дополнительная информация</label>
-                      <textarea className="form-input" rows={4} placeholder="Введите дополнительную информацию..." />
+                      <textarea 
+                        className="form-input" 
+                        rows={4} 
+                        placeholder="Введите дополнительную информацию..." 
+                        value={formData.additionalInfo}
+                        onChange={(e) => setFormData(prev => ({ ...prev, additionalInfo: e.target.value }))}
+                      />
                     </div>
                   </div>
                 </div>
@@ -1102,11 +1950,71 @@ const Homepage: React.FC = () => {
                   
                   <div className="form-row">
                     <div className="form-field">
-                      <label>Место загрузки</label>
+                      <label>Страна загрузки</label>
                       <input 
                         type="text" 
                         className="form-input" 
-                        placeholder="Начните вводить название" 
+                        placeholder="Начните вводить название страны" 
+                        value={loadingCountry}
+                        onChange={(e) => {
+                          setLoadingCountry(e.target.value);
+                          setFormData(prev => ({ ...prev, loadingCountry: e.target.value }));
+                          setShowLoadingSuggestions(e.target.value.length > 0);
+                        }}
+                        onFocus={() => setShowLoadingSuggestions(loadingCountry.length > 0)}
+                      />
+                      {showLoadingSuggestions && (
+                        <div className="autocomplete-suggestions">
+                          {filterCountries(loadingCountry).map((country, index) => (
+                            <div 
+                              key={index} 
+                              className="suggestion-item"
+                              onClick={() => handleCountrySelect(country.name, true)}
+                            >
+                              {country.name}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    <div className="form-field">
+                      <label>Область загрузки</label>
+                      <input 
+                        type="text" 
+                        className="form-input" 
+                        placeholder="Начните вводить название области" 
+                        value={loadingRegion}
+                        onChange={(e) => {
+                          setLoadingRegion(e.target.value);
+                          setFormData(prev => ({ ...prev, loadingRegion: e.target.value }));
+                          setShowLoadingSuggestions(e.target.value.length > 0);
+                        }}
+                        onFocus={() => setShowLoadingSuggestions(loadingRegion.length > 0)}
+                        disabled={!loadingCountry}
+                      />
+                      {showLoadingSuggestions && loadingCountry && (
+                        <div className="autocomplete-suggestions">
+                          {filterRegions(loadingRegion, loadingCountry).map((region, index) => (
+                            <div 
+                              key={index} 
+                              className="suggestion-item"
+                              onClick={() => handleRegionSelect(region.name, true)}
+                            >
+                              {region.name}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <div className="form-row">
+                    <div className="form-field">
+                      <label>Город загрузки</label>
+                      <input 
+                        type="text" 
+                        className="form-input" 
+                        placeholder="Начните вводить название города" 
                         value={loadingCity}
                         onChange={(e) => {
                           setLoadingCity(e.target.value);
@@ -1114,37 +2022,112 @@ const Homepage: React.FC = () => {
                           setShowLoadingSuggestions(e.target.value.length > 0);
                         }}
                         onFocus={() => setShowLoadingSuggestions(loadingCity.length > 0)}
+                        disabled={!loadingCountry}
                       />
-                      {showLoadingSuggestions && (
+                      {showLoadingSuggestions && loadingCountry && (
                         <div className="autocomplete-suggestions">
-                          {filterCities(loadingCity).map((city, index) => (
+                          {loadingRegion ? 
+                            filterCitiesByRegion(loadingCity, loadingCountry, loadingRegion).map((city, index) => (
                             <div 
                               key={index} 
                               className="suggestion-item"
                               onClick={() => handleCitySelect(city, true)}
                             >
                               {city}
+                              </div>
+                            )) :
+                            filterCitiesByCountry(loadingCity, loadingCountry).map((city, index) => (
+                              <div 
+                                key={index} 
+                                className="suggestion-item"
+                                onClick={() => handleCitySelect(city, true)}
+                              >
+                                {city}
+                              </div>
+                            ))
+                          }
+                        </div>
+                      )}
+                    </div>
+                    <div className="form-field">
+                      <label>Страна выгрузки</label>
+                      <input 
+                        type="text" 
+                        className="form-input" 
+                        placeholder="Начните вводить название страны" 
+                        value={unloadingCountry}
+                        onChange={(e) => {
+                          setUnloadingCountry(e.target.value);
+                          setFormData(prev => ({ ...prev, unloadingCountry: e.target.value }));
+                          setShowUnloadingSuggestions(e.target.value.length > 0);
+                        }}
+                        onFocus={() => setShowUnloadingSuggestions(unloadingCountry.length > 0)}
+                      />
+                      {showUnloadingSuggestions && (
+                        <div className="autocomplete-suggestions">
+                          {filterCountries(unloadingCountry).map((country, index) => (
+                            <div 
+                              key={index} 
+                              className="suggestion-item"
+                              onClick={() => handleCountrySelect(country.name, false)}
+                            >
+                              {country.name}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <div className="form-row">
+                    <div className="form-field">
+                      <label>Область выгрузки</label>
+                      <input 
+                        type="text" 
+                        className="form-input" 
+                        placeholder="Начните вводить название области" 
+                        value={unloadingRegion}
+                        onChange={(e) => {
+                          setUnloadingRegion(e.target.value);
+                          setFormData(prev => ({ ...prev, unloadingRegion: e.target.value }));
+                          setShowUnloadingSuggestions(e.target.value.length > 0);
+                        }}
+                        onFocus={() => setShowUnloadingSuggestions(unloadingRegion.length > 0)}
+                        disabled={!unloadingCountry}
+                      />
+                      {showUnloadingSuggestions && unloadingCountry && (
+                        <div className="autocomplete-suggestions">
+                          {filterRegions(unloadingRegion, unloadingCountry).map((region, index) => (
+                            <div 
+                              key={index} 
+                              className="suggestion-item"
+                              onClick={() => handleRegionSelect(region.name, false)}
+                            >
+                              {region.name}
                             </div>
                           ))}
                         </div>
                       )}
                     </div>
                     <div className="form-field">
-                      <label>Место выгрузки</label>
+                      <label>Город выгрузки</label>
                       <input 
                         type="text" 
                         className="form-input" 
-                        placeholder="Начните вводить название" 
+                        placeholder="Начните вводить название города" 
                         value={unloadingCity}
                         onChange={(e) => {
                           setUnloadingCity(e.target.value);
+                          setFormData(prev => ({ ...prev, unloadingCity: e.target.value }));
                           setShowUnloadingSuggestions(e.target.value.length > 0);
                         }}
                         onFocus={() => setShowUnloadingSuggestions(unloadingCity.length > 0)}
+                        disabled={!unloadingCountry}
                       />
-                      {showUnloadingSuggestions && (
+                      {showUnloadingSuggestions && unloadingCountry && (
                         <div className="autocomplete-suggestions">
-                          {filterCities(unloadingCity).map((city, index) => (
+                          {unloadingRegion ? 
+                            filterCitiesByRegion(unloadingCity, unloadingCountry, unloadingRegion).map((city, index) => (
                             <div 
                               key={index} 
                               className="suggestion-item"
@@ -1152,7 +2135,17 @@ const Homepage: React.FC = () => {
                             >
                               {city}
                             </div>
-                          ))}
+                            )) :
+                            filterCitiesByCountry(unloadingCity, unloadingCountry).map((city, index) => (
+                              <div 
+                                key={index} 
+                                className="suggestion-item"
+                                onClick={() => handleCitySelect(city, false)}
+                              >
+                                {city}
+                              </div>
+                            ))
+                          }
                         </div>
                       )}
                     </div>
@@ -1174,33 +2167,89 @@ const Homepage: React.FC = () => {
                   <div className="form-row">
                     <div className={`form-field ${validationErrors.vehicleType ? 'error' : ''}`}>
                       <label>Тип автомобиля</label>
-                      <select 
-                        className={`form-input ${selectedValues.vehicleType ? 'has-value' : ''} ${validationErrors.vehicleType ? 'error' : ''} ${shakeFields.vehicleType ? 'shake' : ''}`}
-                        value={selectedValues.vehicleType}
-                        onChange={(e) => handleSelectChange('vehicleType', e.target.value)}
-                      >
-                        <option value="" disabled>Выберите тип</option>
-                        <option value="tent">Тент</option>
-                        <option value="isotherm">Изотерм</option>
-                        <option value="refrigerator">Рефрижератор</option>
-                        <option value="flatbed">Бортовой</option>
-                        <option value="car-carrier">Автовоз</option>
-                        <option value="platform">Платформа</option>
-                        <option value="cement-truck">Цементовоз</option>
-                        <option value="bitumen-truck">Битумовоз</option>
-                        <option value="fuel-truck">Бензовоз</option>
-                        <option value="flour-truck">Муковоз</option>
-                        <option value="tow-truck">Эвакуатор</option>
-                        <option value="timber-truck">Лесовоз</option>
-                        <option value="grain-truck">Зерновоз</option>
-                        <option value="trailer">Трал</option>
-                        <option value="dump-truck">Самосвал</option>
-                        <option value="container-truck">Контейнеровоз</option>
-                        <option value="oversized-truck">Негабарит</option>
-                        <option value="bus">Автобус</option>
-                        <option value="gas-truck">Газовоз</option>
-                        <option value="other-truck">Другой тип</option>
-                      </select>
+                      <div className="custom-dropdown">
+                        <div 
+                          className={`dropdown-trigger ${selectedValues.vehicleType ? 'has-value' : ''} ${validationErrors.vehicleType ? 'error' : ''}`}
+                          onClick={() => setShowVehicleTypeDropdown(!showVehicleTypeDropdown)}
+                        >
+                          <span className="dropdown-text">
+                            {selectedValues.vehicleType ? getVehicleTypeName(selectedValues.vehicleType) : 'Выберите тип'}
+                          </span>
+                          <svg 
+                            className={`dropdown-arrow ${showVehicleTypeDropdown ? 'open' : ''}`} 
+                            width="10" 
+                            height="6" 
+                            viewBox="0 0 10 6" 
+                            fill="none"
+                          >
+                            <path d="M.529.695c.26-.26.682-.26.942 0L5 4.224 8.529.695a.667.667 0 0 1 .942.943l-4 4a.667.667 0 0 1-.942 0l-4-4a.667.667 0 0 1 0-.943" fill="#717680"/>
+                          </svg>
+                        </div>
+                        {showVehicleTypeDropdown && (
+                          <div className="dropdown-menu">
+                            <div className="dropdown-option" onClick={() => handleSingleSelectChange('vehicleType', 'tent')}>
+                              <span>Тент</span>
+                            </div>
+                            <div className="dropdown-option" onClick={() => handleSingleSelectChange('vehicleType', 'isotherm')}>
+                              <span>Изотерм</span>
+                            </div>
+                            <div className="dropdown-option" onClick={() => handleSingleSelectChange('vehicleType', 'refrigerator')}>
+                              <span>Рефрижератор</span>
+                            </div>
+                            <div className="dropdown-option" onClick={() => handleSingleSelectChange('vehicleType', 'flatbed')}>
+                              <span>Бортовой</span>
+                            </div>
+                            <div className="dropdown-option" onClick={() => handleSingleSelectChange('vehicleType', 'car-carrier')}>
+                              <span>Автовоз</span>
+                            </div>
+                            <div className="dropdown-option" onClick={() => handleSingleSelectChange('vehicleType', 'platform')}>
+                              <span>Платформа</span>
+                            </div>
+                            <div className="dropdown-option" onClick={() => handleSingleSelectChange('vehicleType', 'cement-truck')}>
+                              <span>Цементовоз</span>
+                            </div>
+                            <div className="dropdown-option" onClick={() => handleSingleSelectChange('vehicleType', 'bitumen-truck')}>
+                              <span>Битумовоз</span>
+                            </div>
+                            <div className="dropdown-option" onClick={() => handleSingleSelectChange('vehicleType', 'fuel-truck')}>
+                              <span>Бензовоз</span>
+                            </div>
+                            <div className="dropdown-option" onClick={() => handleSingleSelectChange('vehicleType', 'flour-truck')}>
+                              <span>Муковоз</span>
+                            </div>
+                            <div className="dropdown-option" onClick={() => handleSingleSelectChange('vehicleType', 'tow-truck')}>
+                              <span>Эвакуатор</span>
+                            </div>
+                            <div className="dropdown-option" onClick={() => handleSingleSelectChange('vehicleType', 'timber-truck')}>
+                              <span>Лесовоз</span>
+                            </div>
+                            <div className="dropdown-option" onClick={() => handleSingleSelectChange('vehicleType', 'grain-truck')}>
+                              <span>Зерновоз</span>
+                            </div>
+                            <div className="dropdown-option" onClick={() => handleSingleSelectChange('vehicleType', 'trailer')}>
+                              <span>Трал</span>
+                            </div>
+                            <div className="dropdown-option" onClick={() => handleSingleSelectChange('vehicleType', 'dump-truck')}>
+                              <span>Самосвал</span>
+                            </div>
+                            <div className="dropdown-option" onClick={() => handleSingleSelectChange('vehicleType', 'container-truck')}>
+                              <span>Контейнеровоз</span>
+                            </div>
+                            <div className="dropdown-option" onClick={() => handleSingleSelectChange('vehicleType', 'oversized-truck')}>
+                              <span>Негабарит</span>
+                            </div>
+                            <div className="dropdown-option" onClick={() => handleSingleSelectChange('vehicleType', 'bus')}>
+                              <span>Автобус</span>
+                            </div>
+                            <div className="dropdown-option" onClick={() => handleSingleSelectChange('vehicleType', 'gas-truck')}>
+                              <span>Газовоз</span>
+                            </div>
+                            <div className="dropdown-option" onClick={() => handleSingleSelectChange('vehicleType', 'other-truck')}>
+                              <span>Другой тип</span>
+                            </div>
+                          </div>
+                        )}
+                      </div>
                       {validationErrors.vehicleType && (
                         <div className="error-message">Пожалуйста, выберите тип автомобиля</div>
                       )}
@@ -1238,7 +2287,7 @@ const Homepage: React.FC = () => {
                       )}
                     </div>
                     <div className="form-field">
-                      <label>Указать габариты груза</label>
+                      <label>Указать габариты авто</label>
                       <div className="dimensions-trigger" onClick={() => setShowTransportDimensions(!showTransportDimensions)}>
                         <input 
                           type="text" 
@@ -1316,66 +2365,120 @@ const Homepage: React.FC = () => {
                 <div className="form-section">
                   <div className="form-row">
                     <div className="form-field">
-                      <label>Стоимость</label>
-                      <div className="currency-input">
-                        <select 
-                          className="currency-select"
-                          value={formData.transportCurrency}
-                          onChange={(e) => setFormData(prev => ({ ...prev, transportCurrency: e.target.value }))}
-                        >
-                          <option value="USD">USD</option>
-                          <option value="RUB">RUB</option>
-                          <option value="UZS">UZS</option>
-                        </select>
-                        <input 
-                          type="number" 
-                          className="form-input" 
-                          placeholder="Укажите стоимость" 
-                          value={formData.transportPrice}
-                          onChange={(e) => setFormData(prev => ({ ...prev, transportPrice: e.target.value }))}
-                        />
-                      </div>
-                    </div>
-                    <div className="form-field">
                       <label>Метод оплаты</label>
-                      <select 
-                        className={`form-input ${selectedValues.paymentMethod ? 'has-value' : ''}`}
-                        value={selectedValues.paymentMethod}
-                        onChange={(e) => handleSelectChange('paymentMethod', e.target.value)}
-                      >
-                        <option value="" disabled>Выберите метод оплаты</option>
-                        <option value="cashless">Безналичный</option>
-                        <option value="card">На карту</option>
-                        <option value="combined">Комбинированный</option>
-                      </select>
+                      <div className="custom-dropdown">
+                        <div 
+                          className={`dropdown-trigger ${selectedValues.paymentMethod ? 'has-value' : ''}`}
+                          onClick={() => setShowPaymentMethodDropdown(!showPaymentMethodDropdown)}
+                        >
+                          <span className="dropdown-text">
+                            {selectedValues.paymentMethod ? 
+                              (selectedValues.paymentMethod === 'cashless' ? 'Наличные' : 
+                               selectedValues.paymentMethod === 'card' ? 'На карту' : 'Комбинированный') : 
+                              'Выберите метод оплаты'
+                            }
+                          </span>
+                          <svg 
+                            className={`dropdown-arrow ${showPaymentMethodDropdown ? 'open' : ''}`} 
+                            width="10" 
+                            height="6" 
+                            viewBox="0 0 10 6" 
+                            fill="none"
+                          >
+                            <path d="M.529.695c.26-.26.682-.26.942 0L5 4.224 8.529.695a.667.667 0 0 1 .942.943l-4 4a.667.667 0 0 1-.942 0l-4-4a.667.667 0 0 1 0-.943" fill="#717680"/>
+                          </svg>
+                      </div>
+                        {showPaymentMethodDropdown && (
+                          <div className="dropdown-menu">
+                            <div className="dropdown-option" onClick={() => handleSingleSelectChange('paymentMethod', 'cashless')}>
+                              <span>Наличные</span>
+                    </div>
+                            <div className="dropdown-option" onClick={() => handleSingleSelectChange('paymentMethod', 'card')}>
+                              <span>На карту</span>
+                            </div>
+                            <div className="dropdown-option" onClick={() => handleSingleSelectChange('paymentMethod', 'combined')}>
+                              <span>Комбинированный</span>
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
                   
                   <div className="form-row">
                     <div className="form-field">
                       <label>Срок оплаты</label>
-                      <select 
-                        className={`form-input ${selectedValues.paymentTerm ? 'has-value' : ''}`}
-                        value={selectedValues.paymentTerm}
-                        onChange={(e) => handleSelectChange('paymentTerm', e.target.value)}
-                      >
-                        <option value="" disabled>Выберите срок оплаты</option>
-                        <option value="unloading">При разгрузке</option>
-                        <option value="prepayment">Предоплата</option>
-                        <option value="deferred">Отсрочка платежа</option>
-                      </select>
+                      <div className="custom-dropdown">
+                        <div 
+                          className={`dropdown-trigger ${selectedValues.paymentTerm ? 'has-value' : ''}`}
+                          onClick={() => setShowPaymentTermDropdown(!showPaymentTermDropdown)}
+                        >
+                          <span className="dropdown-text">
+                            {selectedValues.paymentTerm ? 
+                              (selectedValues.paymentTerm === 'unloading' ? 'При разгрузке' : 
+                               selectedValues.paymentTerm === 'prepayment' ? 'Предоплата' : 'Отсрочка платежа') : 
+                              'Выберите срок оплаты'
+                            }
+                          </span>
+                          <svg 
+                            className={`dropdown-arrow ${showPaymentTermDropdown ? 'open' : ''}`} 
+                            width="10" 
+                            height="6" 
+                            viewBox="0 0 10 6" 
+                            fill="none"
+                          >
+                            <path d="M.529.695c.26-.26.682-.26.942 0L5 4.224 8.529.695a.667.667 0 0 1 .942.943l-4 4a.667.667 0 0 1-.942 0l-4-4a.667.667 0 0 1 0-.943" fill="#717680"/>
+                          </svg>
+                        </div>
+                        {showPaymentTermDropdown && (
+                          <div className="dropdown-menu">
+                            <div className="dropdown-option" onClick={() => handleSingleSelectChange('paymentTerm', 'unloading')}>
+                              <span>При разгрузке</span>
+                            </div>
+                            <div className="dropdown-option" onClick={() => handleSingleSelectChange('paymentTerm', 'prepayment')}>
+                              <span>Предоплата</span>
+                            </div>
+                            <div className="dropdown-option" onClick={() => handleSingleSelectChange('paymentTerm', 'deferred')}>
+                              <span>Отсрочка платежа</span>
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     </div>
                     <div className="form-field">
                       <label>Торг</label>
-                                              <select 
-                          className={`form-input ${selectedValues.bargain ? 'has-value' : ''}`}
-                          value={selectedValues.bargain}
-                          onChange={(e) => handleSelectChange('bargain', e.target.value)}
+                      <div className="custom-dropdown">
+                        <div 
+                          className={`dropdown-trigger ${selectedValues.bargain ? 'has-value' : ''}`}
+                          onClick={() => setShowBargainDropdown(!showBargainDropdown)}
                         >
-                        <option value="" disabled>Возможность торга</option>
-                        <option value="yes">Возможен</option>
-                        <option value="no">Невозможен</option>
-                      </select>
+                          <span className="dropdown-text">
+                            {selectedValues.bargain ? 
+                              (selectedValues.bargain === 'yes' ? 'Возможен' : 'Нет') : 
+                              'Возможность торга'
+                            }
+                          </span>
+                          <svg 
+                            className={`dropdown-arrow ${showBargainDropdown ? 'open' : ''}`} 
+                            width="10" 
+                            height="6" 
+                            viewBox="0 0 10 6" 
+                            fill="none"
+                          >
+                            <path d="M.529.695c.26-.26.682-.26.942 0L5 4.224 8.529.695a.667.667 0 0 1 .942.943l-4 4a.667.667 0 0 1-.942 0l-4-4a.667.667 0 0 1 0-.943" fill="#717680"/>
+                          </svg>
+                    </div>
+                        {showBargainDropdown && (
+                          <div className="dropdown-menu">
+                            <div className="dropdown-option" onClick={() => handleSingleSelectChange('bargain', 'yes')}>
+                              <span>Возможен</span>
+                            </div>
+                            <div className="dropdown-option" onClick={() => handleSingleSelectChange('bargain', 'no')}>
+                              <span>Нет</span>
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1408,14 +2511,19 @@ const Homepage: React.FC = () => {
                 </div>
                 
                 <div style={{ marginTop: '32px' }}>
-                  <hr className="form-divider" />
                 </div>
                 
                 <div className="form-section" style={{ marginTop: '32px' }}>
                   <div className="form-row">
                     <div className="form-field" style={{ width: '100%' }}>
                       <label>Дополнительная информация</label>
-                      <textarea className="form-input" rows={4} placeholder="Введите дополнительную информацию..." />
+                      <textarea 
+                        className="form-input" 
+                        rows={4} 
+                        placeholder="Введите дополнительную информацию..." 
+                        value={formData.additionalInfo}
+                        onChange={(e) => setFormData(prev => ({ ...prev, additionalInfo: e.target.value }))}
+                      />
                     </div>
                   </div>
                 </div>
@@ -1507,7 +2615,13 @@ const Homepage: React.FC = () => {
                         <div className="transport-card__row">
                           <div className="transport-card__route-info">
                             <div className="transport-card__route">
-                              {card.loadingCity} → {card.unloadingCity}
+                              {card.loadingCountry && card.loadingRegion && card.loadingCity ? 
+                                `${card.loadingCity}, ${card.loadingRegion}, ${card.loadingCountry}` : 
+                                card.loadingCity || 'Не указано'
+                              } → {card.unloadingCountry && card.unloadingRegion && card.unloadingCity ? 
+                                `${card.unloadingCity}, ${card.unloadingRegion}, ${card.unloadingCountry}` : 
+                                card.unloadingCity || 'Не указано'
+                              }
                             </div>
                             <div className="transport-card__type-badge">
                               <svg width="14" height="12" viewBox="0 0 14 12" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -1524,26 +2638,22 @@ const Homepage: React.FC = () => {
                           </div>
                         </div>
 
-                        {/* Второй ряд - расстояние и габариты, оплата и сумма */}
+                        {/* Второй ряд - расстояние и тип груза, оплата и сумма */}
                         <div className="transport-card__row transport-card__row--second">
-                          <div className="transport-card__distance-dimensions">
+                          <div className="transport-card__distance-cargo">
                             <div className="transport-card__distance">
                               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M12 2L2 7v10c0 5.55 3.84 10 9 11 5.16-1 9-5.45 9-11V7l-10-5z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                               </svg>
                               {calculateDistance(card.loadingCity, card.unloadingCity)} км
                             </div>
-                            <div className="transport-card__dimensions">
+                            <div className="transport-card__cargo-type">
                               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                <path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                               </svg>
-                              {card.type === 'cargo' ? 
-                                (card.cargoLength && card.cargoWidth && card.cargoHeight ? 
-                                  `${card.cargoLength}м × ${card.cargoWidth}м × ${card.cargoHeight}м` : 
-                                  '13.4м × 2.5м × 2.7м') :
-                                (card.transportLength && card.transportWidth && card.transportHeight ? 
-                                  `${card.transportLength}м × ${card.transportWidth}м × ${card.transportHeight}м` : 
-                                  '13.4м × 2.5м × 2.7м')
+                              {Array.isArray(card.cargoType) ? 
+                                card.cargoType.map((type: string) => getCargoTypeName(type)).join(', ') :
+                                getCargoTypeName(card.cargoType) || 'Не указано'
                               }
                             </div>
                           </div>
@@ -1559,7 +2669,7 @@ const Homepage: React.FC = () => {
                                card.paymentMethod === 'combined' ? 'Комбинированный' : 'Наличные'}
                             </div>
                             <div className="transport-card__price">
-                              {card.cargoPrice || card.transportPrice || '55'} {card.cargoCurrency === 'UAH' ? 'грн' : card.transportCurrency === 'UAH' ? 'грн' : 'грн'}
+                              {card.cargoPrice || '55'} {card.cargoCurrency}
                             </div>
                           </div>
                         </div>
@@ -1594,9 +2704,19 @@ const Homepage: React.FC = () => {
                         {/* Четвертый ряд - детали и действия */}
                         <div className="transport-card__row">
                           <div className="transport-card__details">
-                            <span>{card.loadingType === 'back' ? 'Задняя' : card.loadingType === 'side' ? 'Боковая' : card.loadingType === 'top' ? 'Верхняя' : 'Задняя'}</span>
-                            <span>Пломба</span>
-                            <span>Кол-во паллет: 33</span>
+                            <span>
+                              {Array.isArray(card.loadingType) ? 
+                                card.loadingType.includes('all') ? 'Все загрузки' :
+                                card.loadingType.map((type: string) => 
+                                  type === 'back' ? 'Задняя' : 
+                                  type === 'side' ? 'Боковая' : 
+                                  type === 'top' ? 'Верхняя' : type
+                                ).join(', ') :
+                                card.loadingType === 'back' ? 'Задняя' : 
+                                card.loadingType === 'side' ? 'Боковая' : 
+                                card.loadingType === 'top' ? 'Верхняя' : 'Задняя'
+                              }
+                            </span>
                             <span>Информация о грузе</span>
                           </div>
                           <div className="transport-card__actions">
@@ -1675,22 +2795,9 @@ const Homepage: React.FC = () => {
                                 )}
                               </div>
                               
-                              <h4>Дополнительная информация</h4>
+                              <hr className="transport-card__divider" />
+                              
                               <div className="transport-card__additional-info">
-                                <div className="transport-card__info-row">
-                                  <span className="transport-card__info-label">Тип загрузки:</span>
-                                  <span className="transport-card__info-value">
-                                    {card.loadingType === 'back' ? 'Задняя' : 
-                                     card.loadingType === 'side' ? 'Боковая' : 
-                                     card.loadingType === 'top' ? 'Верхняя' : 'Задняя'}
-                                  </span>
-                                </div>
-                                <div className="transport-card__info-row">
-                                  <span className="transport-card__info-label">Тип груза:</span>
-                                  <span className="transport-card__info-value">
-                                    {getCargoTypeName(card.cargoType) || 'Не указано'}
-                                  </span>
-                                </div>
                                 <div className="transport-card__info-row">
                                   <span className="transport-card__info-label">Условия оплаты:</span>
                                   <span className="transport-card__info-value">
@@ -1699,9 +2806,15 @@ const Homepage: React.FC = () => {
                                      card.paymentTerm === '50-50' ? '50% - 50%' : 'Не указано'}
                                   </span>
                                 </div>
+                                <div className="transport-card__info-row">
+                                  <span className="transport-card__info-label">Кол-во паллет:</span>
+                                  <span className="transport-card__info-value">
+                                    {card.palletCount || '33'}
+                                  </span>
+                                </div>
                                 {card.additionalInfo && (
                                   <div className="transport-card__info-row">
-                                    <span className="transport-card__info-label">Примечания:</span>
+                                    <span className="transport-card__info-label">Дополнительная информация:</span>
                                     <span className="transport-card__info-value">{card.additionalInfo}</span>
                                   </div>
                                 )}
