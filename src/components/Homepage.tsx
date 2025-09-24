@@ -1801,7 +1801,7 @@ const Homepage: React.FC = () => {
                         >
                           <span className="dropdown-text">
                             {selectedValues.bargain ? 
-                              (selectedValues.bargain === 'yes' ? 'Возможен' : 'Нет') : 
+                              (selectedValues.bargain === 'yes' ? 'Возможен' : 'Без торга') : 
                               'Возможность торга'
                             }
                           </span>
@@ -1821,7 +1821,7 @@ const Homepage: React.FC = () => {
                               <span>Возможен</span>
                             </div>
                             <div className="dropdown-option" onClick={() => handleSingleSelectChange('bargain', 'no')}>
-                              <span>Нет</span>
+                              <span>Без торга</span>
                             </div>
                           </div>
                         )}
@@ -2450,7 +2450,7 @@ const Homepage: React.FC = () => {
                         >
                           <span className="dropdown-text">
                             {selectedValues.bargain ? 
-                              (selectedValues.bargain === 'yes' ? 'Возможен' : 'Нет') : 
+                              (selectedValues.bargain === 'yes' ? 'Возможен' : 'Без торга') : 
                               'Возможность торга'
                             }
                           </span>
@@ -2470,7 +2470,7 @@ const Homepage: React.FC = () => {
                               <span>Возможен</span>
                             </div>
                             <div className="dropdown-option" onClick={() => handleSingleSelectChange('bargain', 'no')}>
-                              <span>Нет</span>
+                              <span>Без торга</span>
                             </div>
                           </div>
                         )}
@@ -2510,7 +2510,7 @@ const Homepage: React.FC = () => {
                 </div>
                 
                 <div className="form-section" style={{ marginTop: '32px' }}>
-                  <div className="form-row">
+                  <div className="form-row"></div>
                     <div className="form-field" style={{ width: '100%' }}>
                       <label>Дополнительная информация</label>
                       <textarea 
@@ -2529,7 +2529,6 @@ const Homepage: React.FC = () => {
                     Добавить автомобиль
                   </button>
                 </div>
-              </div>
             </div>
           </>
         );
