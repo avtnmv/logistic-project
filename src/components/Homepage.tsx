@@ -1305,42 +1305,38 @@ const Homepage: React.FC = () => {
                         </div>
                         {showLoadingTypeDropdown && (
                           <div className="dropdown-menu">
-                            <div className="dropdown-option">
+                            <label className="dropdown-option">
                               <input 
                                 type="checkbox" 
-                                id="loading-all"
                                 checked={selectedValues.loadingType.includes('all')}
                                 onChange={() => handleMultiSelectChange('loadingType', 'all')}
                               />
-                              <label htmlFor="loading-all">Все загрузки</label>
-                            </div>
-                            <div className="dropdown-option">
+                              <span>Все загрузки</span>
+                            </label>
+                            <label className="dropdown-option">
                               <input 
                                 type="checkbox" 
-                                id="loading-back"
                                 checked={selectedValues.loadingType.includes('back')}
                                 onChange={() => handleMultiSelectChange('loadingType', 'back')}
                               />
-                              <label htmlFor="loading-back">Задняя</label>
-                            </div>
-                            <div className="dropdown-option">
+                              <span>Задняя</span>
+                            </label>
+                            <label className="dropdown-option">
                               <input 
                                 type="checkbox" 
-                                id="loading-side"
                                 checked={selectedValues.loadingType.includes('side')}
                                 onChange={() => handleMultiSelectChange('loadingType', 'side')}
                               />
-                              <label htmlFor="loading-side">Боковая</label>
-                            </div>
-                            <div className="dropdown-option">
+                              <span>Боковая</span>
+                            </label>
+                            <label className="dropdown-option">
                               <input 
                                 type="checkbox" 
-                                id="loading-top"
                                 checked={selectedValues.loadingType.includes('top')}
                                 onChange={() => handleMultiSelectChange('loadingType', 'top')}
                               />
-                              <label htmlFor="loading-top">Верхняя</label>
-                            </div>
+                              <span>Верхняя</span>
+                            </label>
                           </div>
                         )}
                       </div>
@@ -1959,11 +1955,11 @@ const Homepage: React.FC = () => {
                         onChange={(e) => {
                           setLoadingCountry(e.target.value);
                           setFormData(prev => ({ ...prev, loadingCountry: e.target.value }));
-                          setShowLoadingSuggestions(e.target.value.length > 0);
+                          setShowLoadingCountrySuggestions(e.target.value.length > 0);
                         }}
-                        onFocus={() => setShowLoadingSuggestions(loadingCountry.length > 0)}
+                        onFocus={() => setShowLoadingCountrySuggestions(loadingCountry.length > 0)}
                       />
-                      {showLoadingSuggestions && (
+                      {showLoadingCountrySuggestions && (
                         <div className="autocomplete-suggestions">
                           {filterCountries(loadingCountry).map((country, index) => (
                             <div 
@@ -1987,12 +1983,12 @@ const Homepage: React.FC = () => {
                         onChange={(e) => {
                           setLoadingRegion(e.target.value);
                           setFormData(prev => ({ ...prev, loadingRegion: e.target.value }));
-                          setShowLoadingSuggestions(e.target.value.length > 0);
+                          setShowLoadingRegionSuggestions(e.target.value.length > 0);
                         }}
-                        onFocus={() => setShowLoadingSuggestions(loadingRegion.length > 0)}
+                        onFocus={() => setShowLoadingRegionSuggestions(loadingRegion.length > 0)}
                         disabled={!loadingCountry}
                       />
-                      {showLoadingSuggestions && loadingCountry && (
+                      {showLoadingRegionSuggestions && loadingCountry && (
                         <div className="autocomplete-suggestions">
                           {filterRegions(loadingRegion, loadingCountry).map((region, index) => (
                             <div 
@@ -2059,11 +2055,11 @@ const Homepage: React.FC = () => {
                         onChange={(e) => {
                           setUnloadingCountry(e.target.value);
                           setFormData(prev => ({ ...prev, unloadingCountry: e.target.value }));
-                          setShowUnloadingSuggestions(e.target.value.length > 0);
+                          setShowUnloadingCountrySuggestions(e.target.value.length > 0);
                         }}
-                        onFocus={() => setShowUnloadingSuggestions(unloadingCountry.length > 0)}
+                        onFocus={() => setShowUnloadingCountrySuggestions(unloadingCountry.length > 0)}
                       />
-                      {showUnloadingSuggestions && (
+                      {showUnloadingCountrySuggestions && (
                         <div className="autocomplete-suggestions">
                           {filterCountries(unloadingCountry).map((country, index) => (
                             <div 
@@ -2090,12 +2086,12 @@ const Homepage: React.FC = () => {
                         onChange={(e) => {
                           setUnloadingRegion(e.target.value);
                           setFormData(prev => ({ ...prev, unloadingRegion: e.target.value }));
-                          setShowUnloadingSuggestions(e.target.value.length > 0);
+                          setShowUnloadingRegionSuggestions(e.target.value.length > 0);
                         }}
-                        onFocus={() => setShowUnloadingSuggestions(unloadingRegion.length > 0)}
+                        onFocus={() => setShowUnloadingRegionSuggestions(unloadingRegion.length > 0)}
                         disabled={!unloadingCountry}
                       />
-                      {showUnloadingSuggestions && unloadingCountry && (
+                      {showUnloadingRegionSuggestions && unloadingCountry && (
                         <div className="autocomplete-suggestions">
                           {filterRegions(unloadingRegion, unloadingCountry).map((region, index) => (
                             <div 
