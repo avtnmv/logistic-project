@@ -265,7 +265,7 @@ const Homepage: React.FC = () => {
       return distances[city2][city1];
     }
 
-    return 500; // Фиксированное расстояние для неизвестных маршрутов
+    return 500; 
   };
 
   const toggleCardExpanded = (cardId: string) => {
@@ -739,29 +739,24 @@ const Homepage: React.FC = () => {
       'cargoVolume'
     ];
     
-    // Проверяем: страна + (область ИЛИ город)
     const hasLoadingCountry = formData.loadingCountry;
     const hasLoadingRegion = loadingRegion || formData.loadingRegion;
     const hasLoadingCity = loadingCity || formData.loadingCity;
     const hasUnloadingCountry = formData.unloadingCountry;
     const hasUnloadingRegion = unloadingRegion || formData.unloadingRegion;
     const hasUnloadingCity = unloadingCity || formData.unloadingCity;
-    
-    // Если указана страна, то должна быть указана область ИЛИ город
+
     if (hasLoadingCountry && !hasLoadingRegion && !hasLoadingCity) {
       errors['loadingCity'] = true;
     }
     if (hasUnloadingCountry && !hasUnloadingRegion && !hasUnloadingCity) {
       errors['unloadingCity'] = true;
     }
-    
-    // Дополнительная проверка: если указана область, то город необязателен
+
     if (hasLoadingRegion && hasLoadingCountry) {
-      // Убираем ошибку города, если указана область
       delete errors['loadingCity'];
     }
     if (hasUnloadingRegion && hasUnloadingCountry) {
-      // Убираем ошибку города, если указана область
       delete errors['unloadingCity'];
     }
     
@@ -799,7 +794,6 @@ const Homepage: React.FC = () => {
       'transportVolume'
     ];
     
-    // Проверяем: страна + (область ИЛИ город)
     const hasLoadingCountry = formData.loadingCountry;
     const hasLoadingRegion = loadingRegion || formData.loadingRegion;
     const hasLoadingCity = loadingCity || formData.loadingCity;
@@ -807,7 +801,6 @@ const Homepage: React.FC = () => {
     const hasUnloadingRegion = unloadingRegion || formData.unloadingRegion;
     const hasUnloadingCity = unloadingCity || formData.unloadingCity;
     
-    // Если указана страна, то должна быть указана область ИЛИ город
     if (hasLoadingCountry && !hasLoadingRegion && !hasLoadingCity) {
       errors['loadingCity'] = true;
     }
@@ -815,13 +808,10 @@ const Homepage: React.FC = () => {
       errors['unloadingCity'] = true;
     }
     
-    // Дополнительная проверка: если указана область, то город необязателен
     if (hasLoadingRegion && hasLoadingCountry) {
-      // Убираем ошибку города, если указана область
       delete errors['loadingCity'];
     }
     if (hasUnloadingRegion && hasUnloadingCountry) {
-      // Убираем ошибку города, если указана область
       delete errors['unloadingCity'];
     }
     
@@ -2023,6 +2013,37 @@ const Homepage: React.FC = () => {
                       )}
                     </div>
                     <div className="form-field">
+                      <label>Страна выгрузки</label>
+                      <input 
+                        type="text" 
+                        className="form-input" 
+                        placeholder="Начните вводить название страны" 
+                        value={unloadingCountry}
+                        onChange={(e) => {
+                          setUnloadingCountry(e.target.value);
+                          setFormData(prev => ({ ...prev, unloadingCountry: e.target.value }));
+                          setShowUnloadingCountrySuggestions(e.target.value.length > 0);
+                        }}
+                        onFocus={() => setShowUnloadingCountrySuggestions(unloadingCountry.length > 0)}
+                      />
+                      {showUnloadingCountrySuggestions && (
+                        <div className="autocomplete-suggestions">
+                          {filterCountries(unloadingCountry).map((country, index) => (
+                            <div 
+                              key={index} 
+                              className="suggestion-item"
+                              onClick={() => handleCountrySelect(country.name, false)}
+                            >
+                              {country.name}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <div className="form-row">
+                    <div className="form-field">
                       <label>Область загрузки</label>
                       <input 
                         type="text" 
@@ -2044,6 +2065,35 @@ const Homepage: React.FC = () => {
                               key={index} 
                               className="suggestion-item"
                               onClick={() => handleRegionSelect(region.name, true)}
+                            >
+                              {region.name}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    <div className="form-field">
+                      <label>Область выгрузки</label>
+                      <input 
+                        type="text" 
+                        className="form-input" 
+                        placeholder="Начните вводить название области" 
+                        value={unloadingRegion}
+                        onChange={(e) => {
+                          setUnloadingRegion(e.target.value);
+                          setFormData(prev => ({ ...prev, unloadingRegion: e.target.value }));
+                          setShowUnloadingRegionSuggestions(e.target.value.length > 0);
+                        }}
+                        onFocus={() => setShowUnloadingRegionSuggestions(unloadingRegion.length > 0)}
+                        disabled={!unloadingCountry}
+                      />
+                      {showUnloadingRegionSuggestions && unloadingCountry && (
+                        <div className="autocomplete-suggestions">
+                          {filterRegions(unloadingRegion, unloadingCountry).map((region, index) => (
+                            <div 
+                              key={index} 
+                              className="suggestion-item"
+                              onClick={() => handleRegionSelect(region.name, false)}
                             >
                               {region.name}
                             </div>
@@ -2091,66 +2141,6 @@ const Homepage: React.FC = () => {
                               </div>
                             ))
                           }
-                        </div>
-                      )}
-                    </div>
-                    <div className="form-field">
-                      <label>Страна выгрузки</label>
-                      <input 
-                        type="text" 
-                        className="form-input" 
-                        placeholder="Начните вводить название страны" 
-                        value={unloadingCountry}
-                        onChange={(e) => {
-                          setUnloadingCountry(e.target.value);
-                          setFormData(prev => ({ ...prev, unloadingCountry: e.target.value }));
-                          setShowUnloadingCountrySuggestions(e.target.value.length > 0);
-                        }}
-                        onFocus={() => setShowUnloadingCountrySuggestions(unloadingCountry.length > 0)}
-                      />
-                      {showUnloadingCountrySuggestions && (
-                        <div className="autocomplete-suggestions">
-                          {filterCountries(unloadingCountry).map((country, index) => (
-                            <div 
-                              key={index} 
-                              className="suggestion-item"
-                              onClick={() => handleCountrySelect(country.name, false)}
-                            >
-                              {country.name}
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                  
-                  <div className="form-row">
-                    <div className="form-field">
-                      <label>Область выгрузки</label>
-                      <input 
-                        type="text" 
-                        className="form-input" 
-                        placeholder="Начните вводить название области" 
-                        value={unloadingRegion}
-                        onChange={(e) => {
-                          setUnloadingRegion(e.target.value);
-                          setFormData(prev => ({ ...prev, unloadingRegion: e.target.value }));
-                          setShowUnloadingRegionSuggestions(e.target.value.length > 0);
-                        }}
-                        onFocus={() => setShowUnloadingRegionSuggestions(unloadingRegion.length > 0)}
-                        disabled={!unloadingCountry}
-                      />
-                      {showUnloadingRegionSuggestions && unloadingCountry && (
-                        <div className="autocomplete-suggestions">
-                          {filterRegions(unloadingRegion, unloadingCountry).map((region, index) => (
-                            <div 
-                              key={index} 
-                              className="suggestion-item"
-                              onClick={() => handleRegionSelect(region.name, false)}
-                            >
-                              {region.name}
-                            </div>
-                          ))}
                         </div>
                       )}
                     </div>
@@ -2729,6 +2719,14 @@ const Homepage: React.FC = () => {
                               </svg>
                               {card.cargoVolume || card.transportVolume || '86'}м³
                             </div>
+                            {card.palletCount && (
+                              <div className="transport-card__spec-item">
+                                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                  <path d="M2 10.667h8.003L9.053 4H2.95zm4.001-8a.65.65 0 0 0 .476-.192A.64.64 0 0 0 6.668 2a.65.65 0 0 0-.192-.475.64.64 0 0 0-.475-.192.64.64 0 0 0-.474.192.65.65 0 0 0-.193.475q0 .283.193.475A.64.64 0 0 0 6 2.667m1.884 0h1.168q.5 0 .866.333.367.333.45.817l.951 6.666q.084.6-.308 1.059a1.26 1.26 0 0 1-1.01.458H2q-.617 0-1.01-.458a1.29 1.29 0 0 1-.307-1.059l.95-6.666q.084-.484.45-.817.367-.333.867-.333h1.167a4 4 0 0 1-.083-.325A1.7 1.7 0 0 1 4.001 2q0-.834.583-1.417A1.93 1.93 0 0 1 6.001 0 1.93 1.93 0 0 1 7.42.583q.583.584.583 1.417q0 .183-.033.342t-.084.325" fill="#717680"/>
+                                </svg>
+                                {card.palletCount}шт
+                              </div>
+                            )}
                           </div>
                         </div>
 
@@ -2835,17 +2833,19 @@ const Homepage: React.FC = () => {
                                      card.paymentTerm === 'deferred' ? 'Отсрочка платежа' : 'Не указано'}
                                   </span>
                                 </div>
-                                <div className="transport-card__info-row">
-                                  <span className="transport-card__info-label">Кол-во паллет:</span>
-                                  <span className="transport-card__info-value">
-                                    {card.palletCount || '33'}
-                                  </span>
-                                </div>
                                 {card.vehicleCount && (
                                   <div className="transport-card__info-row">
                                     <span className="transport-card__info-label">Количество автомобилей:</span>
                                     <span className="transport-card__info-value">
                                       {card.vehicleCount}
+                                    </span>
+                                  </div>
+                                )}
+                                {card.palletCount && (
+                                  <div className="transport-card__info-row">
+                                    <span className="transport-card__info-label">Количество паллет:</span>
+                                    <span className="transport-card__info-value">
+                                      {card.palletCount} шт
                                     </span>
                                   </div>
                                 )}
