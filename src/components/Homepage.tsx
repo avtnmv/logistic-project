@@ -361,7 +361,8 @@ const Homepage: React.FC = () => {
 
   useEffect(() => {
     if (location.pathname === '/my-transports') {
-      setActiveForm('cards');
+      // Не переключаем форму автоматически, остаемся на той же вкладке
+      // setActiveForm('cards');
       return;
     }
 
@@ -738,12 +739,30 @@ const Homepage: React.FC = () => {
       'cargoVolume'
     ];
     
-    // Город обязателен только если не указана область
-    if (!formData.loadingRegion && (!formData.loadingCity || formData.loadingCity === '')) {
+    // Проверяем: страна + (область ИЛИ город)
+    const hasLoadingCountry = formData.loadingCountry;
+    const hasLoadingRegion = loadingRegion || formData.loadingRegion;
+    const hasLoadingCity = loadingCity || formData.loadingCity;
+    const hasUnloadingCountry = formData.unloadingCountry;
+    const hasUnloadingRegion = unloadingRegion || formData.unloadingRegion;
+    const hasUnloadingCity = unloadingCity || formData.unloadingCity;
+    
+    // Если указана страна, то должна быть указана область ИЛИ город
+    if (hasLoadingCountry && !hasLoadingRegion && !hasLoadingCity) {
       errors['loadingCity'] = true;
     }
-    if (!formData.unloadingRegion && (!formData.unloadingCity || formData.unloadingCity === '')) {
+    if (hasUnloadingCountry && !hasUnloadingRegion && !hasUnloadingCity) {
       errors['unloadingCity'] = true;
+    }
+    
+    // Дополнительная проверка: если указана область, то город необязателен
+    if (hasLoadingRegion && hasLoadingCountry) {
+      // Убираем ошибку города, если указана область
+      delete errors['loadingCity'];
+    }
+    if (hasUnloadingRegion && hasUnloadingCountry) {
+      // Убираем ошибку города, если указана область
+      delete errors['unloadingCity'];
     }
     
     for (const field of requiredFields) {
@@ -780,12 +799,30 @@ const Homepage: React.FC = () => {
       'transportVolume'
     ];
     
-    // Город обязателен только если не указана область
-    if (!formData.loadingRegion && (!formData.loadingCity || formData.loadingCity === '')) {
+    // Проверяем: страна + (область ИЛИ город)
+    const hasLoadingCountry = formData.loadingCountry;
+    const hasLoadingRegion = loadingRegion || formData.loadingRegion;
+    const hasLoadingCity = loadingCity || formData.loadingCity;
+    const hasUnloadingCountry = formData.unloadingCountry;
+    const hasUnloadingRegion = unloadingRegion || formData.unloadingRegion;
+    const hasUnloadingCity = unloadingCity || formData.unloadingCity;
+    
+    // Если указана страна, то должна быть указана область ИЛИ город
+    if (hasLoadingCountry && !hasLoadingRegion && !hasLoadingCity) {
       errors['loadingCity'] = true;
     }
-    if (!formData.unloadingRegion && (!formData.unloadingCity || formData.unloadingCity === '')) {
+    if (hasUnloadingCountry && !hasUnloadingRegion && !hasUnloadingCity) {
       errors['unloadingCity'] = true;
+    }
+    
+    // Дополнительная проверка: если указана область, то город необязателен
+    if (hasLoadingRegion && hasLoadingCountry) {
+      // Убираем ошибку города, если указана область
+      delete errors['loadingCity'];
+    }
+    if (hasUnloadingRegion && hasUnloadingCountry) {
+      // Убираем ошибку города, если указана область
+      delete errors['unloadingCity'];
     }
     
     for (const field of requiredFields) {
@@ -867,12 +904,11 @@ const Homepage: React.FC = () => {
     localStorage.setItem(storageKey, JSON.stringify(updatedUserCards));
     
     
-    // Не переключаем форму, остаемся на той же вкладке
-    // setActiveForm('cards');
+    // Переключаем на вкладку "Мои перевозки" после добавления
+    setActiveForm('cards');
     
-    // Обновляем URL, убирая параметр form
-    const newUrl = window.location.pathname;
-    window.history.replaceState({}, '', newUrl);
+    // Перенаправляем на /homepage
+    window.location.href = '/homepage';
     
     setFormData({
       loadingStartDate: '',
@@ -2606,13 +2642,19 @@ const Homepage: React.FC = () => {
                         <div className="transport-card__row">
                           <div className="transport-card__route-info">
                             <div className="transport-card__route">
-                              {card.loadingCountry && card.loadingRegion && card.loadingCity ? 
-                                `${card.loadingCity}, ${card.loadingRegion}, ${card.loadingCountry}` : 
-                                card.loadingCity || 'Не указано'
-                              } → {card.unloadingCountry && card.unloadingRegion && card.unloadingCity ? 
-                                `${card.unloadingCity}, ${card.unloadingRegion}, ${card.unloadingCountry}` : 
-                                card.unloadingCity || 'Не указано'
-                              }
+                              {(() => {
+                                const loadingParts = [];
+                                if (card.loadingCity) loadingParts.push(card.loadingCity);
+                                if (card.loadingRegion) loadingParts.push(card.loadingRegion);
+                                if (card.loadingCountry) loadingParts.push(card.loadingCountry);
+                                return loadingParts.length > 0 ? loadingParts.join(', ') : 'Не указано';
+                              })()} → {(() => {
+                                const unloadingParts = [];
+                                if (card.unloadingCity) unloadingParts.push(card.unloadingCity);
+                                if (card.unloadingRegion) unloadingParts.push(card.unloadingRegion);
+                                if (card.unloadingCountry) unloadingParts.push(card.unloadingCountry);
+                                return unloadingParts.length > 0 ? unloadingParts.join(', ') : 'Не указано';
+                              })()}
                             </div>
                             <div className="transport-card__type-badge">
                               <svg width="14" height="12" viewBox="0 0 14 12" fill="none" xmlns="http://www.w3.org/2000/svg">
