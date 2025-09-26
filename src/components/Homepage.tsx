@@ -733,12 +733,18 @@ const Homepage: React.FC = () => {
       'loadingStartDate',
       'loadingEndDate', 
       'loadingCountry',
-      'loadingCity',
       'unloadingCountry',
-      'unloadingCity',
       'cargoWeight',
       'cargoVolume'
     ];
+    
+    // Город обязателен только если не указана область
+    if (!formData.loadingRegion && (!formData.loadingCity || formData.loadingCity === '')) {
+      errors['loadingCity'] = true;
+    }
+    if (!formData.unloadingRegion && (!formData.unloadingCity || formData.unloadingCity === '')) {
+      errors['unloadingCity'] = true;
+    }
     
     for (const field of requiredFields) {
       if (!formData[field as keyof typeof formData] || formData[field as keyof typeof formData] === '') {
@@ -769,12 +775,18 @@ const Homepage: React.FC = () => {
       'loadingStartDate',
       'loadingEndDate',
       'loadingCountry',
-      'loadingCity', 
       'unloadingCountry',
-      'unloadingCity',
       'transportWeight',
       'transportVolume'
     ];
+    
+    // Город обязателен только если не указана область
+    if (!formData.loadingRegion && (!formData.loadingCity || formData.loadingCity === '')) {
+      errors['loadingCity'] = true;
+    }
+    if (!formData.unloadingRegion && (!formData.unloadingCity || formData.unloadingCity === '')) {
+      errors['unloadingCity'] = true;
+    }
     
     for (const field of requiredFields) {
       if (!formData[field as keyof typeof formData] || formData[field as keyof typeof formData] === '') {
@@ -855,7 +867,8 @@ const Homepage: React.FC = () => {
     localStorage.setItem(storageKey, JSON.stringify(updatedUserCards));
     
     
-    setActiveForm('cards');
+    // Не переключаем форму, остаемся на той же вкладке
+    // setActiveForm('cards');
     
     // Обновляем URL, убирая параметр form
     const newUrl = window.location.pathname;
@@ -2272,7 +2285,6 @@ const Homepage: React.FC = () => {
                         value={formData.transportWeight}
                         onChange={(e) => {
                           setFormData(prev => ({ ...prev, transportWeight: e.target.value }));
-                          // Очищаем ошибку для этого поля
                           if (validationErrors.transportWeight) {
                             setValidationErrors(prev => ({ ...prev, transportWeight: false }));
                           }
@@ -2343,7 +2355,6 @@ const Homepage: React.FC = () => {
                         value={formData.transportVolume}
                         onChange={(e) => {
                           setFormData(prev => ({ ...prev, transportVolume: e.target.value }));
-                          // Очищаем ошибку для этого поля
                           if (validationErrors.transportVolume) {
                             setValidationErrors(prev => ({ ...prev, transportVolume: false }));
                           }
@@ -2548,33 +2559,24 @@ const Homepage: React.FC = () => {
                 );
               }
               
-              // Загружаем карточки конкретного пользователя
               const storageKey = `transportCards_${currentUser.id}`;
               let userCards = JSON.parse(localStorage.getItem(storageKey) || '[]');
               
-              // Если карточек нет в пользовательском хранилище, пробуем мигрировать
               if (userCards.length === 0) {
-                // Попытка миграции карточек
                 const allCards = JSON.parse(localStorage.getItem('transportCards') || '[]');
                 
-                // Пробуем найти карточки по userId
                 let migratedCards = allCards.filter((card: any) => card.userId === currentUser.id);
                 
-                // Если не найдены по userId, пробуем по номеру телефона
                 if (migratedCards.length === 0) {
-                  // Поиск карточек по номеру телефона
                   migratedCards = allCards.filter((card: any) => card.mainPhone === currentUser.phone);
                 }
                 
-                // Если все еще не найдены, пробуем по имени пользователя
                 if (migratedCards.length === 0) {
-                  // Поиск карточек по имени пользователя
                   const userName = `${currentUser.firstName} ${currentUser.lastName}`;
                   migratedCards = allCards.filter((card: any) => card.userName === userName);
                 }
                 
                 if (migratedCards.length > 0) {
-                  // Добавляем userId к найденным карточкам
                   const updatedCards = migratedCards.map((card: any) => ({
                     ...card,
                     userId: currentUser.id
@@ -2582,13 +2584,8 @@ const Homepage: React.FC = () => {
                   
                   localStorage.setItem(storageKey, JSON.stringify(updatedCards));
                   userCards = updatedCards;
-                  // Миграция успешна
                 }
               }
-              
-              // Отображение карточек
-              
-              // Отладочная информация уже выведена выше
               
               if (userCards.length === 0) {
                 return (
@@ -2606,7 +2603,6 @@ const Homepage: React.FC = () => {
                       className={`transport-card ${deletingCardId === card.id ? 'deleting' : ''}`}
                     >
                       <div className="transport-card__content">
-                        {/* Первый ряд - маршрут, тип, дата */}
                         <div className="transport-card__row">
                           <div className="transport-card__route-info">
                             <div className="transport-card__route">
@@ -2633,7 +2629,6 @@ const Homepage: React.FC = () => {
                           </div>
                         </div>
 
-                        {/* Второй ряд - расстояние и тип груза, оплата и сумма */}
                         <div className="transport-card__row transport-card__row--second">
                           <div className="transport-card__distance-cargo">
                             <div className="transport-card__distance">
@@ -2669,7 +2664,6 @@ const Homepage: React.FC = () => {
                           </div>
                         </div>
 
-                        {/* Третий ряд - тип авто, масса, объем */}
                         <div className="transport-card__row">
                           <div className="transport-card__vehicle-info">
                             <div className="transport-card__vehicle-type">
@@ -2696,7 +2690,6 @@ const Homepage: React.FC = () => {
                           </div>
                         </div>
 
-                        {/* Четвертый ряд - детали и действия */}
                         <div className="transport-card__row">
                           <div className="transport-card__details">
                             <span>
@@ -2761,7 +2754,6 @@ const Homepage: React.FC = () => {
                           </div>
                         </div>
 
-                        {/* Развернутая информация */}
                         <div className={`transport-card__expanded ${expandedCardId === card.id ? 'expanded' : ''}`}>
                             <div className="transport-card__expanded-content">
                               <h4>Контактная информация</h4>
@@ -2797,8 +2789,8 @@ const Homepage: React.FC = () => {
                                   <span className="transport-card__info-label">Условия оплаты:</span>
                                   <span className="transport-card__info-value">
                                     {card.paymentTerm === 'prepayment' ? 'Предоплата' :
-                                     card.paymentTerm === 'postpayment' ? 'Постоплата' :
-                                     card.paymentTerm === '50-50' ? '50% - 50%' : 'Не указано'}
+                                     card.paymentTerm === 'unloading' ? 'При разгрузке' :
+                                     card.paymentTerm === 'deferred' ? 'Отсрочка платежа' : 'Не указано'}
                                   </span>
                                 </div>
                                 <div className="transport-card__info-row">
@@ -2807,6 +2799,14 @@ const Homepage: React.FC = () => {
                                     {card.palletCount || '33'}
                                   </span>
                                 </div>
+                                {card.vehicleCount && (
+                                  <div className="transport-card__info-row">
+                                    <span className="transport-card__info-label">Количество автомобилей:</span>
+                                    <span className="transport-card__info-value">
+                                      {card.vehicleCount}
+                                    </span>
+                                  </div>
+                                )}
                                 {card.additionalInfo && (
                                   <div className="transport-card__info-row">
                                     <span className="transport-card__info-label">Дополнительная информация:</span>

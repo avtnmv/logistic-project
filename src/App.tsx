@@ -9,6 +9,7 @@ import Homepage from './components/Homepage';
 import Security from './components/Security';
 import Profile from './components/Profile';
 import Companies from './components/Companies';
+import Payments from './components/Payments';
 import { SidebarProvider } from './contexts/SidebarContext';
 import './App.css';
 
@@ -39,6 +40,7 @@ function App() {
               <Route path="/homepage" element={<Homepage />} />
               <Route path="/my-transports" element={<Homepage />} />
               <Route path="/companies" element={<Companies />} />
+              <Route path="/payments" element={<Payments />} />
               <Route path="/security" element={<Security />} />
               <Route path="/profile" element={<Profile />} />
             </Routes>

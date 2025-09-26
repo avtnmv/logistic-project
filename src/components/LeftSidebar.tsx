@@ -81,7 +81,6 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({ currentUser, isOpen = false, 
               {(() => {
                 if (!currentUser?.id) return 0;
                 
-                // Загружаем карточки конкретного пользователя
                 const storageKey = `transportCards_${currentUser.id}`;
                 const userCards = JSON.parse(localStorage.getItem(storageKey) || '[]');
                 return userCards.length;
@@ -90,7 +89,6 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({ currentUser, isOpen = false, 
           </button>
         </div>
 
-        {/* Кнопки добавления */}
         <div className="left-sidebar__section">
           <button 
             className={`left-sidebar__button left-sidebar__button--add-cargo ${location.pathname === '/homepage' && location.search === '?form=cargo' ? 'left-sidebar__button--active' : ''}`} 
@@ -123,10 +121,8 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({ currentUser, isOpen = false, 
           </button>
         </div>
 
-        {/* Разделительная линия */}
         <hr className="left-sidebar__divider" />
 
-        {/* Дополнительные пункты */}
         <div className="left-sidebar__section">
           <Link 
             to="/security" 
