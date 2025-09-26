@@ -361,8 +361,6 @@ const Homepage: React.FC = () => {
 
   useEffect(() => {
     if (location.pathname === '/my-transports') {
-      // Не переключаем форму автоматически, остаемся на той же вкладке
-      // setActiveForm('cards');
       return;
     }
 
@@ -394,7 +392,6 @@ const Homepage: React.FC = () => {
     }
   }, [currentUser]);
 
-  // Закрытие выпадающих списков при клике вне их
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
@@ -411,9 +408,9 @@ const Homepage: React.FC = () => {
     };
 
     const anyDropdownOpen = showLoadingTypeDropdown || showCargoTypeDropdown || 
-                           showVehicleTypeDropdown || showReloadTypeDropdown || 
-                           showPaymentMethodDropdown || showPaymentTermDropdown || 
-                           showBargainDropdown || showTransportCurrencyDropdown;
+      showVehicleTypeDropdown || showReloadTypeDropdown || 
+      showPaymentMethodDropdown || showPaymentTermDropdown || 
+      showBargainDropdown || showTransportCurrencyDropdown;
 
     if (anyDropdownOpen) {
       document.addEventListener('mousedown', handleClickOutside);
@@ -464,7 +461,6 @@ const Homepage: React.FC = () => {
     const selectedCountry = countriesDatabase.find(c => c.name === country);
     if (!selectedCountry) return [];
     
-    // Собираем все города из всех областей страны
     const allCities = selectedCountry.regions.flatMap(region => region.cities);
     
     return allCities.filter(city => 
@@ -573,21 +569,16 @@ const Homepage: React.FC = () => {
         let newValues: string[];
         
         if (value === 'all') {
-          // Если выбрали "Все загрузки", сбрасываем остальные
           newValues = ['all'];
         } else {
-          // Убираем "all" если выбрали конкретный тип
           const filteredValues = currentValues.filter(v => v !== 'all');
           
           if (filteredValues.includes(value)) {
-            // Убираем значение если оно уже выбрано
             newValues = filteredValues.filter(v => v !== value);
           } else {
-            // Добавляем значение
             newValues = [...filteredValues, value];
           }
           
-          // Если ничего не выбрано, возвращаем "all"
           if (newValues.length === 0) {
             newValues = ['all'];
           }
@@ -602,14 +593,11 @@ const Homepage: React.FC = () => {
         let newValues: string[];
         
         if (currentValues.includes(value)) {
-          // Убираем значение если оно уже выбрано
           newValues = currentValues.filter(v => v !== value);
         } else {
-          // Проверяем лимит в 5 типов груза
           if (currentValues.length >= 5) {
             return prev; // Не добавляем, если уже выбрано 5
           }
-          // Добавляем значение
           newValues = [...currentValues, value];
         }
         
@@ -622,7 +610,6 @@ const Homepage: React.FC = () => {
       return prev;
     });
     
-    // Очищаем ошибку для этого поля
     if (validationErrors[field]) {
       setValidationErrors(prev => ({ ...prev, [field]: false }));
     }
@@ -655,12 +642,10 @@ const Homepage: React.FC = () => {
       [field]: value
     }));
     
-    // Очищаем ошибку для этого поля
     if (validationErrors[field]) {
       setValidationErrors(prev => ({ ...prev, [field]: false }));
     }
     
-    // Закрываем соответствующий выпадающий список
     switch (field) {
       case 'vehicleType':
         setShowVehicleTypeDropdown(false);
@@ -686,9 +671,7 @@ const Homepage: React.FC = () => {
       [field]: value
     }));
     
-    // Закрываем соответствующий выпадающий список
     switch (field) {
-      // Нет выпадающих списков для закрытия
     }
   };
   
@@ -893,11 +876,8 @@ const Homepage: React.FC = () => {
     const updatedUserCards = JSON.parse(localStorage.getItem(storageKey) || '[]');
     localStorage.setItem(storageKey, JSON.stringify(updatedUserCards));
     
-    
-    // Переключаем на вкладку "Мои перевозки" после добавления
     setActiveForm('cards');
     
-    // Перенаправляем на /homepage
     window.location.href = '/homepage';
     
     setFormData({
@@ -953,7 +933,10 @@ const Homepage: React.FC = () => {
               <div className="homepage-form-header-block cargo-form-header">
                 <div className="homepage-form-header-icon">
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="32" height="32" color="#000000" fill="none">
-                    <path d="M12 22c-.818 0-1.6-.33-3.163-.99C4.946 19.366 3 18.543 3 17.16V7m9 15c.818 0 1.6-.33 3.163-.99C19.054 19.366 21 18.543 21 17.16V7m-9 15V11.355M8.326 9.691 5.405 8.278C3.802 7.502 3 7.114 3 6.5s.802-1.002 2.405-1.778l2.92-1.413C10.13 2.436 11.03 2 12 2s1.871.436 3.674 1.309l2.921 1.413C20.198 5.498 21 5.886 21 6.5s-.802 1.002-2.405 1.778l-2.92 1.413C13.87 10.564 12.97 11 12 11s-1.871-.436-3.674-1.309M6 12l2 1m9-9L7 9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M12 22C11.1818 22 10.4002 21.6698 8.83693 21.0095C4.94564 19.3657 3 18.5438 3 17.1613C3 16.7742 3 10.0645 3 7M12 22C12.8182 22 13.5998 21.6698 15.1631 21.0095C19.0544 19.3657 21 18.5438 21 17.1613V7M12 22L12 11.3548" stroke="#141B34" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                    <path d="M8.32592 9.69138L5.40472 8.27785C3.80157 7.5021 3 7.11423 3 6.5C3 5.88577 3.80157 5.4979 5.40472 4.72215L8.32592 3.30862C10.1288 2.43621 11.0303 2 12 2C12.9697 2 13.8712 2.4362 15.6741 3.30862L18.5953 4.72215C20.1984 5.4979 21 5.88577 21 6.5C21 7.11423 20.1984 7.5021 18.5953 8.27785L15.6741 9.69138C13.8712 10.5638 12.9697 11 12 11C11.0303 11 10.1288 10.5638 8.32592 9.69138Z" stroke="#141B34" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                    <path d="M6 12L8 13" stroke="#141B34" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                    <path d="M17 4L7 9" stroke="#141B34" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                 </div>
                 
@@ -1685,7 +1668,7 @@ const Homepage: React.FC = () => {
                       </div>
                     </div>
                     <div className="form-field">
-                      {/* Пустое поле для балансировки */}
+                     
                     </div>
                   </div>
                   
@@ -2647,9 +2630,18 @@ const Homepage: React.FC = () => {
                               })()}
                             </div>
                             <div className="transport-card__type-badge">
-                              <svg width="14" height="12" viewBox="0 0 14 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M9 .667A1.333 1.333 0 0 1 10.335 2v.667h1.013a1.33 1.33 0 0 1 1.041.5l.987 1.234c.189.236.292.53.292.833V8a1.333 1.333 0 0 1-1.333 1.334 2 2 0 1 1-4 0H5.667a2 2 0 1 1-4 0A1.333 1.333 0 0 1 .334 8V2A1.333 1.333 0 0 1 1.667.667zm-5.333 8a.667.667 0 1 0 0 1.333.667.667 0 0 0 0-1.333m6.667 0a.667.667 0 1 0 0 1.333.667.667 0 0 0 0-1.333M9.001 2H1.667v6h.51a2 2 0 0 1 2.894-.092L5.158 8h3.685l.077-.08.08-.077zm2.346 2h-1.013v3.334c.547 0 1.042.22 1.403.574l.088.092h.509V5.234z" fill="#FE6824"/>
-                              </svg>
+                              {card.type === 'cargo' ? (
+                                <svg width="14" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                  <path d="M12 22C11.1818 22 10.4002 21.6698 8.83693 21.0095C4.94564 19.3657 3 18.5438 3 17.1613C3 16.7742 3 10.0645 3 7M12 22C12.8182 22 13.5998 21.6698 15.1631 21.0095C19.0544 19.3657 21 18.5438 21 17.1613V7M12 22L12 11.3548" stroke="#FE6824" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                                  <path d="M8.32592 9.69138L5.40472 8.27785C3.80157 7.5021 3 7.11423 3 6.5C3 5.88577 3.80157 5.4979 5.40472 4.72215L8.32592 3.30862C10.1288 2.43621 11.0303 2 12 2C12.9697 2 13.8712 2.4362 15.6741 3.30862L18.5953 4.72215C20.1984 5.4979 21 5.88577 21 6.5C21 7.11423 20.1984 7.5021 18.5953 8.27785L15.6741 9.69138C13.8712 10.5638 12.9697 11 12 11C11.0303 11 10.1288 10.5638 8.32592 9.69138Z" stroke="#FE6824" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                                  <path d="M6 12L8 13" stroke="#FE6824" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                                  <path d="M17 4L7 9" stroke="#FE6824" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                                </svg>
+                              ) : (
+                                <svg width="14" height="12" viewBox="0 0 14 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                  <path d="M9 .667A1.333 1.333 0 0 1 10.335 2v.667h1.013a1.33 1.33 0 0 1 1.041.5l.987 1.234c.189.236.292.53.292.833V8a1.333 1.333 0 0 1-1.333 1.334 2 2 0 1 1-4 0H5.667a2 2 0 1 1-4 0A1.333 1.333 0 0 1 .334 8V2A1.333 1.333 0 0 1 1.667.667zm-5.333 8a.667.667 0 1 0 0 1.333.667.667 0 0 0 0-1.333m6.667 0a.667.667 0 1 0 0 1.333.667.667 0 0 0 0-1.333M9.001 2H1.667v6h.51a2 2 0 0 1 2.894-.092L5.158 8h3.685l.077-.08.08-.077zm2.346 2h-1.013v3.334c.547 0 1.042.22 1.403.574l.088.092h.509V5.234z" fill="#FE6824"/>
+                                </svg>
+                              )}
                               {card.type === 'cargo' ? 'Груз' : 'Транспорт'}
                             </div>
                             <div className="transport-card__date">
