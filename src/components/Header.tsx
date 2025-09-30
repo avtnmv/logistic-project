@@ -15,7 +15,7 @@ const Header: React.FC = () => {
 
   const isActive = (path: string) => location.pathname === path;
   
-  const isAuthorizedPage = ['/dashboard', '/homepage', '/my-transports', '/companies', '/security', '/profile'].includes(location.pathname);
+  const isAuthorizedPage = ['/dashboard', '/search-orders', '/homepage', '/my-transports', '/companies', '/security', '/profile'].includes(location.pathname);
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -42,7 +42,7 @@ const Header: React.FC = () => {
     return (
       <header className="header">
         <div className="container flex-between-center">
-          <Link to="/homepage" className="logo header__logo">
+          <Link to="/search-orders" className="logo header__logo">
             <img src={`${process.env.PUBLIC_URL}/img/logo.webp`} alt="logo" className="header__logo-img" width="180" height="62" />
           </Link>
           

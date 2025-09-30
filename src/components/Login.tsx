@@ -80,7 +80,7 @@ const Login: React.FC = () => {
       
       setTimeout(() => {
         setShowTransition(false);
-        navigate('/homepage');
+        navigate('/search-orders');
       }, 1000);
     } else {
       showFormMessage('Неверный номер телефона или пароль', 'error');

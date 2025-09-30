@@ -12,7 +12,7 @@ const Payments: React.FC = () => {
 
   useEffect(() => {
     // Устанавливаем фон body при монтировании компонента
-    document.body.style.backgroundColor = '#EEF4F7';
+    document.body.style.backgroundColor = 'rgb(245, 245, 245)';
     
     // Очищаем фон при размонтировании компонента
     return () => {

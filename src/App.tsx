@@ -6,6 +6,7 @@ import Registration from './components/Registration';
 import ForgotPassword from './components/ForgotPassword';
 import Dashboard from './components/Dashboard';
 import Homepage from './components/Homepage';
+import SearchOrders from './components/SearchOrders';
 import Security from './components/Security';
 import Profile from './components/Profile';
 import Companies from './components/Companies';
@@ -38,6 +39,7 @@ function App() {
               <Route path="/registration" element={<Registration />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/search-orders" element={<SearchOrders />} />
               <Route path="/homepage" element={<Homepage />} />
               <Route path="/my-transports" element={<Homepage />} />
               <Route path="/companies" element={<Companies />} />

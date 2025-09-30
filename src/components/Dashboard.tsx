@@ -18,7 +18,7 @@ const Dashboard: React.FC = () => {
   useEffect(() => {
     const timer = setTimeout(() => {
       console.log('🔍 DEBUG Dashboard: Redirecting to /homepage');
-      navigate('/homepage');
+      navigate('/search-orders');
     }, 1000); 
 
     return () => clearTimeout(timer);

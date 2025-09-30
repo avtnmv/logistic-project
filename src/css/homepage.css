@@ -235,7 +235,7 @@
   border-bottom-left-radius: var(--border-radius-md);
   border-bottom-right-radius: var(--border-radius-md);
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 24px;
 }
 
@@ -857,7 +857,7 @@ select.form-input.has-value {
 .transport-card__payment-price {
   display: flex;
   gap: 10px;
-  align-items: flex-end;
+  align-items: baseline;
 }
 
 .transport-card__distance {
