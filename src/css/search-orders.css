@@ -225,6 +225,30 @@
   box-shadow: 0 0 0 3px rgba(68, 114, 184, 0.1);
 }
 
+/* Select styles for filter sections */
+.filter-section select {
+  width: 100%;
+  padding: 12px 32px 12px 16px;
+  border: 1px solid #D1D5DB;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #1F2937;
+  background: white;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M.529.695c.26-.26.682-.26.942 0L5 4.224 8.529.695a.667.667 0 0 1 .942.943l-4 4a.667.667 0 0 1-.942 0l-4-4a.667.667 0 0 1 0-.943' fill='%23717680'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 10px 6px;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+
+.filter-section select:focus {
+  outline: none;
+  border-color: #4472B8;
+  box-shadow: 0 0 0 3px rgba(68, 114, 184, 0.1);
+}
+
 .filter-actions {
   margin-top: 24px;
   margin-bottom: 24px;

@@ -39,7 +39,7 @@ const AdminPanel: React.FC = () => {
       const response = await documentVerificationService.updateVerificationStatus(verificationId, status, notes);
       if (response.success) {
         alert(response.message);
-      loadVerifications();
+        loadVerifications();
       } else {
         alert(`Ошибка: ${response.message}`);
       }
@@ -66,10 +66,10 @@ const AdminPanel: React.FC = () => {
     return new Date(dateString).toLocaleString('ru-RU');
   };
 
-  const clearAllData = () => {
+  const clearAllData = async () => {
     if (window.confirm('Вы уверены, что хотите очистить все данные верификации? Это действие нельзя отменить.')) {
       documentVerificationService.clearAllVerifications();
-      loadVerifications();
+      await loadVerifications();
       alert('Все данные верификации очищены');
     }
   };
