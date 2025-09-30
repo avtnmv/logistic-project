@@ -12,6 +12,7 @@ export interface VerificationStatus {
     selfieWithPassport: string;
   };
   notes?: string;
+  notificationShown?: boolean;
 }
 
 export interface VerificationResponse {
@@ -181,6 +182,42 @@ class DocumentVerificationService {
       console.log('Все данные верификации очищены');
     } catch (error) {
       console.error('Ошибка при очистке данных верификации:', error);
+    }
+  }
+
+  async checkForNewNotifications(userId: string): Promise<VerificationStatus | null> {
+    try {
+      const verification = await this.getVerificationStatus(userId);
+      if (verification && 
+          (verification.status === 'approved' || verification.status === 'rejected') &&
+          !verification.notificationShown) {
+        return verification;
+      }
+      return null;
+    } catch (error) {
+      console.error('Ошибка при проверке уведомлений:', error);
+      return null;
+    }
+  }
+
+  async markNotificationAsShown(verificationId: string): Promise<void> {
+    try {
+      const allStorageKey = 'document_verification_data';
+      const stored = localStorage.getItem(allStorageKey);
+      if (stored) {
+        const verifications: VerificationStatus[] = JSON.parse(stored);
+        const verificationIndex = verifications.findIndex(v => v.id === verificationId);
+        
+        if (verificationIndex !== -1) {
+          verifications[verificationIndex].notificationShown = true;
+          localStorage.setItem(allStorageKey, JSON.stringify(verifications));
+          
+          const userStorageKey = `${this.STORAGE_KEY_PREFIX}${verifications[verificationIndex].userId}`;
+          localStorage.setItem(userStorageKey, JSON.stringify(verifications[verificationIndex]));
+        }
+      }
+    } catch (error) {
+      console.error('Ошибка при отметке уведомления как показанного:', error);
     }
   }
 }

@@ -347,9 +347,6 @@
   display: none;
 }
 
-.verification-form-inline .verification-actions {
-  justify-content: center;
-}
 
 @media (max-width: 768px) {
   .verification-form-modal {

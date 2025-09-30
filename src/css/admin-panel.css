@@ -32,11 +32,12 @@
 .btn {
   padding: 10px 20px;
   border-radius: 8px;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 600;
   cursor: pointer;
   border: none;
   transition: all 0.2s ease;
+  height: 42px;
 }
 
 .btn-secondary {
@@ -109,7 +110,6 @@
   align-items: flex-start;
   margin-bottom: 24px;
   padding-bottom: 20px;
-  border-bottom: 1px solid #e5e7eb;
 }
 
 .verification-info h3 {
@@ -207,6 +207,22 @@
   display: block;
 }
 
+.clickable-image {
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-radius: 4px;
+}
+
+.clickable-image:hover {
+  transform: scale(1.02);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border: 2px solid var(--color-primary, #3796F8);
+}
+
+.clickable-image:active {
+  transform: scale(0.98);
+}
+
 .verification-notes {
   margin-bottom: 24px;
   padding: 16px;
@@ -232,9 +248,7 @@
 .verification-actions {
   display: flex;
   gap: 12px;
-  justify-content: flex-end;
-  padding-top: 20px;
-  border-top: 1px solid #e5e7eb;
+  justify-content: flex-start;
 }
 
 @media (max-width: 768px) {

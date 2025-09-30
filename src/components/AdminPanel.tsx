@@ -1,10 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import documentVerificationService, { VerificationStatus } from '../services/documentVerificationService';
+import ImageModal from './ImageModal';
 import '../css/admin-panel.css';
 
 const AdminPanel: React.FC = () => {
   const [verifications, setVerifications] = useState<VerificationStatus[]>([]);
   const [loading, setLoading] = useState(true);
+  const [imageModal, setImageModal] = useState<{
+    isOpen: boolean;
+    imageUrl: string;
+    title: string;
+    alt: string;
+  }>({
+    isOpen: false,
+    imageUrl: '',
+    title: '',
+    alt: ''
+  });
 
   useEffect(() => {
     loadVerifications();
@@ -62,6 +74,24 @@ const AdminPanel: React.FC = () => {
     }
   };
 
+  const openImageModal = (imageUrl: string, title: string, alt: string) => {
+    setImageModal({
+      isOpen: true,
+      imageUrl,
+      title,
+      alt
+    });
+  };
+
+  const closeImageModal = () => {
+    setImageModal({
+      isOpen: false,
+      imageUrl: '',
+      title: '',
+      alt: ''
+    });
+  };
+
   if (loading) {
     return (
       <div className="admin-panel">
@@ -115,7 +145,12 @@ const AdminPanel: React.FC = () => {
                       <img 
                         src={verification.documents.passportFront} 
                         alt="Лицевая сторона паспорта"
-                        className="document-image"
+                        className="document-image clickable-image"
+                        onClick={() => openImageModal(
+                          verification.documents.passportFront,
+                          `Лицевая сторона паспорта - Верификация #${verification.id.slice(-8)}`,
+                          "Лицевая сторона паспорта"
+                        )}
                       />
                     </div>
                   </div>
@@ -125,7 +160,12 @@ const AdminPanel: React.FC = () => {
                       <img 
                         src={verification.documents.passportBack} 
                         alt="Обратная сторона паспорта"
-                        className="document-image"
+                        className="document-image clickable-image"
+                        onClick={() => openImageModal(
+                          verification.documents.passportBack,
+                          `Обратная сторона паспорта - Верификация #${verification.id.slice(-8)}`,
+                          "Обратная сторона паспорта"
+                        )}
                       />
                     </div>
                   </div>
@@ -135,7 +175,12 @@ const AdminPanel: React.FC = () => {
                       <img 
                         src={verification.documents.selfieWithPassport} 
                         alt="Селфи с паспортом"
-                        className="document-image"
+                        className="document-image clickable-image"
+                        onClick={() => openImageModal(
+                          verification.documents.selfieWithPassport,
+                          `Селфи с паспортом - Верификация #${verification.id.slice(-8)}`,
+                          "Селфи с паспортом"
+                        )}
                       />
                     </div>
                   </div>
@@ -174,6 +219,14 @@ const AdminPanel: React.FC = () => {
           ))}
         </div>
       )}
+
+      <ImageModal
+        isOpen={imageModal.isOpen}
+        onClose={closeImageModal}
+        imageUrl={imageModal.imageUrl}
+        title={imageModal.title}
+        alt={imageModal.alt}
+      />
     </div>
   );
 };

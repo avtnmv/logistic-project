@@ -10,6 +10,7 @@ import Security from './components/Security';
 import Profile from './components/Profile';
 import Companies from './components/Companies';
 import Payments from './components/Payments';
+import AdminPanel from './components/AdminPanel';
 import { SidebarProvider } from './contexts/SidebarContext';
 import './App.css';
 
@@ -43,6 +44,7 @@ function App() {
               <Route path="/payments" element={<Payments />} />
               <Route path="/security" element={<Security />} />
               <Route path="/profile" element={<Profile />} />
+              <Route path="/admin" element={<AdminPanel />} />
             </Routes>
           </AnimatePresence>
         </div>

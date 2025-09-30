@@ -4,7 +4,8 @@ import LeftSidebar from './LeftSidebar';
 import { useCurrentUser } from '../hooks/useCurrentUser';
 import { useSidebar } from '../contexts/SidebarContext';
 import VerificationForm, { VerificationFormData } from './VerificationForm';
-import documentVerificationService from '../services/documentVerificationService';
+import NotificationModal from './NotificationModal';
+import documentVerificationService, { VerificationStatus } from '../services/documentVerificationService';
 import '../css/left-sidebar.css';
 import '../css/homepage.css';
 
@@ -15,6 +16,16 @@ const Profile: React.FC = () => {
   const [registrationDate, setRegistrationDate] = useState<string>('');
   const [showVerificationForm, setShowVerificationForm] = useState<boolean>(false);
   const [verificationStatus, setVerificationStatus] = useState<'none' | 'pending' | 'approved' | 'rejected'>('none');
+  const [notificationData, setNotificationData] = useState<{
+    isOpen: boolean;
+    status: 'approved' | 'rejected';
+    notes?: string;
+    verificationId: string;
+  }>({
+    isOpen: false,
+    status: 'approved',
+    verificationId: ''
+  });
 
   useEffect(() => {
     document.body.style.backgroundColor = 'rgb(245, 245, 245)';
@@ -76,6 +87,24 @@ const Profile: React.FC = () => {
     checkVerificationStatus();
   }, [currentUser?.id]);
 
+  useEffect(() => {
+    const checkForNotifications = async () => {
+      if (currentUser?.id) {
+        const notification = await documentVerificationService.checkForNewNotifications(currentUser.id);
+        if (notification) {
+          setNotificationData({
+            isOpen: true,
+            status: notification.status as 'approved' | 'rejected',
+            notes: notification.notes,
+            verificationId: notification.id
+          });
+        }
+      }
+    };
+    
+    checkForNotifications();
+  }, [currentUser?.id]);
+
   const handleGetPremium = () => {
     alert('Функция получения премиум-доступа будет доступна в ближайшее время!');
   };
@@ -112,6 +141,17 @@ const Profile: React.FC = () => {
 
   const handleVerificationClose = () => {
     setShowVerificationForm(false);
+  };
+
+  const handleNotificationClose = async () => {
+    if (notificationData.verificationId) {
+      await documentVerificationService.markNotificationAsShown(notificationData.verificationId);
+    }
+    setNotificationData({
+      isOpen: false,
+      status: 'approved',
+      verificationId: ''
+    });
   };
 
   return (
@@ -175,9 +215,6 @@ const Profile: React.FC = () => {
                 {verificationStatus === 'pending' && (
                   <div className="verification-pending">
                     <div className="verification-pending-content">
-                      <div className="loading-spinner">
-                        <div className="spinner"></div>
-                      </div>
                       <div className="verification-pending-text">
                         <h4>Документы на рассмотрении</h4>
                         <p>Мы проверяем ваши документы. Это может занять 1-3 рабочих дня.</p>
@@ -359,6 +396,14 @@ const Profile: React.FC = () => {
           </div>
         </div>
       </div>
+
+      <NotificationModal
+        isOpen={notificationData.isOpen}
+        onClose={handleNotificationClose}
+        status={notificationData.status}
+        notes={notificationData.notes}
+        verificationId={notificationData.verificationId}
+      />
     </>
   );
 };
