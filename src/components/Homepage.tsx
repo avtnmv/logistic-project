@@ -44,13 +44,13 @@ const Homepage: React.FC = () => {
   const [showLoadingRegionSuggestions, setShowLoadingRegionSuggestions] = useState(false);
   const [showUnloadingRegionSuggestions, setShowUnloadingRegionSuggestions] = useState(false);
   const [showLoadingTypeDropdown, setShowLoadingTypeDropdown] = useState(false);
-  const [showCargoTypeDropdown, setShowCargoTypeDropdown] = useState(false);
   const [showVehicleTypeDropdown, setShowVehicleTypeDropdown] = useState(false);
   const [showReloadTypeDropdown, setShowReloadTypeDropdown] = useState(false);
   const [showPaymentMethodDropdown, setShowPaymentMethodDropdown] = useState(false);
   const [showPaymentTermDropdown, setShowPaymentTermDropdown] = useState(false);
   const [showBargainDropdown, setShowBargainDropdown] = useState(false);
   const [showTransportCurrencyDropdown, setShowTransportCurrencyDropdown] = useState(false);
+  const [showCargoTypeDropdown, setShowCargoTypeDropdown] = useState(false);
   
 
   const [loadingStartDate, setLoadingStartDate] = useState('');
@@ -397,7 +397,6 @@ const Homepage: React.FC = () => {
       const target = event.target as HTMLElement;
       if (!target.closest('.custom-dropdown')) {
         setShowLoadingTypeDropdown(false);
-        setShowCargoTypeDropdown(false);
         setShowVehicleTypeDropdown(false);
         setShowReloadTypeDropdown(false);
         setShowPaymentMethodDropdown(false);
@@ -407,7 +406,7 @@ const Homepage: React.FC = () => {
       }
     };
 
-    const anyDropdownOpen = showLoadingTypeDropdown || showCargoTypeDropdown || 
+    const anyDropdownOpen = showLoadingTypeDropdown || 
       showVehicleTypeDropdown || showReloadTypeDropdown || 
       showPaymentMethodDropdown || showPaymentTermDropdown || 
       showBargainDropdown || showTransportCurrencyDropdown;
@@ -419,7 +418,7 @@ const Homepage: React.FC = () => {
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [showLoadingTypeDropdown, showCargoTypeDropdown, showVehicleTypeDropdown, 
+  }, [showLoadingTypeDropdown, showVehicleTypeDropdown, 
       showReloadTypeDropdown, showPaymentMethodDropdown, showPaymentTermDropdown, 
       showBargainDropdown, showTransportCurrencyDropdown]);
 
@@ -588,23 +587,6 @@ const Homepage: React.FC = () => {
           ...prev,
           loadingType: newValues
         };
-      } else if (field === 'cargoType') {
-        const currentValues = prev.cargoType;
-        let newValues: string[];
-        
-        if (currentValues.includes(value)) {
-          newValues = currentValues.filter(v => v !== value);
-        } else {
-          if (currentValues.length >= 5) {
-            return prev; // Не добавляем, если уже выбрано 5
-          }
-          newValues = [...currentValues, value];
-        }
-        
-        return {
-          ...prev,
-          cargoType: newValues
-        };
       }
       
       return prev;
@@ -628,40 +610,59 @@ const Homepage: React.FC = () => {
 
   const getCargoTypeDisplayText = () => {
     if (selectedValues.cargoType.length === 0) {
-      return 'Выберите типы груза';
+      return 'Выберите тип груза';
     }
-    if (selectedValues.cargoType.length > 3) {
-      return `${selectedValues.cargoType.length} типов выбрано`;
+    return getCargoTypeName(selectedValues.cargoType[0]);
+  };
+
+  const handleSingleCargoTypeChange = (value: string) => {
+    setSelectedValues(prev => ({
+      ...prev,
+      cargoType: [value] // Устанавливаем только один тип груза
+    }));
+    
+    if (validationErrors.cargoType) {
+      setValidationErrors(prev => ({ ...prev, cargoType: false }));
     }
-    return selectedValues.cargoType.map(type => getCargoTypeName(type)).join(', ');
   };
 
   const handleSingleSelectChange = (field: string, value: string) => {
-    setSelectedValues(prev => ({
-      ...prev,
-      [field]: value
-    }));
-    
-    if (validationErrors[field]) {
-      setValidationErrors(prev => ({ ...prev, [field]: false }));
-    }
-    
-    switch (field) {
-      case 'vehicleType':
-        setShowVehicleTypeDropdown(false);
-        break;
-      case 'reloadType':
-        setShowReloadTypeDropdown(false);
-        break;
-      case 'paymentMethod':
-        setShowPaymentMethodDropdown(false);
-        break;
-      case 'paymentTerm':
-        setShowPaymentTermDropdown(false);
-        break;
-      case 'bargain':
-        setShowBargainDropdown(false);
-        break;
+    if (field === 'cargoType') {
+      setSelectedValues(prev => ({
+        ...prev,
+        cargoType: [value]
+      }));
+      setShowCargoTypeDropdown(false);
+      if (validationErrors.cargoType) {
+        setValidationErrors(prev => ({ ...prev, cargoType: false }));
+      }
+    } else {
+      setSelectedValues(prev => ({
+        ...prev,
+        [field]: value
+      }));
+      
+      if (validationErrors[field]) {
+        setValidationErrors(prev => ({ ...prev, [field]: false }));
+      }
+      
+      switch (field) {
+        case 'vehicleType':
+          setShowVehicleTypeDropdown(false);
+          break;
+        case 'reloadType':
+          setShowReloadTypeDropdown(false);
+          break;
+        case 'paymentMethod':
+          setShowPaymentMethodDropdown(false);
+          break;
+        case 'paymentTerm':
+          setShowPaymentTermDropdown(false);
+          break;
+        case 'bargain':
+          setShowBargainDropdown(false);
+          break;
+      }
     }
   };
 
@@ -1370,14 +1371,14 @@ const Homepage: React.FC = () => {
                   
                   <div className="form-row">
                     <div className={`form-field ${validationErrors.cargoType ? 'error' : ''}`}>
-                      <label>Тип груза (до 5 типов)</label>
+                      <label>Тип груза</label>
                       <div className="custom-dropdown">
                         <div 
-                          className={`dropdown-trigger ${selectedValues.cargoType.length > 0 ? 'has-value' : ''} ${validationErrors.cargoType ? 'error' : ''}`}
+                          className={`dropdown-trigger ${selectedValues.cargoType[0] ? 'has-value' : ''} ${validationErrors.cargoType ? 'error' : ''}`}
                           onClick={() => setShowCargoTypeDropdown(!showCargoTypeDropdown)}
                         >
                           <span className="dropdown-text">
-                            {getCargoTypeDisplayText()}
+                            {selectedValues.cargoType[0] ? getCargoTypeDisplayText() : 'Выберите тип груза'}
                           </span>
                           <svg 
                             className={`dropdown-arrow ${showCargoTypeDropdown ? 'open' : ''}`} 
@@ -1391,158 +1392,63 @@ const Homepage: React.FC = () => {
                         </div>
                         {showCargoTypeDropdown && (
                           <div className="dropdown-menu">
-                            <label className="dropdown-option">
-                              <input 
-                                type="checkbox" 
-                                checked={selectedValues.cargoType.includes('pallets')}
-                                onChange={() => handleMultiSelectChange('cargoType', 'pallets')}
-                              />
+                            <div className="dropdown-option" onClick={() => handleSingleSelectChange('cargoType', 'pallets')}>
                               <span>Груз на паллетах</span>
-                            </label>
-                            <label className="dropdown-option">
-                              <input 
-                                type="checkbox" 
-                                checked={selectedValues.cargoType.includes('equipment')}
-                                onChange={() => handleMultiSelectChange('cargoType', 'equipment')}
-                              />
+                            </div>
+                            <div className="dropdown-option" onClick={() => handleSingleSelectChange('cargoType', 'equipment')}>
                               <span>Оборудование</span>
-                            </label>
-                            <label className="dropdown-option">
-                              <input 
-                                type="checkbox" 
-                                checked={selectedValues.cargoType.includes('construction')}
-                                onChange={() => handleMultiSelectChange('cargoType', 'construction')}
-                              />
+                            </div>
+                            <div className="dropdown-option" onClick={() => handleSingleSelectChange('cargoType', 'construction')}>
                               <span>Стройматериалы</span>
-                            </label>
-                            <label className="dropdown-option">
-                              <input 
-                                type="checkbox" 
-                                checked={selectedValues.cargoType.includes('metal')}
-                                onChange={() => handleMultiSelectChange('cargoType', 'metal')}
-                              />
+                            </div>
+                            <div className="dropdown-option" onClick={() => handleSingleSelectChange('cargoType', 'metal')}>
                               <span>Металл</span>
-                            </label>
-                            <label className="dropdown-option">
-                              <input 
-                                type="checkbox" 
-                                checked={selectedValues.cargoType.includes('metal-products')}
-                                onChange={() => handleMultiSelectChange('cargoType', 'metal-products')}
-                              />
+                            </div>
+                            <div className="dropdown-option" onClick={() => handleSingleSelectChange('cargoType', 'metal-products')}>
                               <span>Металлопрокат</span>
-                            </label>
-                            <label className="dropdown-option">
-                              <input 
-                                type="checkbox" 
-                                checked={selectedValues.cargoType.includes('pipes')}
-                                onChange={() => handleMultiSelectChange('cargoType', 'pipes')}
-                              />
+                            </div>
+                            <div className="dropdown-option" onClick={() => handleSingleSelectChange('cargoType', 'pipes')}>
                               <span>Трубы</span>
-                            </label>
-                            <label className="dropdown-option">
-                              <input 
-                                type="checkbox" 
-                                checked={selectedValues.cargoType.includes('food')}
-                                onChange={() => handleMultiSelectChange('cargoType', 'food')}
-                              />
+                            </div>
+                            <div className="dropdown-option" onClick={() => handleSingleSelectChange('cargoType', 'food')}>
                               <span>Продукты</span>
-                            </label>
-                            <label className="dropdown-option">
-                              <input 
-                                type="checkbox" 
-                                checked={selectedValues.cargoType.includes('big-bags')}
-                                onChange={() => handleMultiSelectChange('cargoType', 'big-bags')}
-                              />
+                            </div>
+                            <div className="dropdown-option" onClick={() => handleSingleSelectChange('cargoType', 'big-bags')}>
                               <span>Груз в биг-бэгах</span>
-                            </label>
-                            <label className="dropdown-option">
-                              <input 
-                                type="checkbox" 
-                                checked={selectedValues.cargoType.includes('container')}
-                                onChange={() => handleMultiSelectChange('cargoType', 'container')}
-                              />
+                            </div>
+                            <div className="dropdown-option" onClick={() => handleSingleSelectChange('cargoType', 'container')}>
                               <span>Контейнер</span>
-                            </label>
-                            <label className="dropdown-option">
-                              <input 
-                                type="checkbox" 
-                                checked={selectedValues.cargoType.includes('cement')}
-                                onChange={() => handleMultiSelectChange('cargoType', 'cement')}
-                              />
+                            </div>
+                            <div className="dropdown-option" onClick={() => handleSingleSelectChange('cargoType', 'cement')}>
                               <span>Цемент</span>
-                            </label>
-                            <label className="dropdown-option">
-                              <input 
-                                type="checkbox" 
-                                checked={selectedValues.cargoType.includes('bitumen')}
-                                onChange={() => handleMultiSelectChange('cargoType', 'bitumen')}
-                              />
+                            </div>
+                            <div className="dropdown-option" onClick={() => handleSingleSelectChange('cargoType', 'bitumen')}>
                               <span>Битум</span>
-                            </label>
-                            <label className="dropdown-option">
-                              <input 
-                                type="checkbox" 
-                                checked={selectedValues.cargoType.includes('fuel')}
-                                onChange={() => handleMultiSelectChange('cargoType', 'fuel')}
-                              />
+                            </div>
+                            <div className="dropdown-option" onClick={() => handleSingleSelectChange('cargoType', 'fuel')}>
                               <span>ГСМ</span>
-                            </label>
-                            <label className="dropdown-option">
-                              <input 
-                                type="checkbox" 
-                                checked={selectedValues.cargoType.includes('flour')}
-                                onChange={() => handleMultiSelectChange('cargoType', 'flour')}
-                              />
+                            </div>
+                            <div className="dropdown-option" onClick={() => handleSingleSelectChange('cargoType', 'flour')}>
                               <span>Мука</span>
-                            </label>
-                            <label className="dropdown-option">
-                              <input 
-                                type="checkbox" 
-                                checked={selectedValues.cargoType.includes('oversized')}
-                                onChange={() => handleMultiSelectChange('cargoType', 'oversized')}
-                              />
+                            </div>
+                            <div className="dropdown-option" onClick={() => handleSingleSelectChange('cargoType', 'oversized')}>
                               <span>Негабарит</span>
-                            </label>
-                            <label className="dropdown-option">
-                              <input 
-                                type="checkbox" 
-                                checked={selectedValues.cargoType.includes('cars')}
-                                onChange={() => handleMultiSelectChange('cargoType', 'cars')}
-                              />
+                            </div>
+                            <div className="dropdown-option" onClick={() => handleSingleSelectChange('cargoType', 'cars')}>
                               <span>Автомобили</span>
-                            </label>
-                            <label className="dropdown-option">
-                              <input 
-                                type="checkbox" 
-                                checked={selectedValues.cargoType.includes('lumber')}
-                                onChange={() => handleMultiSelectChange('cargoType', 'lumber')}
-                              />
+                            </div>
+                            <div className="dropdown-option" onClick={() => handleSingleSelectChange('cargoType', 'lumber')}>
                               <span>Пиломатериалы</span>
-                            </label>
-                            <label className="dropdown-option">
-                              <input 
-                                type="checkbox" 
-                                checked={selectedValues.cargoType.includes('concrete')}
-                                onChange={() => handleMultiSelectChange('cargoType', 'concrete')}
-                              />
+                            </div>
+                            <div className="dropdown-option" onClick={() => handleSingleSelectChange('cargoType', 'concrete')}>
                               <span>Бетонные изделия</span>
-                            </label>
-                            <label className="dropdown-option">
-                              <input 
-                                type="checkbox" 
-                                checked={selectedValues.cargoType.includes('furniture')}
-                                onChange={() => handleMultiSelectChange('cargoType', 'furniture')}
-                              />
+                            </div>
+                            <div className="dropdown-option" onClick={() => handleSingleSelectChange('cargoType', 'furniture')}>
                               <span>Мебель</span>
-                            </label>
-                            <label className="dropdown-option">
-                              <input 
-                                type="checkbox" 
-                                checked={selectedValues.cargoType.includes('tnp')}
-                                onChange={() => handleMultiSelectChange('cargoType', 'tnp')}
-                              />
+                            </div>
+                            <div className="dropdown-option" onClick={() => handleSingleSelectChange('cargoType', 'tnp')}>
                               <span>ТНП</span>
-                            </label>
+                            </div>
                           </div>
                         )}
                       </div>

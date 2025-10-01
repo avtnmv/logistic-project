@@ -16,6 +16,7 @@ const Profile: React.FC = () => {
   const [registrationDate, setRegistrationDate] = useState<string>('');
   const [showVerificationForm, setShowVerificationForm] = useState<boolean>(false);
   const [verificationStatus, setVerificationStatus] = useState<'none' | 'pending' | 'approved' | 'rejected'>('none');
+  const [rejectionReason, setRejectionReason] = useState<string>('');
   const [notificationData, setNotificationData] = useState<{
     isOpen: boolean;
     status: 'approved' | 'rejected';
@@ -76,11 +77,18 @@ const Profile: React.FC = () => {
         const status = await documentVerificationService.getVerificationStatus(currentUser.id);
         if (status) {
           setVerificationStatus(status.status);
+          if (status.status === 'rejected' && status.notes) {
+            setRejectionReason(status.notes);
+          } else {
+            setRejectionReason('');
+          }
         } else {
           setVerificationStatus('none');
+          setRejectionReason('');
         }
       } else {
         setVerificationStatus('none');
+        setRejectionReason('');
       }
     };
     
@@ -226,18 +234,32 @@ const Profile: React.FC = () => {
                   </div>
                 )}
                 {verificationStatus === 'approved' && (
-                  <div className="verification-success">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <circle cx="12" cy="12" r="12" fill="#EDFFC6"/>
-                      <path d="M17.7763 7.50141C18.0514 7.74602 18.0762 8.1674 17.8316 8.44259L10.7205 16.4426C10.594 16.5849 10.4127 16.6663 10.2222 16.6663C10.0318 16.6663 9.85047 16.5849 9.72396 16.4426L6.1684 12.4426C5.92379 12.1674 5.94858 11.746 6.22376 11.5014C6.49895 11.2568 6.92033 11.2816 7.16495 11.5568L10.2222 14.9962L16.8351 7.55677C17.0797 7.28158 17.5011 7.2568 17.7763 7.50141Z" fill="#72AA0C"/>
-                    </svg>
-                    <span>Верификация пройдена успешно!</span>
+                  <div className="verification-approved">
+                    <div className="verification-approved-content">
+                      <div className="verification-approved-text">
+                        <h4>Верификация пройдена успешно!</h4>
+                        <p>Поздравляем! Ваша верификация подтверждена. Теперь вы можете пользоваться всеми преимуществами проверенного аккаунта.</p>
+                      </div>
+                    </div>
                   </div>
                 )}
                 {verificationStatus === 'rejected' && (
-                  <button className="btn btn-primary verification-btn" onClick={handleVerification}>
-                    Повторить верификацию
-                  </button>
+                  <div className="verification-rejected">
+                    <div className="verification-rejected-content">
+                      <div className="verification-rejected-text">
+                        <h4>Верификация отклонена</h4>
+                        {rejectionReason && (
+                          <div className="rejection-reason">
+                            <p><strong>Причина:</strong> {rejectionReason}</p>
+                          </div>
+                        )}
+                        <p>Пожалуйста, исправьте указанные ошибки и повторите попытку.</p>
+                      </div>
+                    </div>
+                    <button className="btn btn-primary verification-btn" onClick={handleVerification}>
+                      Повторить верификацию
+                    </button>
+                  </div>
                 )}
               </div>
             </div>

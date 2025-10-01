@@ -43,6 +43,7 @@ const SearchOrders: React.FC = () => {
     volumeFrom: '',
     volumeTo: '',
     vehicleType: '',
+    cargoTypes: [] as string[],
     dateFrom: '',
     dateTo: ''
   });
@@ -61,6 +62,7 @@ const SearchOrders: React.FC = () => {
   const [showUnloadingRegionSuggestions, setShowUnloadingRegionSuggestions] = useState(false);
   const [showLoadingCitySuggestions, setShowLoadingCitySuggestions] = useState(false);
   const [showUnloadingCitySuggestions, setShowUnloadingCitySuggestions] = useState(false);
+  const [showCargoTypeDropdown, setShowCargoTypeDropdown] = useState(false);
 
   // База данных стран (такая же как в Homepage.tsx)
   const countriesDatabase = [
@@ -199,20 +201,21 @@ const SearchOrders: React.FC = () => {
       'equipment': 'Оборудование',
       'construction': 'Стройматериалы',
       'metal': 'Металл',
-      'wood': 'Дерево',
-      'plastic': 'Пластик',
-      'textile': 'Текстиль',
-      'food': 'Продукты питания',
-      'chemical': 'Химия',
-      'machinery': 'Машины',
-      'electronics': 'Электроника',
-      'furniture': 'Мебель',
-      'auto': 'Автомобили',
-      'general': 'Генеральный груз',
+      'metal-products': 'Металлопрокат',
+      'pipes': 'Трубы',
+      'food': 'Продукты',
+      'big-bags': 'Груз в биг-бэгах',
       'container': 'Контейнер',
-      'liquid': 'Жидкий груз',
-      'bulk': 'Насыпной груз',
-      'isotherm': 'Изотерм'
+      'cement': 'Цемент',
+      'bitumen': 'Битум',
+      'fuel': 'ГСМ',
+      'flour': 'Мука',
+      'oversized': 'Негабарит',
+      'cars': 'Автомобили',
+      'lumber': 'Пиломатериалы',
+      'concrete': 'Бетонные изделия',
+      'furniture': 'Мебель',
+      'tnp': 'ТНП'
     };
     return types[type] || type;
   };
@@ -400,6 +403,32 @@ const SearchOrders: React.FC = () => {
     }));
   };
 
+  const addCargoType = (cargoType: string) => {
+    if (cargoType && !filters.cargoTypes.includes(cargoType)) {
+      setFilters(prev => ({
+        ...prev,
+        cargoTypes: [...prev.cargoTypes, cargoType]
+      }));
+    }
+  };
+
+  const removeCargoType = (cargoType: string) => {
+    setFilters(prev => ({
+      ...prev,
+      cargoTypes: prev.cargoTypes.filter(c => c !== cargoType)
+    }));
+  };
+
+  const getCargoTypeDisplayText = () => {
+    if (filters.cargoTypes.length === 0) {
+      return 'Выберите типы груза';
+    }
+    if (filters.cargoTypes.length > 3) {
+      return `${filters.cargoTypes.length} типов выбрано`;
+    }
+    return filters.cargoTypes.map(type => getCargoTypeName(type)).join(', ');
+  };
+
   const clearFilters = () => {
     setFilters({
       loadingCountries: [],
@@ -413,6 +442,7 @@ const SearchOrders: React.FC = () => {
       volumeFrom: '',
       volumeTo: '',
       vehicleType: '',
+      cargoTypes: [],
       dateFrom: '',
       dateTo: ''
     });
@@ -425,6 +455,24 @@ const SearchOrders: React.FC = () => {
       clearFilters();
     }
   }, [activePage]);
+
+  // Закрытие выпадающего списка типов груза при клике вне области
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (!target.closest('.custom-dropdown')) {
+        setShowCargoTypeDropdown(false);
+      }
+    };
+
+    if (showCargoTypeDropdown) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showCargoTypeDropdown]);
 
   // Функция фильтрации заказов
   const filterOrders = () => {
@@ -493,6 +541,14 @@ const SearchOrders: React.FC = () => {
       // Фильтр по типу транспорта
       if (filters.vehicleType && order.vehicleType !== filters.vehicleType) return false;
       
+      // Фильтр по типам груза
+      if (filters.cargoTypes.length > 0) {
+        const orderCargoTypes = Array.isArray(order.cargoType) ? order.cargoType : [order.cargoType];
+        if (!filters.cargoTypes.some(filterType => 
+          orderCargoTypes.includes(filterType)
+        )) return false;
+      }
+      
       // Фильтр по дате
       if (filters.dateFrom && order.loadingDate && new Date(order.loadingDate) < new Date(filters.dateFrom)) return false;
       if (filters.dateTo && order.loadingDate && new Date(order.loadingDate) > new Date(filters.dateTo)) return false;
@@ -558,25 +614,26 @@ const SearchOrders: React.FC = () => {
                 <div className="homepage-form-header-content">
                   <h2>Поиск заказов</h2>
                   <p>Найдите подходящие заказы от других пользователей</p>
-                  
-                  {/* Кнопки переключения типа поиска */}
-                  {activePage === 'all' && (
-                    <div className="search-type-switcher">
-                      <button 
-                        className="search-type-btn"
-                        onClick={() => setActivePage('cargo')}
-                      >
-                        Найти груз
-                      </button>
-                      <button 
-                        className="search-type-btn"
-                        onClick={() => setActivePage('transport')}
-                      >
-                        Найти транспорт
-                      </button>
-                    </div>
-                  )}
                 </div>
+              </div>
+
+              {/* Кнопки переключения типа поиска */}
+              {activePage === 'all' && (
+                <div className="search-type-switcher">
+                  <button 
+                    className="search-type-btn"
+                    onClick={() => setActivePage('cargo')}
+                  >
+                    Найти груз
+                  </button>
+                  <button 
+                    className="search-type-btn"
+                    onClick={() => setActivePage('transport')}
+                  >
+                    Найти транспорт
+                  </button>
+                </div>
+              )}
               </div>
 
               {/* Кнопка "Назад" для страниц фильтрации */}
@@ -1109,6 +1166,269 @@ const SearchOrders: React.FC = () => {
                       </div>
                     </div>
 
+                    <div className="filter-section">
+                      <h4>Тип груза (до 5 типов)</h4>
+                      <div className="custom-dropdown">
+                        <div 
+                          className={`dropdown-trigger ${filters.cargoTypes.length > 0 ? 'has-value' : ''}`}
+                          onClick={() => setShowCargoTypeDropdown(!showCargoTypeDropdown)}
+                        >
+                          <span className="dropdown-text">
+                            {getCargoTypeDisplayText()}
+                          </span>
+                          <svg 
+                            className={`dropdown-arrow ${showCargoTypeDropdown ? 'open' : ''}`} 
+                            width="10" 
+                            height="6" 
+                            viewBox="0 0 10 6" 
+                            fill="none"
+                          >
+                            <path d="M.529.695c.26-.26.682-.26.942 0L5 4.224 8.529.695a.667.667 0 0 1 .942.943l-4 4a.667.667 0 0 1-.942 0l-4-4a.667.667 0 0 1 0-.943" fill="#717680"/>
+                          </svg>
+                        </div>
+                        {showCargoTypeDropdown && (
+                          <div className="dropdown-menu">
+                            <div 
+                              className="dropdown-option"
+                              onClick={() => {
+                                if (filters.cargoTypes.includes('pallets')) {
+                                  removeCargoType('pallets');
+                                } else if (filters.cargoTypes.length < 5) {
+                                  addCargoType('pallets');
+                                }
+                              }}
+                            >
+                              <span>Груз на паллетах</span>
+                            </div>
+                            <div 
+                              className="dropdown-option"
+                              onClick={() => {
+                                if (filters.cargoTypes.includes('equipment')) {
+                                  removeCargoType('equipment');
+                                } else if (filters.cargoTypes.length < 5) {
+                                  addCargoType('equipment');
+                                }
+                              }}
+                            >
+                              <span>Оборудование</span>
+                            </div>
+                            <div 
+                              className="dropdown-option"
+                              onClick={() => {
+                                if (filters.cargoTypes.includes('construction')) {
+                                  removeCargoType('construction');
+                                } else if (filters.cargoTypes.length < 5) {
+                                  addCargoType('construction');
+                                }
+                              }}
+                            >
+                              <span>Стройматериалы</span>
+                            </div>
+                            <div 
+                              className="dropdown-option"
+                              onClick={() => {
+                                if (filters.cargoTypes.includes('metal')) {
+                                  removeCargoType('metal');
+                                } else if (filters.cargoTypes.length < 5) {
+                                  addCargoType('metal');
+                                }
+                              }}
+                            >
+                              <span>Металл</span>
+                            </div>
+                            <div 
+                              className="dropdown-option"
+                              onClick={() => {
+                                if (filters.cargoTypes.includes('metal-products')) {
+                                  removeCargoType('metal-products');
+                                } else if (filters.cargoTypes.length < 5) {
+                                  addCargoType('metal-products');
+                                }
+                              }}
+                            >
+                              <span>Металлопрокат</span>
+                            </div>
+                            <div 
+                              className="dropdown-option"
+                              onClick={() => {
+                                if (filters.cargoTypes.includes('pipes')) {
+                                  removeCargoType('pipes');
+                                } else if (filters.cargoTypes.length < 5) {
+                                  addCargoType('pipes');
+                                }
+                              }}
+                            >
+                              <span>Трубы</span>
+                            </div>
+                            <div 
+                              className="dropdown-option"
+                              onClick={() => {
+                                if (filters.cargoTypes.includes('food')) {
+                                  removeCargoType('food');
+                                } else if (filters.cargoTypes.length < 5) {
+                                  addCargoType('food');
+                                }
+                              }}
+                            >
+                              <span>Продукты</span>
+                            </div>
+                            <div 
+                              className="dropdown-option"
+                              onClick={() => {
+                                if (filters.cargoTypes.includes('big-bags')) {
+                                  removeCargoType('big-bags');
+                                } else if (filters.cargoTypes.length < 5) {
+                                  addCargoType('big-bags');
+                                }
+                              }}
+                            >
+                              <span>Груз в биг-бэгах</span>
+                            </div>
+                            <div 
+                              className="dropdown-option"
+                              onClick={() => {
+                                if (filters.cargoTypes.includes('container')) {
+                                  removeCargoType('container');
+                                } else if (filters.cargoTypes.length < 5) {
+                                  addCargoType('container');
+                                }
+                              }}
+                            >
+                              <span>Контейнер</span>
+                            </div>
+                            <div 
+                              className="dropdown-option"
+                              onClick={() => {
+                                if (filters.cargoTypes.includes('cement')) {
+                                  removeCargoType('cement');
+                                } else if (filters.cargoTypes.length < 5) {
+                                  addCargoType('cement');
+                                }
+                              }}
+                            >
+                              <span>Цемент</span>
+                            </div>
+                            <div 
+                              className="dropdown-option"
+                              onClick={() => {
+                                if (filters.cargoTypes.includes('bitumen')) {
+                                  removeCargoType('bitumen');
+                                } else if (filters.cargoTypes.length < 5) {
+                                  addCargoType('bitumen');
+                                }
+                              }}
+                            >
+                              <span>Битум</span>
+                            </div>
+                            <div 
+                              className="dropdown-option"
+                              onClick={() => {
+                                if (filters.cargoTypes.includes('fuel')) {
+                                  removeCargoType('fuel');
+                                } else if (filters.cargoTypes.length < 5) {
+                                  addCargoType('fuel');
+                                }
+                              }}
+                            >
+                              <span>ГСМ</span>
+                            </div>
+                            <div 
+                              className="dropdown-option"
+                              onClick={() => {
+                                if (filters.cargoTypes.includes('flour')) {
+                                  removeCargoType('flour');
+                                } else if (filters.cargoTypes.length < 5) {
+                                  addCargoType('flour');
+                                }
+                              }}
+                            >
+                              <span>Мука</span>
+                            </div>
+                            <div 
+                              className="dropdown-option"
+                              onClick={() => {
+                                if (filters.cargoTypes.includes('oversized')) {
+                                  removeCargoType('oversized');
+                                } else if (filters.cargoTypes.length < 5) {
+                                  addCargoType('oversized');
+                                }
+                              }}
+                            >
+                              <span>Негабарит</span>
+                            </div>
+                            <div 
+                              className="dropdown-option"
+                              onClick={() => {
+                                if (filters.cargoTypes.includes('cars')) {
+                                  removeCargoType('cars');
+                                } else if (filters.cargoTypes.length < 5) {
+                                  addCargoType('cars');
+                                }
+                              }}
+                            >
+                              <span>Автомобили</span>
+                            </div>
+                            <div 
+                              className="dropdown-option"
+                              onClick={() => {
+                                if (filters.cargoTypes.includes('lumber')) {
+                                  removeCargoType('lumber');
+                                } else if (filters.cargoTypes.length < 5) {
+                                  addCargoType('lumber');
+                                }
+                              }}
+                            >
+                              <span>Пиломатериалы</span>
+                            </div>
+                            <div 
+                              className="dropdown-option"
+                              onClick={() => {
+                                if (filters.cargoTypes.includes('concrete')) {
+                                  removeCargoType('concrete');
+                                } else if (filters.cargoTypes.length < 5) {
+                                  addCargoType('concrete');
+                                }
+                              }}
+                            >
+                              <span>Бетонные изделия</span>
+                            </div>
+                            <div 
+                              className="dropdown-option"
+                              onClick={() => {
+                                if (filters.cargoTypes.includes('furniture')) {
+                                  removeCargoType('furniture');
+                                } else if (filters.cargoTypes.length < 5) {
+                                  addCargoType('furniture');
+                                }
+                              }}
+                            >
+                              <span>Мебель</span>
+                            </div>
+                            <div 
+                              className="dropdown-option"
+                              onClick={() => {
+                                if (filters.cargoTypes.includes('tnp')) {
+                                  removeCargoType('tnp');
+                                } else if (filters.cargoTypes.length < 5) {
+                                  addCargoType('tnp');
+                                }
+                              }}
+                            >
+                              <span>ТНП</span>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                      <div className="cargo-types-list">
+                        {filters.cargoTypes.map((cargoType, index) => (
+                          <div key={index} className="cargo-type-tag">
+                            <span>{getCargoTypeName(cargoType)}</span>
+                            <button onClick={() => removeCargoType(cargoType)}>×</button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
                     {activePage === 'transport' && (
                       <div className="filter-section">
                         <h4>Тип транспорта</h4>
@@ -1404,7 +1724,6 @@ const SearchOrders: React.FC = () => {
             </div>
           </div>
         </div>
-      </div>
     </>
   );
 };

@@ -375,7 +375,11 @@ select.form-input {
   color: #9CA3AF;
 }
 
-.form-input:focus
+.form-input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(55, 150, 248, 0.1);
+}
 
 select.form-input {
   appearance: none;
@@ -668,6 +672,22 @@ select.form-input.has-value {
   }
   
   .verification-pending-text {
+    text-align: center;
+  }
+  
+  .verification-rejected-content {
+    text-align: center;
+  }
+  
+  .verification-rejected-text {
+    text-align: center;
+  }
+  
+  .verification-approved-content {
+    text-align: center;
+  }
+  
+  .verification-approved-text {
     text-align: center;
   }
   
@@ -1426,6 +1446,7 @@ select.form-input.has-value {
   font-weight: 500;
 }
 
+
 /* Анимация тряски */
 @keyframes shake {
   0%, 100% {
@@ -1613,23 +1634,6 @@ select.form-input.error {
   opacity: 0.7;
 }
 
-.verification-success {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 16px 24px;
-  background: linear-gradient(135deg, #EDFFC6 0%, #F0FDF4 100%);
-  border: 1px solid #DCFCE7;
-  border-radius: 8px;
-  color: #166534;
-  font-weight: 600;
-  min-width: 200px;
-  justify-content: center;
-}
-
-.verification-success svg {
-  flex-shrink: 0;
-}
 
 .verification-pending {
   width: 100%;
@@ -1683,6 +1687,84 @@ select.form-input.error {
   margin: 0 0 16px 0;
   font-size: 15px;
   color: #92400E;
+  line-height: 1.5;
+}
+
+.verification-rejected {
+  width: 100%;
+  margin: 0;
+}
+
+.verification-rejected-content {
+  padding: 24px;
+  background: linear-gradient(135deg, #FEE2E2 0%, #FEF2F2 100%);
+  border: 1px solid #FCA5A5;
+  border-radius: 12px;
+  margin-bottom: 16px;
+}
+
+.verification-rejected-text {
+  width: 100%;
+}
+
+.verification-rejected-text h4 {
+  margin: 0 0 12px 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #991B1B;
+}
+
+.verification-rejected-text p {
+  margin: 0 0 12px 0;
+  font-size: 15px;
+  color: #991B1B;
+  line-height: 1.5;
+}
+
+.rejection-reason {
+
+  margin: 12px 0;
+}
+
+.rejection-reason p {
+  margin: 0;
+  font-size: 14px;
+  color: #991B1B;
+  line-height: 1.4;
+}
+
+.rejection-reason strong {
+  font-weight: 600;
+}
+
+.verification-approved {
+  width: 100%;
+  margin: 0;
+}
+
+.verification-approved-content {
+  padding: 24px;
+  background: linear-gradient(135deg, #EDFFC6 0%, #F0FDF4 100%);
+  border: 1px solid #A7F3D0;
+  border-radius: 12px;
+  margin-bottom: 16px;
+}
+
+.verification-approved-text {
+  width: 100%;
+}
+
+.verification-approved-text h4 {
+  margin: 0 0 12px 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #065F46;
+}
+
+.verification-approved-text p {
+  margin: 0;
+  font-size: 15px;
+  color: #065F46;
   line-height: 1.5;
 }
 

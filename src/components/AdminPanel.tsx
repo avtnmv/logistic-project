@@ -17,6 +17,15 @@ const AdminPanel: React.FC = () => {
     title: '',
     alt: ''
   });
+  const [rejectionTemplate, setRejectionTemplate] = useState<string>('');
+
+  // Шаблоны для отказа в верификации
+  const rejectionTemplates = [
+    'плохое качество изображения',
+    'ошибка при заполнении данных, проверьте ваши данные при регистрации',
+    'ошибка селфи с документом',
+    'истёк срок действия документа'
+  ];
 
   useEffect(() => {
     loadVerifications();
@@ -40,6 +49,7 @@ const AdminPanel: React.FC = () => {
       if (response.success) {
         alert(response.message);
         loadVerifications();
+        setRejectionTemplate(''); // Сброс выбранного шаблона
       } else {
         alert(`Ошибка: ${response.message}`);
       }
@@ -202,17 +212,33 @@ const AdminPanel: React.FC = () => {
                   >
                     Одобрить
                   </button>
-                  <button
-                    className="btn btn-danger"
-                    onClick={() => {
-                      const notes = prompt('Укажите причину отклонения:');
-                      if (notes !== null) {
-                        handleStatusUpdate(verification.id, 'rejected', notes);
-                      }
-                    }}
-                  >
-                    Отклонить
-                  </button>
+                  <div className="rejection-section">
+                    <select
+                      className="rejection-template-select"
+                      value={rejectionTemplate}
+                      onChange={(e) => setRejectionTemplate(e.target.value)}
+                    >
+                      <option value="">Выберите причину отклонения</option>
+                      {rejectionTemplates.map((template, index) => (
+                        <option key={index} value={template}>
+                          {template}
+                        </option>
+                      ))}
+                    </select>
+                    <button
+                      className="btn btn-danger"
+                      onClick={() => {
+                        if (rejectionTemplate) {
+                          handleStatusUpdate(verification.id, 'rejected', rejectionTemplate);
+                        } else {
+                          alert('Пожалуйста, выберите причину отклонения');
+                        }
+                      }}
+                      disabled={!rejectionTemplate}
+                    >
+                      Отклонить
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
