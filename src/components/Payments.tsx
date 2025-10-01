@@ -37,6 +37,12 @@ const Payments: React.FC = () => {
           <div className="homepage-form-container">
             <div className="homepage-form-content">
               <div className="homepage-form-header-block">
+                <div className="homepage-form-header-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="32" height="32" color="#000000" fill="none">
+                    <path d="M12 2L15.09 8.26L22 9L17 14L18.18 21L12 17.77L5.82 21L7 14L2 9L8.91 8.26L12 2Z" stroke="#141B34" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </div>
+                
                 <div className="homepage-form-header-content">
                   <h2>Получить полный доступ</h2>
                   <p>Получите полный доступ к информации с нашим безлимитным пакетом — всего 9.99 USD в месяц</p>

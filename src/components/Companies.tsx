@@ -40,16 +40,15 @@ const Companies: React.FC = () => {
           <div className="homepage-form-container">
             <div className="homepage-form-content">
               <div className="homepage-form-header-block">
+                <div className="homepage-form-header-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="32" height="32" color="#000000" fill="none">
+                    <path d="M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10 12h-8v-2h2v-2h-2v-2h2v-2h-2V9h8v10zm-2-8h-2v2h2v-2zm0 4h-2v2h2v-2z" stroke="#141B34" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </div>
+                
                 <div className="homepage-form-header-content">
-                  <div className="companies-header">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" fill="#10B981"/>
-                    </svg>
-                    <div>
-                      <h2>Создайте бизнес-профиль</h2>
-                      <p>Работаете от имени компании? Создайте бизнес-профиль и получите расширенные возможности.</p>
-                    </div>
-                  </div>
+                  <h2>Создайте бизнес-профиль</h2>
+                  <p>Работаете от имени компании? Создайте бизнес-профиль и получите расширенные возможности.</p>
                 </div>
               </div>
               

@@ -176,17 +176,15 @@ const Profile: React.FC = () => {
           <div className="homepage-form-container">
             <div className="homepage-form-content">
               <div className="homepage-form-header-block">
+                <div className="homepage-form-header-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="32" height="32" color="#000000" fill="none">
+                    <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="#141B34" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </div>
+                
                 <div className="homepage-form-header-content">
-                  <div className="verification-header">
-                    <svg width="42" height="42" viewBox="0 0 42 42" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M20.654.498a.5.5 0 0 1 .692 0l3.899 3.731a.5.5 0 0 0 .464.124l5.243-1.281a.5.5 0 0 1 .598.345l1.512 5.181a.5.5 0 0 0 .34.34l5.18 1.512a.5.5 0 0 1 .346.598l-1.281 5.243a.5.5 0 0 0 .124.464l3.731 3.9a.5.5 0 0 1 0 .691l-3.73 3.9a.5.5 0 0 0-.125.464l1.281 5.242a.5.5 0 0 1-.345.599l-5.181 1.511a.5.5 0 0 0-.34.34l-1.511 5.181a.5.5 0 0 1-.6.346l-5.242-1.282a.5.5 0 0 0-.464.125l-3.9 3.73a.5.5 0 0 1-.69 0l-3.9-3.73a.5.5 0 0 0-.465-.125l-5.242 1.282a.5.5 0 0 1-.599-.346l-1.511-5.18a.5.5 0 0 0-.34-.34L3.417 31.55a.5.5 0 0 1-.346-.599l1.282-5.242a.5.5 0 0 0-.124-.465L.497 21.346a.5.5 0 0 1 0-.691l3.732-3.9a.5.5 0 0 0 .124-.464l-1.282-5.243a.5.5 0 0 1 .346-.598l5.181-1.512a.5.5 0 0 0 .34-.34l1.511-5.18a.5.5 0 0 1 .599-.346l5.242 1.281a.5.5 0 0 0 .465-.124z" fill="#3796F8"/>
-                      <path d="M28.521 15.142a.87.87 0 0 1 .072 1.226l-9.259 10.416a.868.868 0 0 1-1.298 0l-4.63-5.208a.868.868 0 1 1 1.298-1.154l3.981 4.479 8.61-9.687a.87.87 0 0 1 1.226-.072" fill="#fff"/>
-                    </svg>
-                    <div>
-                      <h2>Пройдите верификацию и выделяйтесь</h2>
-                      <p>Верификация не обязательна — вы можете пользоваться платформой и без неё. Но проверенные участники получают значок доверия и приоритет у других пользователей.</p>
-                    </div>
-                  </div>
+                  <h2>Пройдите верификацию и выделяйтесь</h2>
+                  <p>Верификация не обязательна — вы можете пользоваться платформой и без неё. Но проверенные участники получают значок доверия и приоритет у других пользователей.</p>
                 </div>
               </div>
               
@@ -276,6 +274,12 @@ const Profile: React.FC = () => {
           <div className="homepage-form-container">
             <div className="homepage-form-content">
               <div className="homepage-form-header-block">
+                <div className="homepage-form-header-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="32" height="32" color="#000000" fill="none">
+                    <path d="M12 2L15.09 8.26L22 9L17 14L18.18 21L12 17.77L5.82 21L7 14L2 9L8.91 8.26L12 2Z" stroke="#141B34" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </div>
+                
                 <div className="homepage-form-header-content">
                   <h2>Получить полный доступ</h2>
                   <p>Получите полный доступ к информации с нашим безлимитным пакетом — всего 9.99 USD в месяц</p>
@@ -330,6 +334,13 @@ const Profile: React.FC = () => {
           <div className="homepage-form-container">
             <div className="homepage-form-content">
               <div className="homepage-form-header-block">
+                <div className="homepage-form-header-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="32" height="32" color="#000000" fill="none">
+                    <path d="M16 7C16 9.20914 14.2091 11 12 11C9.79086 11 8 9.20914 8 7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7Z" stroke="#141B34" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M12 14C8.13401 14 5 17.134 5 21H19C19 17.134 15.866 14 12 14Z" stroke="#141B34" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </div>
+                
                 <div className="homepage-form-header-content">
                   <h2>Общая информация</h2>
                   <p>Здесь отображается основная информация о вашем профиле. Эти данные видны другим пользователям.</p>
@@ -360,6 +371,13 @@ const Profile: React.FC = () => {
           <div className="homepage-form-container">
             <div className="homepage-form-content">
               <div className="homepage-form-header-block">
+                <div className="homepage-form-header-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="32" height="32" color="#000000" fill="none">
+                    <path d="M4 4H20C21.1 4 22 4.9 22 6V18C22 19.1 21.1 20 20 20H4C2.9 20 2 19.1 2 18V6C2 4.9 2.9 4 4 4Z" stroke="#141B34" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M22 6L12 13L2 6" stroke="#141B34" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </div>
+                
                 <div className="homepage-form-header-content">
                   <h2>Контактная информация</h2>
                   <p>Основной E-mail используется для входа на сайт, а также для получения важных сообщений на почту.</p>

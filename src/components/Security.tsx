@@ -126,6 +126,13 @@ const Security: React.FC = () => {
           <div className="homepage-form-container">
             <div className="homepage-form-content">
               <div className="homepage-form-header-block" style={{ marginBottom: '16px' }}>
+                <div className="homepage-form-header-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="32" height="32" color="#000000" fill="none">
+                    <path d="M12 22C12 22 20 16 20 10V5L12 2L4 5V10C4 16 12 22 12 22Z" stroke="#141B34" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M9 12L11 14L15 10" stroke="#141B34" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </div>
+                
                 <div className="homepage-form-header-content">
                   <h2>Хотите добавить E-mail?</h2>
                   <p>Основной номер телефона используется для входа в систему. После добавления E-mail вы также сможете использовать его для входа и получения важных уведомлений.</p>

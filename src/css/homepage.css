@@ -236,6 +236,7 @@
   border-bottom-right-radius: var(--border-radius-md);
   display: flex;
   align-items: flex-start;
+  justify-content: flex-start;
   gap: 24px;
 }
 
@@ -1530,7 +1531,7 @@ select.form-input.error {
 
 .companies-header {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 20px;
 }
 
