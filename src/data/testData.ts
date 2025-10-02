@@ -125,9 +125,10 @@ export const saveUsersToStorage = (users: { [phone: string]: UserData }): void =
 
 export const updateUserInDB = (phone: string, userData: UserData): void => {
   try {
-    globalTestDB.users[phone] = userData;
+    const db = initializeTestDB();
+    db.users[phone] = userData;
     
-    saveUsersToStorage(globalTestDB.users);
+    saveUsersToStorage(db.users);
   } catch (error) {
     console.warn('⚠️ Ошибка обновления пользователя:', error);
   }
@@ -204,7 +205,7 @@ export const resetToDefault = (): void => {
       attempts: {}
     };
   } catch (error) {
-    console.warn('⚠️ Ошибка при сбросе к состоянию по умолчанию:', error);
+    console.warn('Ошибка при сбросе к состоянию по умолчанию:', error);
   }
 };
 
@@ -214,27 +215,33 @@ if (typeof window !== 'undefined') {
   (window as any).resetToDefault = resetToDefault;
 }
 
-let globalTestDB: TestDB = {
-  codes: { ...TEST_PHONES },
-  users: loadUsersFromStorage(),
-  lastRequestTime: {},
-  attempts: {}
+let globalTestDB: TestDB | null = null;
+
+const initializeTestDB = (): TestDB => {
+  if (!globalTestDB) {
+    globalTestDB = {
+      codes: { ...TEST_PHONES },
+      users: loadUsersFromStorage(),
+      lastRequestTime: {},
+      attempts: {}
+    };
+  }
+  return globalTestDB;
 };
 
 export const createTestDB = (): TestDB => {
-  return globalTestDB;
+  return initializeTestDB();
 };
 
 export const getGlobalTestDB = (): TestDB => {
-  return globalTestDB;
+  return initializeTestDB();
 };
 
 export const clearStoredUsers = (): void => {
   try {
     localStorage.removeItem(STORAGE_KEY);
-    console.log('🗑️ Пользовательские данные удалены из localStorage');
   } catch (error) {
-    console.warn('⚠️ Ошибка очистки localStorage:', error);
+    console.warn('Ошибка очистки', error);
   }
 };
 
@@ -247,7 +254,6 @@ export const resetTestDB = (): void => {
     lastRequestTime: {},
     attempts: {}
   };
-  console.log('🔄 База данных сброшена к исходному состоянию');
 };
 
 export const isTestPhone = (phone: string): boolean => {
@@ -277,15 +283,13 @@ export const registerUser = (phone: string, password: string, db: TestDB, firstN
     firstName,
     lastName
   };
-  saveUsersToStorage(db.users);
-  console.log(`✅ Пользователь ${phone} (${firstName} ${lastName}) успешно зарегистрирован и сохранен в localStorage`);
+  saveUsersToStorage(db.users); 
 };
 
 export const updateUserPassword = (phone: string, newPassword: string, db: TestDB): void => {
   if (db.users[phone]) {
     db.users[phone].password = newPassword;
     saveUsersToStorage(db.users);
-    console.log(`✅ Пароль для ${phone} успешно изменен и сохранен в localStorage`);
   }
 };
 
@@ -301,16 +305,15 @@ export const updateUserEmail = (phone: string, email: string, db: TestDB): void 
   }
   db.users[phone].email = email;
   saveUsersToStorage(db.users);
-  console.log(`✅ E-mail для ${phone} обновлен на ${email} и сохранен в localStorage`);
 };
 
 export const logTestData = (title: string): void => {
   Object.entries(TEST_PHONES).forEach(([phone, code]) => {
     const user = DEFAULT_USERS[phone];
     if (user) {
-      console.log(`📱 ${phone} → код: ${code} | пароль: ${user.password} | ${user.firstName} ${user.lastName}`);
+      console.log(`${phone} ${user.password} ${user.firstName} ${user.lastName}`);
     } else {
-      console.log(`📱 ${phone} → код: ${code}`);
+      console.log(`${phone} ${code}`);
     }
   });
 };

@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Header from './Header';
-import LeftSidebar from './LeftSidebar';
 import { useCurrentUser } from '../hooks/useCurrentUser';
 import { useSidebar } from '../contexts/SidebarContext';
+import Header from './Header';
+import LeftSidebar from './LeftSidebar';
 import '../css/left-sidebar.css';
 import '../css/homepage.css';
 import '../css/search-orders.css';
@@ -20,17 +20,14 @@ const SearchOrders: React.FC = () => {
   const currentUser = useCurrentUser();
   const navigate = useNavigate();
   
-  // Состояния для управления страницами
   const [activePage, setActivePage] = useState<'all' | 'cargo' | 'transport'>('all');
   const [allOrders, setAllOrders] = useState<any[]>([]);
   const [filteredOrders, setFilteredOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchExecuted, setSearchExecuted] = useState(false);
   
-  // Состояние для развернутых карточек
   const [expandedCardId, setExpandedCardId] = useState<string | null>(null);
   
-  // Фильтры
   const [filters, setFilters] = useState({
     loadingCountries: [] as string[],
     unloadingCountries: [] as string[],
@@ -48,7 +45,6 @@ const SearchOrders: React.FC = () => {
     dateTo: ''
   });
 
-  // Состояния для автокомплита
   const [loadingCountryInput, setLoadingCountryInput] = useState('');
   const [unloadingCountryInput, setUnloadingCountryInput] = useState('');
   const [loadingRegionInput, setLoadingRegionInput] = useState('');
@@ -64,7 +60,6 @@ const SearchOrders: React.FC = () => {
   const [showUnloadingCitySuggestions, setShowUnloadingCitySuggestions] = useState(false);
   const [showCargoTypeDropdown, setShowCargoTypeDropdown] = useState(false);
 
-  // База данных стран (такая же как в Homepage.tsx)
   const countriesDatabase = [
     { 
       name: 'Украина', 
@@ -111,12 +106,10 @@ const SearchOrders: React.FC = () => {
     }
   ];
 
-  // Загрузка всех заказов
   const loadAllOrders = () => {
     setLoading(true);
     const orders: any[] = [];
     
-    // Загружаем грузы
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
       if (key && key.startsWith('transportCards_')) {
@@ -134,7 +127,6 @@ const SearchOrders: React.FC = () => {
       }
     }
     
-    // Загружаем транспорт
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
       if (key && key.startsWith('transportCards_')) {
@@ -152,7 +144,6 @@ const SearchOrders: React.FC = () => {
       }
     }
     
-    // Исключаем заказы текущего пользователя
     const filteredOrders = orders.filter(order => 
       !order.id.includes(`_transportCards_${currentUser?.id}`)
     );
@@ -166,16 +157,13 @@ const SearchOrders: React.FC = () => {
   }, [currentUser?.id]);
 
   useEffect(() => {
-    // Устанавливаем фон body при монтировании компонента
     document.body.style.backgroundColor = 'rgb(245, 245, 245)';
     
-    // Очищаем фон при размонтировании компонента
     return () => {
       document.body.style.backgroundColor = '';
     };
   }, []);
 
-  // Функции для работы с карточками
   const toggleCardExpanded = (cardId: string) => {
     setExpandedCardId(expandedCardId === cardId ? null : cardId);
   };
@@ -192,15 +180,13 @@ const SearchOrders: React.FC = () => {
   };
 
   const calculateDistance = (from: string, to: string) => {
-    // Создаем детерминированное расстояние на основе названий городов
     const combined = (from || '') + (to || '');
     let hash = 0;
     for (let i = 0; i < combined.length; i++) {
       const char = combined.charCodeAt(i);
       hash = ((hash << 5) - hash) + char;
-      hash = hash & hash; // Convert to 32bit integer
+      hash = hash & hash;
     }
-    // Используем абсолютное значение хэша для получения положительного числа
     const distance = Math.abs(hash) % 2000 + 100;
     return distance;
   };
@@ -258,12 +244,10 @@ const SearchOrders: React.FC = () => {
       'dump_truck': 'Самосвал'
     };
     
-    // Сначала проверяем типы груза
     if (cargoTypes[type]) {
       return cargoTypes[type];
     }
     
-    // Затем проверяем типы транспорта
     if (vehicleTypes[type]) {
       return vehicleTypes[type];
     }
@@ -287,7 +271,6 @@ const SearchOrders: React.FC = () => {
     return types[type] || type;
   };
 
-  // Функции автокомплита
   const filterCountries = (query: string) => {
     if (!query) return [];
     return countriesDatabase
@@ -323,7 +306,6 @@ const SearchOrders: React.FC = () => {
       });
     });
     
-    // Добавляем города из существующих заказов (только если есть заказы)
     if (allOrders.length > 0) {
       allOrders.forEach(order => {
         if (order.loadingCity && order.loadingCity.toLowerCase().includes(query.toLowerCase())) {
@@ -338,7 +320,6 @@ const SearchOrders: React.FC = () => {
     return cities;
   };
 
-  // Функции для работы с фильтрами
   const handleFilterChange = (key: string, value: any) => {
     setFilters(prev => ({
       ...prev,
@@ -500,14 +481,14 @@ const SearchOrders: React.FC = () => {
     setSearchExecuted(false);
   };
 
-  // Сброс фильтров при переходе между страницами
+
   useEffect(() => {
     if (activePage === 'cargo' || activePage === 'transport') {
       clearFilters();
     }
   }, [activePage]);
 
-  // Закрытие выпадающего списка типов груза при клике вне области
+  
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
@@ -525,15 +506,14 @@ const SearchOrders: React.FC = () => {
     };
   }, [showCargoTypeDropdown]);
 
-  // Функция фильтрации заказов
+ 
   const filterOrders = () => {
     
     let filtered = allOrders.filter(order => {
-      // Фильтр по типу заказа
+
       if (activePage === 'cargo' && order.type !== 'cargo') return false;
       if (activePage === 'transport' && order.type !== 'transport') return false;
       
-      // Фильтры по странам загрузки
       if (filters.loadingCountries.length > 0) {
         const orderCountry = order.loadingCountry?.toLowerCase() || '';
         if (!filters.loadingCountries.some(country => 
@@ -541,7 +521,6 @@ const SearchOrders: React.FC = () => {
         )) return false;
       }
       
-      // Фильтры по странам разгрузки
       if (filters.unloadingCountries.length > 0) {
         const orderCountry = order.unloadingCountry?.toLowerCase() || '';
         if (!filters.unloadingCountries.some(country => 
@@ -549,7 +528,6 @@ const SearchOrders: React.FC = () => {
         )) return false;
       }
       
-      // Фильтры по регионам загрузки
       if (filters.loadingRegions.length > 0) {
         const orderRegion = order.loadingRegion?.toLowerCase() || '';
         if (!filters.loadingRegions.some(region => 
@@ -557,7 +535,7 @@ const SearchOrders: React.FC = () => {
         )) return false;
       }
       
-      // Фильтры по регионам разгрузки
+
       if (filters.unloadingRegions.length > 0) {
         const orderRegion = order.unloadingRegion?.toLowerCase() || '';
         if (!filters.unloadingRegions.some(region => 
@@ -565,7 +543,7 @@ const SearchOrders: React.FC = () => {
         )) return false;
       }
       
-      // Фильтры по городам загрузки
+
       if (filters.loadingCities.length > 0) {
         const orderCity = order.loadingCity?.toLowerCase() || '';
         if (!filters.loadingCities.some(city => 
@@ -573,7 +551,7 @@ const SearchOrders: React.FC = () => {
         )) return false;
       }
       
-      // Фильтры по городам разгрузки
+
       if (filters.unloadingCities.length > 0) {
         const orderCity = order.unloadingCity?.toLowerCase() || '';
         if (!filters.unloadingCities.some(city => 
@@ -581,18 +559,18 @@ const SearchOrders: React.FC = () => {
         )) return false;
       }
       
-      // Фильтр по весу
+
       if (filters.weightFrom && order.cargoWeight && !isNaN(parseFloat(order.cargoWeight)) && parseFloat(order.cargoWeight) < parseFloat(filters.weightFrom)) return false;
       if (filters.weightTo && order.cargoWeight && !isNaN(parseFloat(order.cargoWeight)) && parseFloat(order.cargoWeight) > parseFloat(filters.weightTo)) return false;
       
-      // Фильтр по объему
+
       if (filters.volumeFrom && order.cargoVolume && !isNaN(parseFloat(order.cargoVolume)) && parseFloat(order.cargoVolume) < parseFloat(filters.volumeFrom)) return false;
       if (filters.volumeTo && order.cargoVolume && !isNaN(parseFloat(order.cargoVolume)) && parseFloat(order.cargoVolume) > parseFloat(filters.volumeTo)) return false;
       
-      // Фильтр по типу транспорта
+
       if (filters.vehicleType && order.vehicleType !== filters.vehicleType) return false;
       
-      // Фильтр по типам груза
+
       if (filters.cargoTypes.length > 0) {
         const orderCargoTypes = Array.isArray(order.cargoType) ? order.cargoType : [order.cargoType];
         if (!filters.cargoTypes.some(filterType => 
@@ -600,41 +578,41 @@ const SearchOrders: React.FC = () => {
         )) return false;
       }
       
-      // Фильтр по дате
+
       if (filters.dateFrom && order.loadingDate && new Date(order.loadingDate) < new Date(filters.dateFrom)) return false;
       if (filters.dateTo && order.loadingDate && new Date(order.loadingDate) > new Date(filters.dateTo)) return false;
       
       return true;
     });
     
-    // Сортировка по релевантности
+
     filtered = filtered.sort((a, b) => {
       let scoreA = 0;
       let scoreB = 0;
       
-      // Бонус за точное совпадение типа
+
       if (activePage === 'cargo' && a.type === 'cargo') scoreA += 10;
       if (activePage === 'transport' && a.type === 'transport') scoreA += 10;
       if (activePage === 'cargo' && b.type === 'cargo') scoreB += 10;
       if (activePage === 'transport' && b.type === 'transport') scoreB += 10;
       
-      // Бонус за совпадение городов
+
       if (filters.loadingCities.length > 0) {
         if (a.loadingCity && filters.loadingCities.some(city => a.loadingCity.toLowerCase().includes(city.toLowerCase()))) scoreA += 5;
         if (b.loadingCity && filters.loadingCities.some(city => b.loadingCity.toLowerCase().includes(city.toLowerCase()))) scoreB += 5;
       }
       
-      // Бонус за совпадение стран
+
       if (filters.loadingCountries.length > 0) {
         if (a.loadingCountry && filters.loadingCountries.some(country => a.loadingCountry.toLowerCase().includes(country.toLowerCase()))) scoreA += 3;
         if (b.loadingCountry && filters.loadingCountries.some(country => b.loadingCountry.toLowerCase().includes(country.toLowerCase()))) scoreB += 3;
       }
       
-      // Бонус за совпадение типа транспорта
+
       if (filters.vehicleType && a.vehicleType === filters.vehicleType) scoreA += 2;
       if (filters.vehicleType && b.vehicleType === filters.vehicleType) scoreB += 2;
       
-      return scoreB - scoreA; // Сортируем по убыванию
+      return scoreB - scoreA;
     });
     
     setFilteredOrders(filtered);
@@ -668,7 +646,7 @@ const SearchOrders: React.FC = () => {
                 </div>
               </div>
 
-              {/* Кнопки переключения типа поиска */}
+
               {activePage === 'all' && (
                 <div className="search-type-switcher">
                   <button 
@@ -687,7 +665,7 @@ const SearchOrders: React.FC = () => {
               )}
               </div>
 
-              {/* Кнопка "Назад" для страниц фильтрации */}
+
               {(activePage === 'cargo' || activePage === 'transport') && (
                 <div className="search-back-btn">
                   <button 
@@ -702,7 +680,7 @@ const SearchOrders: React.FC = () => {
                 </div>
               )}
 
-              {/* Контент страниц */}
+
               {activePage === 'all' && (
                 <div className="search-orders__results">
                   <div className="results-header">

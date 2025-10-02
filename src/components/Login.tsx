@@ -26,8 +26,6 @@ const Login: React.FC = () => {
 
   React.useEffect(() => {
     logTestData('ТЕСТОВЫЕ ДАННЫЕ ДЛЯ ВХОДА');
-    console.log('🔍 DEBUG Login: current location =', location);
-    console.log('🔍 DEBUG Login: pathname =', location.pathname);
   }, [location]);
 
   const showFormMessage = (text: string, type: 'success' | 'error' | 'info') => {
@@ -57,13 +55,11 @@ const Login: React.FC = () => {
     }
 
     if (verifyUserPassword(phone, password, testDB)) {
-      // Получаем данные пользователя из базы данных
       const userData = testDB.users[phone];
       if (userData) {
-        // Обновляем пользователя в базе данных (если нужно)
         updateUserInDB(phone, userData);
         
-        // Сохраняем данные пользователя в localStorage для текущей сессии
+        // Сохраняем localStorage 
         const currentUserData = {
           id: userData.id,
           phone: userData.phone,
@@ -169,7 +165,6 @@ const Login: React.FC = () => {
               <button 
                 className="form__button form-container__button"
                 onClick={() => {
-                  console.log('🔍 DEBUG Login: Navigating to /forgot-password');
                   navigate('/forgot-password');
                 }}
               >
