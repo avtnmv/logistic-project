@@ -192,7 +192,17 @@ const SearchOrders: React.FC = () => {
   };
 
   const calculateDistance = (from: string, to: string) => {
-    return Math.floor(Math.random() * 2000) + 100;
+    // Создаем детерминированное расстояние на основе названий городов
+    const combined = (from || '') + (to || '');
+    let hash = 0;
+    for (let i = 0; i < combined.length; i++) {
+      const char = combined.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash; // Convert to 32bit integer
+    }
+    // Используем абсолютное значение хэша для получения положительного числа
+    const distance = Math.abs(hash) % 2000 + 100;
+    return distance;
   };
 
   const getCargoTypeName = (type: string) => {
