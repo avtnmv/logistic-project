@@ -34,6 +34,11 @@ const Security: React.FC = () => {
     new: false,
     confirm: false
   });
+  const [fieldErrors, setFieldErrors] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+  });
 
   useEffect(() => {
     document.body.style.backgroundColor = 'rgb(245, 245, 245)';
@@ -102,13 +107,38 @@ const Security: React.FC = () => {
     if (password.length < 6) {
       return 'Пароль должен содержать минимум 6 символов';
     }
+    if (password.length > 50) {
+      return 'Пароль не должен превышать 50 символов';
+    }
+    if (!/[A-Za-z]/.test(password)) {
+      return 'Пароль должен содержать хотя бы одну букву';
+    }
+    if (!/[0-9]/.test(password)) {
+      return 'Пароль должен содержать хотя бы одну цифру';
+    }
+    return null;
+  };
+
+  const validateCurrentPassword = (password: string) => {
+    // Здесь должна быть проверка с базой данных
+    // Для демонстрации используем простую проверку
+    const db = getGlobalTestDB();
+    if (currentUser?.phone) {
+      const user = db.users[currentUser.phone];
+      if (user && user.password !== password) {
+        return 'Неверный текущий пароль';
+      }
+    }
     return null;
   };
 
   const handlePasswordSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Валидация
+    // Очищаем предыдущие сообщения
+    setMessageVisible(false);
+    
+    // Валидация текущего пароля
     if (!currentPassword.trim()) {
       setMessage('Введите текущий пароль');
       setMessageType('error');
@@ -116,6 +146,16 @@ const Security: React.FC = () => {
       return;
     }
 
+    // Проверка текущего пароля
+    const currentPasswordError = validateCurrentPassword(currentPassword);
+    if (currentPasswordError) {
+      setMessage(currentPasswordError);
+      setMessageType('error');
+      setMessageVisible(true);
+      return;
+    }
+
+    // Валидация нового пароля
     if (!newPassword.trim()) {
       setMessage('Введите новый пароль');
       setMessageType('error');
@@ -123,9 +163,26 @@ const Security: React.FC = () => {
       return;
     }
 
+    // Проверка, что новый пароль отличается от текущего
+    if (currentPassword === newPassword) {
+      setMessage('Новый пароль должен отличаться от текущего');
+      setMessageType('error');
+      setMessageVisible(true);
+      return;
+    }
+
+    // Валидация сложности нового пароля
     const passwordError = validatePassword(newPassword);
     if (passwordError) {
       setMessage(passwordError);
+      setMessageType('error');
+      setMessageVisible(true);
+      return;
+    }
+
+    // Проверка подтверждения пароля
+    if (!confirmPassword.trim()) {
+      setMessage('Подтвердите новый пароль');
       setMessageType('error');
       setMessageVisible(true);
       return;
@@ -138,17 +195,120 @@ const Security: React.FC = () => {
       return;
     }
 
-    // Здесь должна быть проверка текущего пароля и обновление в базе данных
-    // Для демонстрации просто показываем успешное сообщение
-    setMessage('Пароль успешно изменен');
-    setMessageType('success');
-    setMessageVisible(true);
-    
-    // Очищаем форму
-    setCurrentPassword('');
-    setNewPassword('');
-    setConfirmPassword('');
-    setShowPasswordForm(false);
+    // Обновление пароля в базе данных
+    try {
+      const db = getGlobalTestDB();
+      if (currentUser?.phone) {
+        const user = db.users[currentUser.phone];
+        if (user) {
+          user.password = newPassword;
+          // Обновляем localStorage
+          const storedUser = localStorage.getItem('currentUser');
+          if (storedUser) {
+            try {
+              const u = JSON.parse(storedUser);
+              localStorage.setItem('currentUser', JSON.stringify({ ...u, password: newPassword }));
+            } catch (e) {
+              console.error('Ошибка обновления localStorage:', e);
+            }
+          }
+          
+          setMessage('Пароль успешно изменен');
+          setMessageType('success');
+          setMessageVisible(true);
+          
+          // Очищаем форму
+          setCurrentPassword('');
+          setNewPassword('');
+          setConfirmPassword('');
+          setShowPasswordForm(false);
+        } else {
+          setMessage('Ошибка: пользователь не найден');
+          setMessageType('error');
+          setMessageVisible(true);
+        }
+      } else {
+        setMessage('Ошибка: не удалось определить пользователя');
+        setMessageType('error');
+        setMessageVisible(true);
+      }
+    } catch (error) {
+      console.error('Ошибка при смене пароля:', error);
+      setMessage('Произошла ошибка при смене пароля. Попробуйте еще раз.');
+      setMessageType('error');
+      setMessageVisible(true);
+    }
+  };
+
+  const validateField = (field: string, value: string) => {
+    switch (field) {
+      case 'currentPassword':
+        if (!value.trim()) {
+          return 'Введите текущий пароль';
+        }
+        return validateCurrentPassword(value);
+      
+      case 'newPassword':
+        if (!value.trim()) {
+          return 'Введите новый пароль';
+        }
+        if (currentPassword && value === currentPassword) {
+          return 'Новый пароль должен отличаться от текущего';
+        }
+        return validatePassword(value);
+      
+      case 'confirmPassword':
+        if (!value.trim()) {
+          return 'Подтвердите новый пароль';
+        }
+        if (newPassword && value !== newPassword) {
+          return 'Пароли не совпадают';
+        }
+        return '';
+      
+      default:
+        return '';
+    }
+  };
+
+  const handleFieldChange = (field: string, value: string) => {
+    // Обновляем значение поля
+    switch (field) {
+      case 'currentPassword':
+        setCurrentPassword(value);
+        break;
+      case 'newPassword':
+        setNewPassword(value);
+        break;
+      case 'confirmPassword':
+        setConfirmPassword(value);
+        break;
+    }
+
+    // Валидируем поле
+    const error = validateField(field, value);
+    setFieldErrors(prev => ({
+      ...prev,
+      [field]: error || ''
+    }));
+
+    // Если это поле подтверждения пароля, также проверяем соответствие
+    if (field === 'confirmPassword' && newPassword) {
+      const confirmError = value !== newPassword ? 'Пароли не совпадают' : '';
+      setFieldErrors(prev => ({
+        ...prev,
+        confirmPassword: confirmError
+      }));
+    }
+
+    // Если это новое поле пароля, перепроверяем подтверждение
+    if (field === 'newPassword' && confirmPassword) {
+      const confirmError = confirmPassword !== value ? 'Пароли не совпадают' : '';
+      setFieldErrors(prev => ({
+        ...prev,
+        confirmPassword: confirmError
+      }));
+    }
   };
 
   const handleCancelPasswordChange = () => {
@@ -160,6 +320,11 @@ const Security: React.FC = () => {
       current: false,
       new: false,
       confirm: false
+    });
+    setFieldErrors({
+      currentPassword: '',
+      newPassword: '',
+      confirmPassword: ''
     });
   };
 
@@ -297,13 +462,18 @@ const Security: React.FC = () => {
                   <div className="form-row">
                     <div className="form-field">
                       <label>Текущий пароль</label>
+                      {fieldErrors.currentPassword && (
+                        <div className="error-message" style={{ marginBottom: '4px', fontSize: '12px', color: '#e53e3e' }}>
+                          {fieldErrors.currentPassword}
+                        </div>
+                      )}
                       <div style={{ position: 'relative' }}>
                         <input
                           type={passwordToggles.current ? 'text' : 'password'}
-                          className="form-input"
+                          className={`form-input ${fieldErrors.currentPassword ? 'form-input--error' : ''}`}
                           placeholder="Введите текущий пароль"
                           value={currentPassword}
-                          onChange={(e) => setCurrentPassword(e.target.value)}
+                          onChange={(e) => handleFieldChange('currentPassword', e.target.value)}
                           style={{ paddingRight: '50px' }}
                         />
                         <PasswordToggle
@@ -318,13 +488,18 @@ const Security: React.FC = () => {
                   <div className="form-row">
                     <div className="form-field">
                       <label>Новый пароль</label>
+                      {fieldErrors.newPassword && (
+                        <div className="error-message" style={{ marginBottom: '4px', fontSize: '12px', color: '#e53e3e' }}>
+                          {fieldErrors.newPassword}
+                        </div>
+                      )}
                       <div style={{ position: 'relative' }}>
                         <input
                           type={passwordToggles.new ? 'text' : 'password'}
-                          className="form-input"
+                          className={`form-input ${fieldErrors.newPassword ? 'form-input--error' : ''}`}
                           placeholder="Введите новый пароль"
                           value={newPassword}
-                          onChange={(e) => setNewPassword(e.target.value)}
+                          onChange={(e) => handleFieldChange('newPassword', e.target.value)}
                           style={{ paddingRight: '50px' }}
                         />
                         <PasswordToggle
@@ -339,13 +514,18 @@ const Security: React.FC = () => {
                   <div className="form-row">
                     <div className="form-field">
                       <label>Подтвердите новый пароль</label>
+                      {fieldErrors.confirmPassword && (
+                        <div className="error-message" style={{ marginBottom: '4px', fontSize: '12px', color: '#e53e3e' }}>
+                          {fieldErrors.confirmPassword}
+                        </div>
+                      )}
                       <div style={{ position: 'relative' }}>
                         <input
                           type={passwordToggles.confirm ? 'text' : 'password'}
-                          className="form-input"
+                          className={`form-input ${fieldErrors.confirmPassword ? 'form-input--error' : ''}`}
                           placeholder="Повторите новый пароль"
                           value={confirmPassword}
-                          onChange={(e) => setConfirmPassword(e.target.value)}
+                          onChange={(e) => handleFieldChange('confirmPassword', e.target.value)}
                           style={{ paddingRight: '50px' }}
                         />
                         <PasswordToggle
