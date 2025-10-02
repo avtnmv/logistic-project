@@ -212,6 +212,55 @@ const SearchOrders: React.FC = () => {
     return vehicleTypes[type] || type;
   };
 
+  const getCargoTypeDisplayName = (type: string) => {
+    const cargoTypes: { [key: string]: string } = {
+      'pallets': 'Груз на паллетах',
+      'equipment': 'Оборудование',
+      'construction': 'Стройматериалы',
+      'metal': 'Металл',
+      'metal-products': 'Металлопрокат',
+      'pipes': 'Трубы',
+      'food': 'Продукты',
+      'big-bags': 'Груз в биг-бэгах',
+      'container': 'Контейнер',
+      'cement': 'Цемент',
+      'bitumen': 'Битум',
+      'fuel': 'ГСМ',
+      'flour': 'Мука',
+      'oversized': 'Негабарит',
+      'cars': 'Автомобили',
+      'lumber': 'Пиломатериалы',
+      'concrete': 'Бетонные изделия',
+      'furniture': 'Мебель',
+      'tnp': 'ТНП'
+    };
+    
+    const vehicleTypes: { [key: string]: string } = {
+      'tent': 'Тент',
+      'isotherm': 'Изотерм',
+      'refrigerator': 'Рефрижератор',
+      'tank': 'Цистерна',
+      'container': 'Контейнеровоз',
+      'flatbed': 'Бортовой',
+      'lowloader': 'Низкорамный',
+      'car_carrier': 'Автовоз',
+      'grain_carrier': 'Зерновоз',
+      'dump_truck': 'Самосвал'
+    };
+    
+    // Сначала проверяем типы груза
+    if (cargoTypes[type]) {
+      return cargoTypes[type];
+    }
+    
+    // Затем проверяем типы транспорта
+    if (vehicleTypes[type]) {
+      return vehicleTypes[type];
+    }
+    
+    return type;
+  };
+
   const getVehicleTypeName = (type: string) => {
     const types: { [key: string]: string } = {
       'tent': 'Тент',
@@ -715,8 +764,8 @@ const SearchOrders: React.FC = () => {
                                     <path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                                   </svg>
                                   {Array.isArray(order.cargoType) ? 
-                                    order.cargoType.map((type: string) => getCargoTypeName(type)).join(', ') :
-                                    getCargoTypeName(order.cargoType) || 'Не указано'
+                                    order.cargoType.map((type: string) => getCargoTypeDisplayName(type)).join(', ') :
+                                    getCargoTypeDisplayName(order.cargoType) || 'Не указано'
                                   }
                                 </div>
                               </div>
@@ -1436,8 +1485,8 @@ const SearchOrders: React.FC = () => {
                                         <path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                                       </svg>
                                       {Array.isArray(order.cargoType) ? 
-                                        order.cargoType.map((type: string) => getCargoTypeName(type)).join(', ') :
-                                        getCargoTypeName(order.cargoType) || 'Не указано'
+                                        order.cargoType.map((type: string) => getCargoTypeDisplayName(type)).join(', ') :
+                                        getCargoTypeDisplayName(order.cargoType) || 'Не указано'
                                       }
                                     </div>
                                   </div>
