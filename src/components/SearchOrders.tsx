@@ -196,28 +196,20 @@ const SearchOrders: React.FC = () => {
   };
 
   const getCargoTypeName = (type: string) => {
-    const types: { [key: string]: string } = {
-      'pallets': 'Груз на паллетах',
-      'equipment': 'Оборудование',
-      'construction': 'Стройматериалы',
-      'metal': 'Металл',
-      'metal-products': 'Металлопрокат',
-      'pipes': 'Трубы',
-      'food': 'Продукты',
-      'big-bags': 'Груз в биг-бэгах',
-      'container': 'Контейнер',
-      'cement': 'Цемент',
-      'bitumen': 'Битум',
-      'fuel': 'ГСМ',
-      'flour': 'Мука',
-      'oversized': 'Негабарит',
-      'cars': 'Автомобили',
-      'lumber': 'Пиломатериалы',
-      'concrete': 'Бетонные изделия',
-      'furniture': 'Мебель',
-      'tnp': 'ТНП'
+    const vehicleTypes: { [key: string]: string } = {
+      'tent': 'Тент',
+      'isotherm': 'Изотерм',
+      'refrigerator': 'Рефрижератор',
+      'tank': 'Цистерна',
+      'container': 'Контейнеровоз',
+      'flatbed': 'Бортовой',
+      'lowloader': 'Низкорамный',
+      'car_carrier': 'Автовоз',
+      'grain_carrier': 'Зерновоз',
+      'dump_truck': 'Самосвал'
     };
-    return types[type] || type;
+    
+    return vehicleTypes[type] || type;
   };
 
   const getVehicleTypeName = (type: string) => {
@@ -421,7 +413,7 @@ const SearchOrders: React.FC = () => {
 
   const getCargoTypeDisplayText = () => {
     if (filters.cargoTypes.length === 0) {
-      return 'Выберите типы груза';
+      return 'Выберите типы транспорта';
     }
     if (filters.cargoTypes.length > 3) {
       return `${filters.cargoTypes.length} типов выбрано`;
@@ -902,568 +894,466 @@ const SearchOrders: React.FC = () => {
                 <div className="search-filters">
                     <h3>Фильтры поиска</h3>
                     
-                    <div className="filter-section">
-                      <h4>Страна загрузки</h4>
-                      <div className="filter-input-container">
-                        <input
-                          type="text"
-                          placeholder="Выберите страну загрузки"
-                          value={loadingCountryInput}
-                          onChange={(e) => {
-                            setLoadingCountryInput(e.target.value);
-                            setShowLoadingCountrySuggestions(true);
-                          }}
-                          onFocus={() => setShowLoadingCountrySuggestions(true)}
-                          onBlur={() => setTimeout(() => setShowLoadingCountrySuggestions(false), 200)}
-                        />
-                        {showLoadingCountrySuggestions && loadingCountryInput && (
-                          <div className="autocomplete-suggestions">
-                            {filterCountries(loadingCountryInput).map((country, index) => (
-                              <div
-                                key={index}
-                                className="suggestion-item"
-                                onClick={() => addLoadingCountry(country.name)}
-                              >
-                                {country.name}
-                              </div>
-                            ))}
+                    <div className="form-section">
+                      <div className="form-row">
+                        <div className="form-field" style={{ width: '100%' }}>
+                          <label>Дата загрузки</label>
+                          <div className="filter-inputs-row">
+                            <input
+                              type="date"
+                              className="form-input"
+                              value={filters.dateFrom}
+                              onChange={(e) => handleFilterChange('dateFrom', e.target.value)}
+                            />
+                            <input
+                              type="date"
+                              className="form-input"
+                              value={filters.dateTo}
+                              onChange={(e) => handleFilterChange('dateTo', e.target.value)}
+                            />
                           </div>
-                        )}
-                      </div>
-                      <div className="countries-list">
-                        {filters.loadingCountries.map((country, index) => (
-                          <div key={index} className="country-tag">
-                            <span>{country}</span>
-                            <button onClick={() => removeLoadingCountry(country)}>×</button>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="filter-section">
-                      <h4>Область загрузки</h4>
-                      <div className="filter-input-container">
-                        <input
-                          type="text"
-                          placeholder="Выберите область загрузки"
-                          value={loadingRegionInput}
-                          onChange={(e) => {
-                            setLoadingRegionInput(e.target.value);
-                            setShowLoadingRegionSuggestions(true);
-                          }}
-                          onFocus={() => setShowLoadingRegionSuggestions(true)}
-                          onBlur={() => setTimeout(() => setShowLoadingRegionSuggestions(false), 200)}
-                        />
-                        {showLoadingRegionSuggestions && loadingRegionInput && (
-                          <div className="autocomplete-suggestions">
-                            {filterRegions(loadingRegionInput).map((region, index) => (
-                              <div
-                                key={index}
-                                className="suggestion-item"
-                                onClick={() => addLoadingRegion(region)}
-                              >
-                                {region}
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                      <div className="regions-list">
-                        {filters.loadingRegions.map((region, index) => (
-                          <div key={index} className="region-tag">
-                            <span>{region}</span>
-                            <button onClick={() => removeLoadingRegion(region)}>×</button>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="filter-section">
-                      <h4>Город загрузки</h4>
-                      <div className="filter-input-container">
-                        <input
-                          type="text"
-                          placeholder="Выберите город загрузки"
-                          value={loadingCityInput}
-                          onChange={(e) => {
-                            setLoadingCityInput(e.target.value);
-                            setShowLoadingCitySuggestions(true);
-                          }}
-                          onFocus={() => setShowLoadingCitySuggestions(true)}
-                          onBlur={() => setTimeout(() => setShowLoadingCitySuggestions(false), 200)}
-                        />
-                        {showLoadingCitySuggestions && loadingCityInput && (
-                          <div className="autocomplete-suggestions">
-                            {filterCities(loadingCityInput).map((city, index) => (
-                              <div
-                                key={index}
-                                className="suggestion-item"
-                                onClick={() => addLoadingCity(city)}
-                              >
-                                {city}
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                      <div className="cities-list">
-                        {filters.loadingCities.map((city, index) => (
-                          <div key={index} className="city-tag">
-                            <span>{city}</span>
-                            <button onClick={() => removeLoadingCity(city)}>×</button>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="filter-section">
-                      <h4>Страна разгрузки</h4>
-                      <div className="filter-input-container">
-                        <input
-                          type="text"
-                          placeholder="Выберите страну разгрузки"
-                          value={unloadingCountryInput}
-                          onChange={(e) => {
-                            setUnloadingCountryInput(e.target.value);
-                            setShowUnloadingCountrySuggestions(true);
-                          }}
-                          onFocus={() => setShowUnloadingCountrySuggestions(true)}
-                          onBlur={() => setTimeout(() => setShowUnloadingCountrySuggestions(false), 200)}
-                        />
-                        {showUnloadingCountrySuggestions && unloadingCountryInput && (
-                          <div className="autocomplete-suggestions">
-                            {filterCountries(unloadingCountryInput).map((country, index) => (
-                              <div
-                                key={index}
-                                className="suggestion-item"
-                                onClick={() => addUnloadingCountry(country.name)}
-                              >
-                                {country.name}
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                      <div className="countries-list">
-                        {filters.unloadingCountries.map((country, index) => (
-                          <div key={index} className="country-tag">
-                            <span>{country}</span>
-                            <button onClick={() => removeUnloadingCountry(country)}>×</button>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="filter-section">
-                      <h4>Область разгрузки</h4>
-                      <div className="filter-input-container">
-                        <input
-                          type="text"
-                          placeholder="Выберите область разгрузки"
-                          value={unloadingRegionInput}
-                          onChange={(e) => {
-                            setUnloadingRegionInput(e.target.value);
-                            setShowUnloadingRegionSuggestions(true);
-                          }}
-                          onFocus={() => setShowUnloadingRegionSuggestions(true)}
-                          onBlur={() => setTimeout(() => setShowUnloadingRegionSuggestions(false), 200)}
-                        />
-                        {showUnloadingRegionSuggestions && unloadingRegionInput && (
-                          <div className="autocomplete-suggestions">
-                            {filterRegions(unloadingRegionInput).map((region, index) => (
-                              <div
-                                key={index}
-                                className="suggestion-item"
-                                onClick={() => addUnloadingRegion(region)}
-                              >
-                                {region}
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                      <div className="regions-list">
-                        {filters.unloadingRegions.map((region, index) => (
-                          <div key={index} className="region-tag">
-                            <span>{region}</span>
-                            <button onClick={() => removeUnloadingRegion(region)}>×</button>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="filter-section">
-                      <h4>Город разгрузки</h4>
-                      <div className="filter-input-container">
-                        <input
-                          type="text"
-                          placeholder="Выберите город разгрузки"
-                          value={unloadingCityInput}
-                          onChange={(e) => {
-                            setUnloadingCityInput(e.target.value);
-                            setShowUnloadingCitySuggestions(true);
-                          }}
-                          onFocus={() => setShowUnloadingCitySuggestions(true)}
-                          onBlur={() => setTimeout(() => setShowUnloadingCitySuggestions(false), 200)}
-                        />
-                        {showUnloadingCitySuggestions && unloadingCityInput && (
-                          <div className="autocomplete-suggestions">
-                            {filterCities(unloadingCityInput).map((city, index) => (
-                              <div
-                                key={index}
-                                className="suggestion-item"
-                                onClick={() => addUnloadingCity(city)}
-                              >
-                                {city}
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                      <div className="cities-list">
-                        {filters.unloadingCities.map((city, index) => (
-                          <div key={index} className="city-tag">
-                            <span>{city}</span>
-                            <button onClick={() => removeUnloadingCity(city)}>×</button>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="filter-section">
-                      <h4>Вес (тонн)</h4>
-                      <div className="filter-inputs-row">
-                        <input
-                          type="number"
-                          placeholder="От"
-                          value={filters.weightFrom}
-                          onChange={(e) => handleFilterChange('weightFrom', e.target.value)}
-                        />
-                        <input
-                          type="number"
-                          placeholder="До"
-                          value={filters.weightTo}
-                          onChange={(e) => handleFilterChange('weightTo', e.target.value)}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="filter-section">
-                      <h4>Объем (м³)</h4>
-                      <div className="filter-inputs-row">
-                        <input
-                          type="number"
-                          placeholder="От"
-                          value={filters.volumeFrom}
-                          onChange={(e) => handleFilterChange('volumeFrom', e.target.value)}
-                        />
-                        <input
-                          type="number"
-                          placeholder="До"
-                          value={filters.volumeTo}
-                          onChange={(e) => handleFilterChange('volumeTo', e.target.value)}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="filter-section">
-                      <h4>Тип груза (до 5 типов)</h4>
-                      <div className="custom-dropdown">
-                        <div 
-                          className={`dropdown-trigger ${filters.cargoTypes.length > 0 ? 'has-value' : ''}`}
-                          onClick={() => setShowCargoTypeDropdown(!showCargoTypeDropdown)}
-                        >
-                          <span className="dropdown-text">
-                            {getCargoTypeDisplayText()}
-                          </span>
-                          <svg 
-                            className={`dropdown-arrow ${showCargoTypeDropdown ? 'open' : ''}`} 
-                            width="10" 
-                            height="6" 
-                            viewBox="0 0 10 6" 
-                            fill="none"
-                          >
-                            <path d="M.529.695c.26-.26.682-.26.942 0L5 4.224 8.529.695a.667.667 0 0 1 .942.943l-4 4a.667.667 0 0 1-.942 0l-4-4a.667.667 0 0 1 0-.943" fill="#717680"/>
-                          </svg>
                         </div>
-                        {showCargoTypeDropdown && (
-                          <div className="dropdown-menu">
-                            <div 
-                              className="dropdown-option"
-                              onClick={() => {
-                                if (filters.cargoTypes.includes('pallets')) {
-                                  removeCargoType('pallets');
-                                } else if (filters.cargoTypes.length < 5) {
-                                  addCargoType('pallets');
-                                }
-                              }}
-                            >
-                              <span>Груз на паллетах</span>
-                            </div>
-                            <div 
-                              className="dropdown-option"
-                              onClick={() => {
-                                if (filters.cargoTypes.includes('equipment')) {
-                                  removeCargoType('equipment');
-                                } else if (filters.cargoTypes.length < 5) {
-                                  addCargoType('equipment');
-                                }
-                              }}
-                            >
-                              <span>Оборудование</span>
-                            </div>
-                            <div 
-                              className="dropdown-option"
-                              onClick={() => {
-                                if (filters.cargoTypes.includes('construction')) {
-                                  removeCargoType('construction');
-                                } else if (filters.cargoTypes.length < 5) {
-                                  addCargoType('construction');
-                                }
-                              }}
-                            >
-                              <span>Стройматериалы</span>
-                            </div>
-                            <div 
-                              className="dropdown-option"
-                              onClick={() => {
-                                if (filters.cargoTypes.includes('metal')) {
-                                  removeCargoType('metal');
-                                } else if (filters.cargoTypes.length < 5) {
-                                  addCargoType('metal');
-                                }
-                              }}
-                            >
-                              <span>Металл</span>
-                            </div>
-                            <div 
-                              className="dropdown-option"
-                              onClick={() => {
-                                if (filters.cargoTypes.includes('metal-products')) {
-                                  removeCargoType('metal-products');
-                                } else if (filters.cargoTypes.length < 5) {
-                                  addCargoType('metal-products');
-                                }
-                              }}
-                            >
-                              <span>Металлопрокат</span>
-                            </div>
-                            <div 
-                              className="dropdown-option"
-                              onClick={() => {
-                                if (filters.cargoTypes.includes('pipes')) {
-                                  removeCargoType('pipes');
-                                } else if (filters.cargoTypes.length < 5) {
-                                  addCargoType('pipes');
-                                }
-                              }}
-                            >
-                              <span>Трубы</span>
-                            </div>
-                            <div 
-                              className="dropdown-option"
-                              onClick={() => {
-                                if (filters.cargoTypes.includes('food')) {
-                                  removeCargoType('food');
-                                } else if (filters.cargoTypes.length < 5) {
-                                  addCargoType('food');
-                                }
-                              }}
-                            >
-                              <span>Продукты</span>
-                            </div>
-                            <div 
-                              className="dropdown-option"
-                              onClick={() => {
-                                if (filters.cargoTypes.includes('big-bags')) {
-                                  removeCargoType('big-bags');
-                                } else if (filters.cargoTypes.length < 5) {
-                                  addCargoType('big-bags');
-                                }
-                              }}
-                            >
-                              <span>Груз в биг-бэгах</span>
-                            </div>
-                            <div 
-                              className="dropdown-option"
-                              onClick={() => {
-                                if (filters.cargoTypes.includes('container')) {
-                                  removeCargoType('container');
-                                } else if (filters.cargoTypes.length < 5) {
-                                  addCargoType('container');
-                                }
-                              }}
-                            >
-                              <span>Контейнер</span>
-                            </div>
-                            <div 
-                              className="dropdown-option"
-                              onClick={() => {
-                                if (filters.cargoTypes.includes('cement')) {
-                                  removeCargoType('cement');
-                                } else if (filters.cargoTypes.length < 5) {
-                                  addCargoType('cement');
-                                }
-                              }}
-                            >
-                              <span>Цемент</span>
-                            </div>
-                            <div 
-                              className="dropdown-option"
-                              onClick={() => {
-                                if (filters.cargoTypes.includes('bitumen')) {
-                                  removeCargoType('bitumen');
-                                } else if (filters.cargoTypes.length < 5) {
-                                  addCargoType('bitumen');
-                                }
-                              }}
-                            >
-                              <span>Битум</span>
-                            </div>
-                            <div 
-                              className="dropdown-option"
-                              onClick={() => {
-                                if (filters.cargoTypes.includes('fuel')) {
-                                  removeCargoType('fuel');
-                                } else if (filters.cargoTypes.length < 5) {
-                                  addCargoType('fuel');
-                                }
-                              }}
-                            >
-                              <span>ГСМ</span>
-                            </div>
-                            <div 
-                              className="dropdown-option"
-                              onClick={() => {
-                                if (filters.cargoTypes.includes('flour')) {
-                                  removeCargoType('flour');
-                                } else if (filters.cargoTypes.length < 5) {
-                                  addCargoType('flour');
-                                }
-                              }}
-                            >
-                              <span>Мука</span>
-                            </div>
-                            <div 
-                              className="dropdown-option"
-                              onClick={() => {
-                                if (filters.cargoTypes.includes('oversized')) {
-                                  removeCargoType('oversized');
-                                } else if (filters.cargoTypes.length < 5) {
-                                  addCargoType('oversized');
-                                }
-                              }}
-                            >
-                              <span>Негабарит</span>
-                            </div>
-                            <div 
-                              className="dropdown-option"
-                              onClick={() => {
-                                if (filters.cargoTypes.includes('cars')) {
-                                  removeCargoType('cars');
-                                } else if (filters.cargoTypes.length < 5) {
-                                  addCargoType('cars');
-                                }
-                              }}
-                            >
-                              <span>Автомобили</span>
-                            </div>
-                            <div 
-                              className="dropdown-option"
-                              onClick={() => {
-                                if (filters.cargoTypes.includes('lumber')) {
-                                  removeCargoType('lumber');
-                                } else if (filters.cargoTypes.length < 5) {
-                                  addCargoType('lumber');
-                                }
-                              }}
-                            >
-                              <span>Пиломатериалы</span>
-                            </div>
-                            <div 
-                              className="dropdown-option"
-                              onClick={() => {
-                                if (filters.cargoTypes.includes('concrete')) {
-                                  removeCargoType('concrete');
-                                } else if (filters.cargoTypes.length < 5) {
-                                  addCargoType('concrete');
-                                }
-                              }}
-                            >
-                              <span>Бетонные изделия</span>
-                            </div>
-                            <div 
-                              className="dropdown-option"
-                              onClick={() => {
-                                if (filters.cargoTypes.includes('furniture')) {
-                                  removeCargoType('furniture');
-                                } else if (filters.cargoTypes.length < 5) {
-                                  addCargoType('furniture');
-                                }
-                              }}
-                            >
-                              <span>Мебель</span>
-                            </div>
-                            <div 
-                              className="dropdown-option"
-                              onClick={() => {
-                                if (filters.cargoTypes.includes('tnp')) {
-                                  removeCargoType('tnp');
-                                } else if (filters.cargoTypes.length < 5) {
-                                  addCargoType('tnp');
-                                }
-                              }}
-                            >
-                              <span>ТНП</span>
-                            </div>
-                          </div>
-                        )}
                       </div>
-                      <div className="cargo-types-list">
-                        {filters.cargoTypes.map((cargoType, index) => (
-                          <div key={index} className="cargo-type-tag">
-                            <span>{getCargoTypeName(cargoType)}</span>
-                            <button onClick={() => removeCargoType(cargoType)}>×</button>
+                    </div>
+                    
+                    <div className="form-section">
+                      <div className="form-row">
+                        <div className="form-field">
+                          <label>Страна загрузки</label>
+                          <div className="filter-input-container">
+                            <input
+                              type="text"
+                              className="form-input"
+                              placeholder="Выберите страну загрузки"
+                              value={loadingCountryInput}
+                              onChange={(e) => {
+                                setLoadingCountryInput(e.target.value);
+                                setShowLoadingCountrySuggestions(true);
+                              }}
+                              onFocus={() => setShowLoadingCountrySuggestions(true)}
+                              onBlur={() => setTimeout(() => setShowLoadingCountrySuggestions(false), 200)}
+                            />
+                            {showLoadingCountrySuggestions && loadingCountryInput && (
+                              <div className="autocomplete-suggestions">
+                                {filterCountries(loadingCountryInput).map((country, index) => (
+                                  <div
+                                    key={index}
+                                    className="suggestion-item"
+                                    onClick={() => addLoadingCountry(country.name)}
+                                  >
+                                    {country.name}
+                                  </div>
+                                ))}
+                              </div>
+                            )}
                           </div>
-                        ))}
+                          <div className="countries-list">
+                            {filters.loadingCountries.map((country, index) => (
+                              <div key={index} className="country-tag">
+                                <span>{country}</span>
+                                <button onClick={() => removeLoadingCountry(country)}>×</button>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                        <div className="form-field">
+                          <label>Страна разгрузки</label>
+                          <div className="filter-input-container">
+                            <input
+                              type="text"
+                              className="form-input"
+                              placeholder="Выберите страну разгрузки"
+                              value={unloadingCountryInput}
+                              onChange={(e) => {
+                                setUnloadingCountryInput(e.target.value);
+                                setShowUnloadingCountrySuggestions(true);
+                              }}
+                              onFocus={() => setShowUnloadingCountrySuggestions(true)}
+                              onBlur={() => setTimeout(() => setShowUnloadingCountrySuggestions(false), 200)}
+                            />
+                            {showUnloadingCountrySuggestions && unloadingCountryInput && (
+                              <div className="autocomplete-suggestions">
+                                {filterCountries(unloadingCountryInput).map((country, index) => (
+                                  <div
+                                    key={index}
+                                    className="suggestion-item"
+                                    onClick={() => addUnloadingCountry(country.name)}
+                                  >
+                                    {country.name}
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                          <div className="countries-list">
+                            {filters.unloadingCountries.map((country, index) => (
+                              <div key={index} className="country-tag">
+                                <span>{country}</span>
+                                <button onClick={() => removeUnloadingCountry(country)}>×</button>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="form-row">
+                        <div className="form-field">
+                          <label>Область загрузки</label>
+                          <div className="filter-input-container">
+                            <input
+                              type="text"
+                              className="form-input"
+                              placeholder="Выберите область загрузки"
+                              value={loadingRegionInput}
+                              onChange={(e) => {
+                                setLoadingRegionInput(e.target.value);
+                                setShowLoadingRegionSuggestions(true);
+                              }}
+                              onFocus={() => setShowLoadingRegionSuggestions(true)}
+                              onBlur={() => setTimeout(() => setShowLoadingRegionSuggestions(false), 200)}
+                            />
+                            {showLoadingRegionSuggestions && loadingRegionInput && (
+                              <div className="autocomplete-suggestions">
+                                {filterRegions(loadingRegionInput).map((region, index) => (
+                                  <div
+                                    key={index}
+                                    className="suggestion-item"
+                                    onClick={() => addLoadingRegion(region)}
+                                  >
+                                    {region}
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                          <div className="regions-list">
+                            {filters.loadingRegions.map((region, index) => (
+                              <div key={index} className="region-tag">
+                                <span>{region}</span>
+                                <button onClick={() => removeLoadingRegion(region)}>×</button>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                        <div className="form-field">
+                          <label>Область разгрузки</label>
+                          <div className="filter-input-container">
+                            <input
+                              type="text"
+                              className="form-input"
+                              placeholder="Выберите область разгрузки"
+                              value={unloadingRegionInput}
+                              onChange={(e) => {
+                                setUnloadingRegionInput(e.target.value);
+                                setShowUnloadingRegionSuggestions(true);
+                              }}
+                              onFocus={() => setShowUnloadingRegionSuggestions(true)}
+                              onBlur={() => setTimeout(() => setShowUnloadingRegionSuggestions(false), 200)}
+                            />
+                            {showUnloadingRegionSuggestions && unloadingRegionInput && (
+                              <div className="autocomplete-suggestions">
+                                {filterRegions(unloadingRegionInput).map((region, index) => (
+                                  <div
+                                    key={index}
+                                    className="suggestion-item"
+                                    onClick={() => addUnloadingRegion(region)}
+                                  >
+                                    {region}
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                          <div className="regions-list">
+                            {filters.unloadingRegions.map((region, index) => (
+                              <div key={index} className="region-tag">
+                                <span>{region}</span>
+                                <button onClick={() => removeUnloadingRegion(region)}>×</button>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="form-row">
+                        <div className="form-field">
+                          <label>Город загрузки</label>
+                          <div className="filter-input-container">
+                            <input
+                              type="text"
+                              className="form-input"
+                              placeholder="Выберите город загрузки"
+                              value={loadingCityInput}
+                              onChange={(e) => {
+                                setLoadingCityInput(e.target.value);
+                                setShowLoadingCitySuggestions(true);
+                              }}
+                              onFocus={() => setShowLoadingCitySuggestions(true)}
+                              onBlur={() => setTimeout(() => setShowLoadingCitySuggestions(false), 200)}
+                            />
+                            {showLoadingCitySuggestions && loadingCityInput && (
+                              <div className="autocomplete-suggestions">
+                                {filterCities(loadingCityInput).map((city, index) => (
+                                  <div
+                                    key={index}
+                                    className="suggestion-item"
+                                    onClick={() => addLoadingCity(city)}
+                                  >
+                                    {city}
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                          <div className="cities-list">
+                            {filters.loadingCities.map((city, index) => (
+                              <div key={index} className="city-tag">
+                                <span>{city}</span>
+                                <button onClick={() => removeLoadingCity(city)}>×</button>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                        <div className="form-field">
+                          <label>Город разгрузки</label>
+                          <div className="filter-input-container">
+                            <input
+                              type="text"
+                              className="form-input"
+                              placeholder="Выберите город разгрузки"
+                              value={unloadingCityInput}
+                              onChange={(e) => {
+                                setUnloadingCityInput(e.target.value);
+                                setShowUnloadingCitySuggestions(true);
+                              }}
+                              onFocus={() => setShowUnloadingCitySuggestions(true)}
+                              onBlur={() => setTimeout(() => setShowUnloadingCitySuggestions(false), 200)}
+                            />
+                            {showUnloadingCitySuggestions && unloadingCityInput && (
+                              <div className="autocomplete-suggestions">
+                                {filterCities(unloadingCityInput).map((city, index) => (
+                                  <div
+                                    key={index}
+                                    className="suggestion-item"
+                                    onClick={() => addUnloadingCity(city)}
+                                  >
+                                    {city}
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                          <div className="cities-list">
+                            {filters.unloadingCities.map((city, index) => (
+                              <div key={index} className="city-tag">
+                                <span>{city}</span>
+                                <button onClick={() => removeUnloadingCity(city)}>×</button>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
                       </div>
                     </div>
 
-                    {activePage === 'transport' && (
-                      <div className="filter-section">
-                        <h4>Тип транспорта</h4>
-                        <select
-                          value={filters.vehicleType}
-                          onChange={(e) => handleFilterChange('vehicleType', e.target.value)}
-                        >
-                          <option value="">Все типы</option>
-                          <option value="tent">Тент</option>
-                          <option value="isotherm">Изотерм</option>
-                          <option value="refrigerator">Рефрижератор</option>
-                          <option value="tank">Цистерна</option>
-                          <option value="container">Контейнеровоз</option>
-                          <option value="flatbed">Бортовой</option>
-                          <option value="lowloader">Низкорамный</option>
-                          <option value="car_carrier">Автовоз</option>
-                          <option value="grain_carrier">Зерновоз</option>
-                          <option value="dump_truck">Самосвал</option>
-                        </select>
+                    <div className="form-section">
+                      <div className="form-row">
+                        <div className="form-field">
+                          <label>Вес (тонн)</label>
+                          <div className="filter-inputs-row">
+                            <input
+                              type="number"
+                              className="form-input"
+                              placeholder="От"
+                              value={filters.weightFrom}
+                              onChange={(e) => handleFilterChange('weightFrom', e.target.value)}
+                            />
+                            <input
+                              type="number"
+                              className="form-input"
+                              placeholder="До"
+                              value={filters.weightTo}
+                              onChange={(e) => handleFilterChange('weightTo', e.target.value)}
+                            />
+                          </div>
+                        </div>
+                        <div className="form-field">
+                          <label>Объем (м³)</label>
+                          <div className="filter-inputs-row">
+                            <input
+                              type="number"
+                              className="form-input"
+                              placeholder="От"
+                              value={filters.volumeFrom}
+                              onChange={(e) => handleFilterChange('volumeFrom', e.target.value)}
+                            />
+                            <input
+                              type="number"
+                              className="form-input"
+                              placeholder="До"
+                              value={filters.volumeTo}
+                              onChange={(e) => handleFilterChange('volumeTo', e.target.value)}
+                            />
+                          </div>
+                        </div>
                       </div>
-                    )}
+                    </div>
 
-                    <div className="filter-section">
-                      <h4>Дата загрузки</h4>
-                      <div className="filter-inputs-row">
-                        <input
-                          type="date"
-                          value={filters.dateFrom}
-                          onChange={(e) => handleFilterChange('dateFrom', e.target.value)}
-                        />
-                        <input
-                          type="date"
-                          value={filters.dateTo}
-                          onChange={(e) => handleFilterChange('dateTo', e.target.value)}
-                        />
+                    <div className="form-section">
+                      <div className="form-row">
+                        <div className="form-field" style={{ width: '100%' }}>
+                          <label>Тип транспорта (до 5 типов)</label>
+                          <div className="custom-dropdown">
+                            <div 
+                              className={`dropdown-trigger ${filters.cargoTypes.length > 0 ? 'has-value' : ''}`}
+                              onClick={() => setShowCargoTypeDropdown(!showCargoTypeDropdown)}
+                            >
+                              <span className="dropdown-text">
+                                {getCargoTypeDisplayText()}
+                              </span>
+                              <svg 
+                                className={`dropdown-arrow ${showCargoTypeDropdown ? 'open' : ''}`} 
+                                width="10" 
+                                height="6" 
+                                viewBox="0 0 10 6" 
+                                fill="none"
+                              >
+                                <path d="M.529.695c.26-.26.682-.26.942 0L5 4.224 8.529.695a.667.667 0 0 1 .942.943l-4 4a.667.667 0 0 1-.942 0l-4-4a.667.667 0 0 1 0-.943" fill="#717680"/>
+                              </svg>
+                            </div>
+                            {showCargoTypeDropdown && (
+                              <div className="dropdown-menu">
+                                <div 
+                                  className="dropdown-option"
+                                  onClick={() => {
+                                    if (filters.cargoTypes.includes('tent')) {
+                                      removeCargoType('tent');
+                                    } else if (filters.cargoTypes.length < 5) {
+                                      addCargoType('tent');
+                                    }
+                                  }}
+                                >
+                                  <span>Тент</span>
+                                </div>
+                                <div 
+                                  className="dropdown-option"
+                                  onClick={() => {
+                                    if (filters.cargoTypes.includes('isotherm')) {
+                                      removeCargoType('isotherm');
+                                    } else if (filters.cargoTypes.length < 5) {
+                                      addCargoType('isotherm');
+                                    }
+                                  }}
+                                >
+                                  <span>Изотерм</span>
+                                </div>
+                                <div 
+                                  className="dropdown-option"
+                                  onClick={() => {
+                                    if (filters.cargoTypes.includes('refrigerator')) {
+                                      removeCargoType('refrigerator');
+                                    } else if (filters.cargoTypes.length < 5) {
+                                      addCargoType('refrigerator');
+                                    }
+                                  }}
+                                >
+                                  <span>Рефрижератор</span>
+                                </div>
+                                <div 
+                                  className="dropdown-option"
+                                  onClick={() => {
+                                    if (filters.cargoTypes.includes('tank')) {
+                                      removeCargoType('tank');
+                                    } else if (filters.cargoTypes.length < 5) {
+                                      addCargoType('tank');
+                                    }
+                                  }}
+                                >
+                                  <span>Цистерна</span>
+                                </div>
+                                <div 
+                                  className="dropdown-option"
+                                  onClick={() => {
+                                    if (filters.cargoTypes.includes('container')) {
+                                      removeCargoType('container');
+                                    } else if (filters.cargoTypes.length < 5) {
+                                      addCargoType('container');
+                                    }
+                                  }}
+                                >
+                                  <span>Контейнеровоз</span>
+                                </div>
+                                <div 
+                                  className="dropdown-option"
+                                  onClick={() => {
+                                    if (filters.cargoTypes.includes('flatbed')) {
+                                      removeCargoType('flatbed');
+                                    } else if (filters.cargoTypes.length < 5) {
+                                      addCargoType('flatbed');
+                                    }
+                                  }}
+                                >
+                                  <span>Бортовой</span>
+                                </div>
+                                <div 
+                                  className="dropdown-option"
+                                  onClick={() => {
+                                    if (filters.cargoTypes.includes('lowloader')) {
+                                      removeCargoType('lowloader');
+                                    } else if (filters.cargoTypes.length < 5) {
+                                      addCargoType('lowloader');
+                                    }
+                                  }}
+                                >
+                                  <span>Низкорамный</span>
+                                </div>
+                                <div 
+                                  className="dropdown-option"
+                                  onClick={() => {
+                                    if (filters.cargoTypes.includes('car_carrier')) {
+                                      removeCargoType('car_carrier');
+                                    } else if (filters.cargoTypes.length < 5) {
+                                      addCargoType('car_carrier');
+                                    }
+                                  }}
+                                >
+                                  <span>Автовоз</span>
+                                </div>
+                                <div 
+                                  className="dropdown-option"
+                                  onClick={() => {
+                                    if (filters.cargoTypes.includes('grain_carrier')) {
+                                      removeCargoType('grain_carrier');
+                                    } else if (filters.cargoTypes.length < 5) {
+                                      addCargoType('grain_carrier');
+                                    }
+                                  }}
+                                >
+                                  <span>Зерновоз</span>
+                                </div>
+                                <div 
+                                  className="dropdown-option"
+                                  onClick={() => {
+                                    if (filters.cargoTypes.includes('dump_truck')) {
+                                      removeCargoType('dump_truck');
+                                    } else if (filters.cargoTypes.length < 5) {
+                                      addCargoType('dump_truck');
+                                    }
+                                  }}
+                                >
+                                  <span>Самосвал</span>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                          <div className="cargo-types-list">
+                            {filters.cargoTypes.map((cargoType, index) => (
+                              <div key={index} className="cargo-type-tag">
+                                <span>{getCargoTypeName(cargoType)}</span>
+                                <button onClick={() => removeCargoType(cargoType)}>×</button>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
                       </div>
                     </div>
 
