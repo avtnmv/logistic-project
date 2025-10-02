@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Header from './Header';
 import LeftSidebar from './LeftSidebar';
 import FormMessage from './FormMessage';
+import PasswordToggle from './PasswordToggle';
 import { useCurrentUser } from '../hooks/useCurrentUser';
 import { useSidebar } from '../contexts/SidebarContext';
 import '../css/left-sidebar.css';
@@ -22,6 +23,17 @@ const Security: React.FC = () => {
   const [verificationCode, setVerificationCode] = useState('');
   const [generatedCode, setGeneratedCode] = useState('');
   const [isEditingEmail, setIsEditingEmail] = useState(false);
+  
+  // Состояния для смены пароля
+  const [showPasswordForm, setShowPasswordForm] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [passwordToggles, setPasswordToggles] = useState({
+    current: false,
+    new: false,
+    confirm: false
+  });
 
   useEffect(() => {
     document.body.style.backgroundColor = 'rgb(245, 245, 245)';
@@ -76,7 +88,79 @@ const Security: React.FC = () => {
   };
 
   const handleChangePassword = () => {
-    navigate('/forgot-password');
+    setShowPasswordForm(true);
+  };
+
+  const togglePasswordVisibility = (field: 'current' | 'new' | 'confirm') => {
+    setPasswordToggles(prev => ({
+      ...prev,
+      [field]: !prev[field]
+    }));
+  };
+
+  const validatePassword = (password: string) => {
+    if (password.length < 6) {
+      return 'Пароль должен содержать минимум 6 символов';
+    }
+    return null;
+  };
+
+  const handlePasswordSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Валидация
+    if (!currentPassword.trim()) {
+      setMessage('Введите текущий пароль');
+      setMessageType('error');
+      setMessageVisible(true);
+      return;
+    }
+
+    if (!newPassword.trim()) {
+      setMessage('Введите новый пароль');
+      setMessageType('error');
+      setMessageVisible(true);
+      return;
+    }
+
+    const passwordError = validatePassword(newPassword);
+    if (passwordError) {
+      setMessage(passwordError);
+      setMessageType('error');
+      setMessageVisible(true);
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      setMessage('Пароли не совпадают');
+      setMessageType('error');
+      setMessageVisible(true);
+      return;
+    }
+
+    // Здесь должна быть проверка текущего пароля и обновление в базе данных
+    // Для демонстрации просто показываем успешное сообщение
+    setMessage('Пароль успешно изменен');
+    setMessageType('success');
+    setMessageVisible(true);
+    
+    // Очищаем форму
+    setCurrentPassword('');
+    setNewPassword('');
+    setConfirmPassword('');
+    setShowPasswordForm(false);
+  };
+
+  const handleCancelPasswordChange = () => {
+    setShowPasswordForm(false);
+    setCurrentPassword('');
+    setNewPassword('');
+    setConfirmPassword('');
+    setPasswordToggles({
+      current: false,
+      new: false,
+      confirm: false
+    });
   };
 
   const handleConfirmEmail = () => {
@@ -204,9 +288,83 @@ const Security: React.FC = () => {
                 Пароли хранятся в зашифрованном виде, поэтому мы не можем отобразить их в настройках. Если вы хотите изменить пароль, нажмите «Сменить пароль».
               </p>
 
-              <div style={{ marginTop: '16px' }}>
-                <button className="submit-transport-btn" onClick={handleChangePassword}>Сменить пароль</button>
-              </div>
+              {!showPasswordForm ? (
+                <div style={{ marginTop: '16px' }}>
+                  <button className="submit-transport-btn" onClick={handleChangePassword}>Сменить пароль</button>
+                </div>
+              ) : (
+                <form onSubmit={handlePasswordSubmit} className="form-section" style={{ marginTop: '16px' }}>
+                  <div className="form-row">
+                    <div className="form-field">
+                      <label>Текущий пароль</label>
+                      <div style={{ position: 'relative' }}>
+                        <input
+                          type={passwordToggles.current ? 'text' : 'password'}
+                          className="form-input"
+                          placeholder="Введите текущий пароль"
+                          value={currentPassword}
+                          onChange={(e) => setCurrentPassword(e.target.value)}
+                          style={{ paddingRight: '50px' }}
+                        />
+                        <PasswordToggle
+                          isVisible={passwordToggles.current}
+                          onToggle={() => togglePasswordVisibility('current')}
+                          className="password-toggle--inline"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="form-row">
+                    <div className="form-field">
+                      <label>Новый пароль</label>
+                      <div style={{ position: 'relative' }}>
+                        <input
+                          type={passwordToggles.new ? 'text' : 'password'}
+                          className="form-input"
+                          placeholder="Введите новый пароль"
+                          value={newPassword}
+                          onChange={(e) => setNewPassword(e.target.value)}
+                          style={{ paddingRight: '50px' }}
+                        />
+                        <PasswordToggle
+                          isVisible={passwordToggles.new}
+                          onToggle={() => togglePasswordVisibility('new')}
+                          className="password-toggle--inline"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="form-row">
+                    <div className="form-field">
+                      <label>Подтвердите новый пароль</label>
+                      <div style={{ position: 'relative' }}>
+                        <input
+                          type={passwordToggles.confirm ? 'text' : 'password'}
+                          className="form-input"
+                          placeholder="Повторите новый пароль"
+                          value={confirmPassword}
+                          onChange={(e) => setConfirmPassword(e.target.value)}
+                          style={{ paddingRight: '50px' }}
+                        />
+                        <PasswordToggle
+                          isVisible={passwordToggles.confirm}
+                          onToggle={() => togglePasswordVisibility('confirm')}
+                          className="password-toggle--inline"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="form-row">
+                    <div className="form-field" style={{ display: 'flex', gap: '12px' }}>
+                      <button type="submit" className="submit-transport-btn">Изменить пароль</button>
+                      <button type="button" className="submit-cargo-btn" onClick={handleCancelPasswordChange}>Отмена</button>
+                    </div>
+                  </div>
+                </form>
+              )}
             </div>
           </div>
         </div>

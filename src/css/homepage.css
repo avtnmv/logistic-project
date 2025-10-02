@@ -1981,3 +1981,26 @@ label.dropdown-option {
   font-weight: 500;
   color: #4472B8;
 }
+
+/* Стили для inline кнопки показа/скрытия пароля */
+.password-toggle--inline {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  color: #717680;
+  transition: color 0.2s ease;
+}
+
+.password-toggle--inline:hover {
+  color: #4472B8;
+}
+
+.password-toggle--inline svg {
+  width: 16px;
+  height: 16px;
+}
